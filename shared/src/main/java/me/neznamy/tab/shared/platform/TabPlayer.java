@@ -13,7 +13,6 @@ import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
 import me.neznamy.tab.shared.features.scoreboard.ScoreboardManagerImpl;
 import me.neznamy.tab.shared.features.sorting.Sorting;
-import me.neznamy.tab.shared.hook.FloodgateHook;
 import me.neznamy.tab.shared.*;
 import me.neznamy.tab.shared.features.types.Refreshable;
 import me.neznamy.tab.shared.event.impl.PlayerLoadEventImpl;
@@ -63,9 +62,6 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
 
     /** Player's permission group override using API */
     private String temporaryGroup;
-
-    /** Player's game type, {@code true} for Bedrock, {@code false} for Java */
-    @Getter private final boolean bedrockPlayer;
 
     /** Player's property map where key is unique identifier and value is property object */
     private final Map<String, Property> properties = new HashMap<>();
@@ -149,7 +145,6 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
         this.world = world;
         nickname = name;
         version = ProtocolVersion.fromNetworkId(protocolVersion);
-        bedrockPlayer = FloodgateHook.getInstance().isFloodgatePlayer(uniqueId, name);
         permissionGroup = TAB.getInstance().getGroupManager().detectPermissionGroup(this);
         tablistId = useRealId ? uniqueId : UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
     }

@@ -50,7 +50,7 @@ public class UniversalPlaceholderRegistry {
 
     private void registerConstants(@NotNull PlaceholderManager manager) {
         // Player
-        manager.registerPlayerPlaceholder(TabConstants.Placeholder.BEDROCK, -1, p -> ((TabPlayer)p).isBedrockPlayer());
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.BEDROCK, -1, p -> (false));
         manager.registerPlayerPlaceholder(TabConstants.Placeholder.PLAYER, -1, me.neznamy.tab.api.TabPlayer::getName);
         manager.registerPlayerPlaceholder(TabConstants.Placeholder.WORLD, -1, p -> ((TabPlayer)p).getWorld());
         manager.registerPlayerPlaceholder(TabConstants.Placeholder.SERVER, -1, p -> ((TabPlayer)p).getServer());

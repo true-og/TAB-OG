@@ -102,7 +102,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
     @Override
     public void unload() {
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-            if (p.disabledYellowNumber.get() || p.isBedrockPlayer()) continue;
+            if (p.disabledYellowNumber.get()) continue;
             p.getScoreboard().unregisterObjective(OBJECTIVE_NAME);
         }
     }
@@ -171,7 +171,6 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
     }
 
     private void register(@NotNull TabPlayer player) {
-        if (player.isBedrockPlayer()) return;
         player.getScoreboard().registerObjective(OBJECTIVE_NAME, TITLE, displayType, new SimpleComponent(""));
         player.getScoreboard().setDisplaySlot(Scoreboard.DisplaySlot.PLAYER_LIST, OBJECTIVE_NAME);
     }
@@ -189,7 +188,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
      *          NumberFormat display of the score
      */
     public void setScore(@NotNull TabPlayer viewer, @NotNull TabPlayer scoreHolder, int value, @NotNull String fancyValue) {
-        if (viewer.isBedrockPlayer() || viewer.disabledYellowNumber.get()) return;
+        if (viewer.disabledYellowNumber.get()) return;
         viewer.getScoreboard().setScore(
                 OBJECTIVE_NAME,
                 scoreHolder.getNickname(),

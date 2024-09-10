@@ -43,7 +43,7 @@ public class LayoutView {
     }
 
     public void send() {
-        if (viewer.getVersion().getMinorVersion() < 8 || viewer.isBedrockPlayer()) return;
+        if (viewer.getVersion().getMinorVersion() < 8) return;
         groups.forEach(ParentGroup::sendSlots);
         for (FixedSlot slot : fixedSlots) {
             viewer.getTabList().addEntry(slot.createEntry(viewer));
@@ -63,7 +63,7 @@ public class LayoutView {
     }
 
     public void destroy() {
-        if (viewer.getVersion().getMinorVersion() < 8 || viewer.isBedrockPlayer()) return;
+        if (viewer.getVersion().getMinorVersion() < 8) return;
         viewer.getTabList().removeEntries(manager.getUuids().values());
     }
 

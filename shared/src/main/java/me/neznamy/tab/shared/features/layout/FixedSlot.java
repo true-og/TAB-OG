@@ -30,7 +30,7 @@ public class FixedSlot extends TabFeature implements Refreshable {
     @Override
     public void refresh(@NotNull TabPlayer p, boolean force) {
         if (p.layoutData.view == null || p.layoutData.view.getPattern() != pattern ||
-                p.getVersion().getMinorVersion() < 8 || p.isBedrockPlayer()) return;
+                p.getVersion().getMinorVersion() < 8) return;
         if (p.getProperty(skinProperty).update()) {
             p.getTabList().removeEntry(id);
             p.getTabList().addEntry(createEntry(p));

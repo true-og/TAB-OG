@@ -152,7 +152,7 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
     @Override
     public void unload() {
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-            if (p.getVersion().getMinorVersion() < 8 || p.isBedrockPlayer()) continue;
+            if (p.getVersion().getMinorVersion() < 8) continue;
             p.getTabList().removeEntries(uuids.values());
         }
     }

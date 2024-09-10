@@ -2,19 +2,19 @@
 header-footer:
   enabled: true
   header:
-    - "&B----------=-=-=-=-=-=-=----------"
+    - "&B-----&d-----&f=-=-=-=-=-=-=&d-----&b-----"
     - "&aTrue&cOG &4♥ &etrueog.net &4♥ &etrue-og.net"
-    - "&B----------=-=-=-=-=-=-=----------"
+    - "&B-----&d-----&f=-=-=-=-=-=-=&d-----&b-----"
     - ""
-    - "&7&l>> %animation:Welcome%&3 &l%player%&7&l! &7&l<<"
-    - ""
+    #- ""
+    #- ""
   footer:
+    #- ""
+    #- ""
     - ""
-    - ""
-    - ""
-    - "%animation:right-to-left% &b%{safe-online}&7/&b%{max} &6Players Online: %animation:left-to-right%"
+    - "%animation:RightToLeft% &2<online>&7/&b200 &6Players Online %animation:LeftToRight%"
     - "&B1m TPS: &r<server_tps_1> &B5m TPS: &r<server_tps_5> &7| &6Used RAM: &r<server_ram_used> &7| &2Total RAM: &r<server_ram_max>"
-    - ""
+    #- ""
   disable-condition: '%world%=disabledworld'
   per-world:
     world1:
@@ -111,16 +111,16 @@ scoreboard:
       title: "&a&lTrue&c&lOG &eNetwork"
       lines:
         - "&c&m----&6&m----&e&m----&2&m----&9&m----&5&m----&r"
-        - "&d&lUsername:"
+        - "&6&lUsername:"
         - "&8»<luckperms_prefix><player_displayname>"
         - "&r"
-        - "&B&lBank Balance:"
-        - "&8» &B%diamondbank_balance% Diamonds"
+        - "&B&lDiamonds:"
+        - "&8» &B%diamondbank_balance%"
         - "&r"
-        - "&4&lUnion:"
-        - "&8» %simpleclans_clan_color_tag%%simpleclans_clan_name%"
+        - "&4&lUnion: <simpleclans_clan_color_tag>"
         - "&r"
         - "&2&lK: &r%statistic_player_kills% &4&lD: &r%statistic_deaths%"
+        - "&r"
         - "&4&m---&0&m---&4[ &etrue-og.net &4]&0&m---&4&m---&r"
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Layout

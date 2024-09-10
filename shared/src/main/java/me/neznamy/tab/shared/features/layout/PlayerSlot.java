@@ -25,7 +25,7 @@ public class PlayerSlot {
         if (player == newPlayer) return;
         player = newPlayer;
         if (player != null) text = "";
-        if (layout.getViewer().getVersion().getMinorVersion() < 8 || layout.getViewer().isBedrockPlayer()) return;
+        if (layout.getViewer().getVersion().getMinorVersion() < 8) return;
         layout.getViewer().getTabList().removeEntry(uniqueId);
         layout.getViewer().getTabList().addEntry(getSlot(layout.getViewer()));
     }
@@ -64,7 +64,7 @@ public class PlayerSlot {
         if (player != null) {
             setPlayer(null);
         } else {
-            if (layout.getViewer().getVersion().getMinorVersion() < 8 || layout.getViewer().isBedrockPlayer()) return;
+            if (layout.getViewer().getVersion().getMinorVersion() < 8) return;
             layout.getViewer().getTabList().updateDisplayName(uniqueId, TabComponent.optimized(text));
         }
     }

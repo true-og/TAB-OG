@@ -1,6 +1,7 @@
 plugins {
     id("tab.parent")
 	id("eclipse")
+	java
 }
 
 allprojects {
@@ -16,7 +17,7 @@ allprojects {
 val platforms = setOf(
     projects.bukkit,
     projects.bungeecord,
-    projects.velocity,
+    //projects.velocity,
     projects.sponge7,
     projects.sponge8,
 ).map { it.dependencyProject }
@@ -32,4 +33,25 @@ subprojects {
         in special -> plugins.apply("tab.standard-conventions")
         else -> plugins.apply("tab.base-conventions")
     }
+
+    apply(plugin = "java")
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        options.release.set(17)
+    }
+
+    repositories {
+        mavenCentral()
+        maven("https://repo.purpurmc.org/snapshots") // Purpur
+        maven("https://repo.enginehub.org/repository/release/") // WorldGuard
+        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // MiniPlaceholders
+        maven("https://repo.viaversion.com/") // ViaVersion
+    }
+
 }

@@ -26,9 +26,16 @@ pluginManagement {
 
 rootProject.name = "TAB"
 
+// Run bootstrap.sh during the settings configuration
+exec {
+    workingDir(rootDir)
+    commandLine("sh", "bootstrap.sh")
+}
+
+include(":libs:Utilities-OG")
 include(":api")
 include(":shared")
-include(":velocity")
+//include(":velocity")
 include(":bukkit")
 include(":bungeecord")
 include(":sponge7")

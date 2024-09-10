@@ -1,0 +1,26 @@
+TODO: Port these tags from Stylizer:
+
+
+Tablist:
+  # Whether or not you want Stylizer to style the tablist.
+  Enabled: true
+  # Set the different formats for players in the tablist.
+  # Use `%playername%` to get the players name without any colour added.
+  # ALL PlaceholderAPI placeholders are accepted.
+  Player_Name_Formats:
+    # Whether you want to use the custom tablist player names.
+    Enabled: true
+    # The default format used if a player does not have one of the group formats below.
+    Default_Format: "%AFKPlus_Status% &8[&f%parties_color_code%%parties_name%&8] %vault_prefix%%displayname%"
+
+# Set the name colour that will be used for the above head names
+# Sadly these cannot be hex colours, thus, cannot use the normal name colours set.
+Player_Name_Tags:
+  # Whether or not you're wanting above head names
+  Enabled: false
+  # If you're wanting a players prefix to display above their heads.
+  Player_Prefixes: true
+  Groups:
+    owner: "&5"
+    tester: "&e"
+    member: "&7"

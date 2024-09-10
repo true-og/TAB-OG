@@ -7,7 +7,7 @@ load: POSTWORLD
 author: @author@
 website: "@website@"
 depend: []
-softdepend: [PlaceholderAPI, LuckPerms, LibsDisguises, ViaVersion, ViaRewind, floodgate, Vault]
+softdepend: [PlaceholderAPI, LuckPerms, LibsDisguises, ViaVersion, ViaRewind, Vault]
 loadbefore: []
 prefix: TAB
 libraries: []

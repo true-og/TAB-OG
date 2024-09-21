@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.platforms.bukkit.*;
 import me.neznamy.tab.platforms.bukkit.entity.PacketEntityView;
-import me.neznamy.tab.platforms.bukkit.hook.BukkitPremiumVanishHook;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.PingRetriever;
@@ -29,7 +28,6 @@ import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
 import me.neznamy.tab.shared.features.bossbar.BossBarManagerImpl;
 import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.hook.LuckPermsHook;
-import me.neznamy.tab.shared.hook.PremiumVanishHook;
 import me.neznamy.tab.shared.placeholders.types.PlayerPlaceholderImpl;
 import me.neznamy.tab.shared.placeholders.expansion.EmptyTabExpansion;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
@@ -37,8 +35,6 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
@@ -90,9 +86,6 @@ public class BukkitPlatform implements BackendPlatform {
             recentTps = ((double[]) server.getClass().getField("recentTps").get(server));
         } catch (ReflectiveOperationException ignored) {
             //not spigot
-        }
-        if (Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
-            PremiumVanishHook.setInstance(new BukkitPremiumVanishHook());
         }
         ComponentConverter.tryLoad();
         PacketEntityView.tryLoad();
@@ -247,17 +240,6 @@ public class BukkitPlatform implements BackendPlatform {
         } else {
             logWarn(new SimpleComponent("Failed to register command, is it defined in plugin.yml?"));
         }
-    }
-
-    @Override
-    public void startMetrics() {
-        Metrics metrics = new Metrics(plugin, TabConstants.BSTATS_PLUGIN_ID_BUKKIT);
-        metrics.addCustomChart(new SimplePie(TabConstants.MetricsChart.UNLIMITED_NAME_TAG_MODE_ENABLED,
-                () -> TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.UNLIMITED_NAME_TAGS) ? "Yes" : "No"));
-        metrics.addCustomChart(new SimplePie(TabConstants.MetricsChart.PERMISSION_SYSTEM,
-                () -> TAB.getInstance().getGroupManager().getPermissionPlugin()));
-        metrics.addCustomChart(new SimplePie(TabConstants.MetricsChart.SERVER_VERSION,
-                () -> "1." + BukkitReflection.getMinorVersion() + ".x"));
     }
 
     @Override

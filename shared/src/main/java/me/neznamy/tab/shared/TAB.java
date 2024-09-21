@@ -139,7 +139,6 @@ public class TAB extends TabAPI {
         TabAPI.setInstance(this);
         platform.registerListener();
         platform.registerCommand();
-        platform.startMetrics();
         if (platform instanceof ProxyPlatform) {
             ((ProxyPlatform) platform).registerChannel();
         }

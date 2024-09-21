@@ -355,13 +355,6 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     public abstract @NotNull BossBar getBossBar();
 
     /**
-     * Returns {@code true} if player is disguised using LibsDisguises, {@code false} if not
-     *
-     * @return  {@code true} if player is disguised, {@code false} if not
-     */
-    public abstract boolean isDisguised();
-
-    /**
      * Returns {@code true} if player has invisibility potion, {@code false} if not.
      * For bukkit, API is used, for BungeeCord, bridge is used.
      *

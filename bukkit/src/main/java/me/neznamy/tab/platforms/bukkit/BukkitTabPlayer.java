@@ -2,7 +2,6 @@ package me.neznamy.tab.platforms.bukkit;
 
 import lombok.Getter;
 import me.neznamy.tab.platforms.bukkit.bossbar.BossBarLoader;
-import me.neznamy.tab.platforms.bukkit.hook.LibsDisguisesHook;
 import me.neznamy.tab.platforms.bukkit.entity.PacketEntityView;
 import me.neznamy.tab.platforms.bukkit.nms.PingRetriever;
 import me.neznamy.tab.platforms.bukkit.platform.BukkitPlatform;
@@ -70,11 +69,6 @@ public class BukkitTabPlayer extends BackendTabPlayer {
     @Override
     public boolean hasInvisibilityPotion() {
         return getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY);
-    }
-
-    @Override
-    public boolean isDisguised() {
-        return LibsDisguisesHook.isDisguised(this);
     }
 
     @Override

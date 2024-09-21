@@ -33,3 +33,8 @@ blossom {
     replaceToken("@author@", rootProject.ext.get("author")!!.toString())
     replaceTokenIn("src/main/java/me/neznamy/tab/shared/TabConstants.java")
 }
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+

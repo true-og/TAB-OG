@@ -21,7 +21,7 @@ dependencies {
     compileOnlyApi("net.kyori:adventure-text-serializer-legacy:4.13.0")
     compileOnlyApi("net.kyori:adventure-text-serializer-gson:4.13.0")
     compileOnlyApi("net.kyori:adventure-text-minimessage:4.13.0")
-
+    implementation(project(":libs:Utilities-OG"))
 }
 
 blossom {

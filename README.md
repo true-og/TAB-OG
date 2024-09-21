@@ -4,9 +4,11 @@ TAB-OG is a fork of [TAB](https://github.com/NEZNAMY/TAB) maintained for [TrueOG
 
 # Changes over TAB
 
-- Removed fabric support.
-- Removed velocity support.
-- Removed floodgate support.
+- Remove fabric support.
+- Remove velocity support.
+- Remove floodgate support.
+- Remove sponge support.
+- Remove bungeecord support.
 - Builds with TrueOG's config files.
 
 # About TAB

@@ -23,7 +23,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "TAB"
+rootProject.name = "TAB-OG"
 
 // Run bootstrap.sh during the settings configuration
 exec {

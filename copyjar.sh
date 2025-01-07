@@ -9,4 +9,4 @@ rm -rf build/libs
 mkdir -p build/libs
 
 # Copy and rename the jar, using $VERSION in the final filename
-cp jar/build/libs/TAB-*-SNAPSHOT.jar "build/libs/TAB-${VERSION}.jar"
+cp jar/build/libs/TAB-*-SNAPSHOT.jar "build/libs/TAB-OG-${VERSION}.jar"

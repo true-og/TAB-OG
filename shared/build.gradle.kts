@@ -38,3 +38,14 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Xlint:deprecation")
 }
 
+tasks.register("runCopyJarScript", Exec::class) {
+    group = "build"
+    description = "Runs the copyjar.sh script after build completion."
+    workingDir(rootDir)
+    commandLine("sh", "copyjar.sh", project.version.toString())
+}
+
+tasks.named("build") {
+    finalizedBy("runCopyJarScript")
+}
+

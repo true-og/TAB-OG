@@ -25,13 +25,17 @@ pluginManagement {
 
 rootProject.name = "TAB-OG"
 
-// Run bootstrap.sh during the settings configuration
-exec {
-    workingDir(rootDir)
-    commandLine("sh", "bootstrap.sh")
+// Run the bootstrap at configuration time.
+val process = ProcessBuilder("sh", "bootstrap.sh")
+    .directory(rootDir)
+    .start()
+
+val exitValue = process.waitFor()
+if (exitValue != 0) {
+    throw GradleException("bootstrap.sh failed with exit code $exitValue")
 }
 
-include(":libs:Utilities-OG")
+include("libs:Utilities-OG")
 include(":api")
 include(":shared")
 include(":bukkit")

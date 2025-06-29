@@ -1,15 +1,14 @@
 package me.neznamy.tab.shared.features.types;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import lombok.Getter;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.placeholders.conditions.Condition;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Class checking if disable-condition of each feature is met or not.
@@ -43,13 +42,17 @@ public class DisableChecker extends TabFeature implements Refreshable {
      * @param   field
      *          Function that returns field storing disable status
      */
-    public DisableChecker(@NotNull String featureName, @Nullable Condition disableCondition,
-                          @NotNull BiConsumer<TabPlayer, Boolean> action, @NotNull Function<TabPlayer, AtomicBoolean> field) {
+    public DisableChecker(
+            @NotNull String featureName,
+            @Nullable Condition disableCondition,
+            @NotNull BiConsumer<TabPlayer, Boolean> action,
+            @NotNull Function<TabPlayer, AtomicBoolean> field) {
         this.featureName = featureName;
         this.disableCondition = disableCondition;
         this.action = action;
         this.field = field;
-        if (disableCondition != null) addUsedPlaceholder(TabConstants.Placeholder.condition(disableCondition.getName()));
+        if (disableCondition != null)
+            addUsedPlaceholder(TabConstants.Placeholder.condition(disableCondition.getName()));
     }
 
     @Override

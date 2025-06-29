@@ -1,12 +1,11 @@
 package me.neznamy.tab.shared.backend;
 
+import java.util.UUID;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.backend.entityview.EntityView;
 import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * TabPlayer extension for backend platforms, which have access to
@@ -30,10 +29,22 @@ public abstract class BackendTabPlayer extends TabPlayer {
      * @param   serverVersion
      *          Server version
      */
-    protected BackendTabPlayer(@NotNull BackendPlatform platform, @NotNull Object player, @NotNull UUID uniqueId,
-                               @NotNull String name, @NotNull String world, int serverVersion) {
-        super(platform, player, uniqueId, name, TAB.getInstance().getConfiguration().getServerName(),
-                world, ViaVersionHook.getInstance().getPlayerVersion(uniqueId, name, serverVersion), true);
+    protected BackendTabPlayer(
+            @NotNull BackendPlatform platform,
+            @NotNull Object player,
+            @NotNull UUID uniqueId,
+            @NotNull String name,
+            @NotNull String world,
+            int serverVersion) {
+        super(
+                platform,
+                player,
+                uniqueId,
+                name,
+                TAB.getInstance().getConfiguration().getServerName(),
+                world,
+                ViaVersionHook.getInstance().getPlayerVersion(uniqueId, name, serverVersion),
+                true);
     }
 
     /**

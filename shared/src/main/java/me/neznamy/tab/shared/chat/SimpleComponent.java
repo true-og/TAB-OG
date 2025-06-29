@@ -25,5 +25,4 @@ public class SimpleComponent extends TabComponent {
     public String toRawText() {
         return text;
     }
-
 }

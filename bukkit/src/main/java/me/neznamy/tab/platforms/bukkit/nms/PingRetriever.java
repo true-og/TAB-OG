@@ -1,14 +1,13 @@
 package me.neznamy.tab.platforms.bukkit.nms;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
 import me.neznamy.tab.shared.util.FunctionWithException;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 /**
  * Class for retrieving ping of players.
@@ -27,9 +26,12 @@ public class PingRetriever {
             if (ReflectionUtils.methodExists(Player.class, "getPing")) {
                 getPing = Player::getPing;
             } else {
-                Method getHandle = BukkitReflection.getBukkitClass("entity.CraftPlayer").getMethod("getHandle");
-                Class<?> EntityPlayer = BukkitReflection.getClass("server.level.ServerPlayer", "server.level.EntityPlayer", "EntityPlayer");
-                Field PING = ReflectionUtils.getField(EntityPlayer, "ping", "field_71138_i"); // 1.5.2 - 1.16.5, 1.7.10 Thermos
+                Method getHandle =
+                        BukkitReflection.getBukkitClass("entity.CraftPlayer").getMethod("getHandle");
+                Class<?> EntityPlayer = BukkitReflection.getClass(
+                        "server.level.ServerPlayer", "server.level.EntityPlayer", "EntityPlayer");
+                Field PING = ReflectionUtils.getField(
+                        EntityPlayer, "ping", "field_71138_i"); // 1.5.2 - 1.16.5, 1.7.10 Thermos
                 getPing = player -> PING.getInt(getHandle.invoke(player));
             }
         } catch (Exception e) {

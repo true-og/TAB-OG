@@ -14,5 +14,6 @@ public interface RGBFormatter {
      *          text to format
      * @return  reformatted text
      */
-    @NotNull String reformat(@NotNull String text);
+    @NotNull
+    String reformat(@NotNull String text);
 }

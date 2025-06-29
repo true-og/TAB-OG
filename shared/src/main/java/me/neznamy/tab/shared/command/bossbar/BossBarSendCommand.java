@@ -1,5 +1,8 @@
 package me.neznamy.tab.shared.command.bossbar;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import me.neznamy.tab.api.bossbar.BossBar;
 import me.neznamy.tab.api.bossbar.BossBarManager;
 import me.neznamy.tab.shared.TAB;
@@ -8,10 +11,6 @@ import me.neznamy.tab.shared.command.SubCommand;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Handler for "/tab bossbar send &lt;name&gt; [player]" subcommand
@@ -67,8 +66,10 @@ public class BossBarSendCommand extends SubCommand {
         BossBarManager b = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.BOSS_BAR);
         if (b == null) return Collections.emptyList();
         if (arguments.length == 1) return getOnlinePlayers(arguments[0]);
-        if (arguments.length == 2) return getStartingArgument(b.getRegisteredBossBars().keySet(), arguments[1]);
-        if (arguments.length == 3 && b.getBossBar(arguments[1]) != null) return getStartingArgument(Arrays.asList("5", "10", "30", "60", "120"), arguments[2]);
+        if (arguments.length == 2)
+            return getStartingArgument(b.getRegisteredBossBars().keySet(), arguments[1]);
+        if (arguments.length == 3 && b.getBossBar(arguments[1]) != null)
+            return getStartingArgument(Arrays.asList("5", "10", "30", "60", "120"), arguments[2]);
         return Collections.emptyList();
     }
 }

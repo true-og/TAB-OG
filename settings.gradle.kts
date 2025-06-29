@@ -2,15 +2,15 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
     repositories {
-        mavenCentral() // Netty, SnakeYaml, json-simple, Guava, Kyori event, bStats, AuthLib, LuckPerms
-        maven("https://repo.papermc.io/repository/maven-public/") // Velocity
-        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
-        maven("https://repo.viaversion.com/") // ViaVersion
-        maven("https://repo.opencollab.dev/maven-snapshots/") // Floodgate
-        maven("https://repo.purpurmc.org/snapshots") // Purpur
-        maven("https://repo.spongepowered.org/repository/maven-public/") // Sponge
-        maven("https://jitpack.io") // PremiumVanish, Vault, YamlAssist, RedisBungee
-        maven("https://nexus.codecrafter47.dyndns.eu/content/repositories/public/") // BungeeCord-proxy // I feel bad for doing this
+        mavenCentral()
+        maven("https://repo.papermc.io/repository/maven-public/")
+        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+        maven("https://repo.viaversion.com/")
+        maven("https://repo.opencollab.dev/maven-snapshots/")
+        maven("https://repo.purpurmc.org/snapshots")
+        maven("https://repo.spongepowered.org/repository/maven-public/")
+        maven("https://jitpack.io")
+        maven("https://nexus.codecrafter47.dyndns.eu/content/repositories/public/")
     }
 }
 
@@ -25,7 +25,6 @@ pluginManagement {
 
 rootProject.name = "TAB-OG"
 
-// Run the bootstrap at configuration time.
 val process = ProcessBuilder("sh", "bootstrap.sh")
     .directory(rootDir)
     .start()
@@ -40,3 +39,4 @@ include(":api")
 include(":shared")
 include(":bukkit")
 include(":jar")
+

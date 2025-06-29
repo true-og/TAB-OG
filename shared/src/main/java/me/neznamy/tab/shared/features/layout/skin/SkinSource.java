@@ -5,13 +5,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
+import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import me.neznamy.tab.shared.config.file.ConfigurationFile;
 
 /**
  * Abstract class for skin sources for getting skins.
@@ -19,13 +17,16 @@ import me.neznamy.tab.shared.config.file.ConfigurationFile;
 public abstract class SkinSource {
 
     /** Configuration file for storing cache */
-    @NotNull private final ConfigurationFile file;
+    @NotNull
+    private final ConfigurationFile file;
 
     /** Cache path of this source */
-    @NotNull private final String path;
+    @NotNull
+    private final String path;
 
     /** Current cache of this source */
-    @NotNull private final Map<String, List<String>> cache;
+    @NotNull
+    private final Map<String, List<String>> cache;
 
     protected SkinSource(@NotNull ConfigurationFile file, @NotNull String path) {
         this.file = file;

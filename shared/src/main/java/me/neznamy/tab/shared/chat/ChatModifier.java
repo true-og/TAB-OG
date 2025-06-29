@@ -5,16 +5,21 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Data @NoArgsConstructor
+@Data
+@NoArgsConstructor
 public class ChatModifier {
 
-    @Nullable private TextColor color;
+    @Nullable
+    private TextColor color;
+
     private boolean bold;
     private boolean italic;
     private boolean obfuscated;
     private boolean strikethrough;
     private boolean underlined;
-    @Nullable private String font;
+
+    @Nullable
+    private String font;
 
     public ChatModifier(@NotNull ChatModifier modifier) {
         color = modifier.color;
@@ -50,11 +55,11 @@ public class ChatModifier {
      */
     public int getMagicCodeBitMask() {
         int mask = 0;
-        if (bold)          mask += 1;
-        if (italic)        mask += 2;
-        if (obfuscated)    mask += 4;
+        if (bold) mask += 1;
+        if (italic) mask += 2;
+        if (obfuscated) mask += 4;
         if (strikethrough) mask += 8;
-        if (underlined)    mask += 16;
+        if (underlined) mask += 16;
         return mask;
     }
 }

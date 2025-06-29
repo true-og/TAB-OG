@@ -1,13 +1,5 @@
 package me.neznamy.tab.shared.features.layout;
 
-import lombok.Getter;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.chat.SimpleComponent;
-import me.neznamy.tab.shared.placeholders.conditions.Condition;
-import me.neznamy.tab.shared.platform.TabList;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +7,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import lombok.Getter;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.chat.SimpleComponent;
+import me.neznamy.tab.shared.placeholders.conditions.Condition;
+import me.neznamy.tab.shared.platform.TabList;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class LayoutView {
@@ -49,15 +48,15 @@ public class LayoutView {
             viewer.getTabList().addEntry(slot.createEntry(viewer));
         }
         for (int slot : emptySlots) {
-            viewer.getTabList().addEntry(new TabList.Entry(
-                    manager.getUUID(slot),
-                    manager.getDirection().getEntryName(viewer, slot),
-                    manager.getSkinManager().getDefaultSkin(slot),
-                    true,
-                    manager.getEmptySlotPing(),
-                    0,
-                    new SimpleComponent("")
-            ));
+            viewer.getTabList()
+                    .addEntry(new TabList.Entry(
+                            manager.getUUID(slot),
+                            manager.getDirection().getEntryName(viewer, slot),
+                            manager.getSkinManager().getDefaultSkin(slot),
+                            true,
+                            manager.getEmptySlotPing(),
+                            0,
+                            new SimpleComponent("")));
         }
         tick();
     }
@@ -68,8 +67,8 @@ public class LayoutView {
     }
 
     public void tick() {
-        Stream<TabPlayer> str = manager.getSortedPlayers().keySet().stream().filter(
-                player -> TAB.getInstance().getPlatform().canSee(viewer, player));
+        Stream<TabPlayer> str = manager.getSortedPlayers().keySet().stream()
+                .filter(player -> TAB.getInstance().getPlatform().canSee(viewer, player));
         List<TabPlayer> players = str.collect(Collectors.toList());
         for (ParentGroup group : groups) {
             group.tick(players);

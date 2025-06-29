@@ -2,13 +2,12 @@ package me.neznamy.tab.shared.features.redis.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import me.neznamy.tab.shared.features.redis.RedisPlayer;
 import me.neznamy.tab.shared.features.redis.RedisSupport;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor

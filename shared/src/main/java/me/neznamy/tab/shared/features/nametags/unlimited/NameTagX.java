@@ -1,29 +1,37 @@
 package me.neznamy.tab.shared.features.nametags.unlimited;
 
+import java.util.*;
+import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.nametag.UnlimitedNameTagManager;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.types.DisableChecker;
 import me.neznamy.tab.shared.placeholders.conditions.Condition;
 import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.features.nametags.NameTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.function.BiFunction;
-
 
 @Getter
 public abstract class NameTagX extends NameTag implements UnlimitedNameTagManager {
 
-    //config options
-    private final boolean disableOnBoats = config().getBoolean("scoreboard-teams.unlimited-nametag-mode.disable-on-boats", true);
-    private final List<String> dynamicLines = new ArrayList<>(config().getStringList("scoreboard-teams.unlimited-nametag-mode.dynamic-lines", Arrays.asList(TabConstants.Property.ABOVENAME, TabConstants.Property.NAMETAG, TabConstants.Property.BELOWNAME, "another")));
-    private final Map<String, Object> staticLines = config().getConfigurationSection("scoreboard-teams.unlimited-nametag-mode.static-lines");
-    private final boolean armorStandsAlwaysVisible = TAB.getInstance().getConfiguration().getSecretOption("scoreboard-teams.unlimited-nametag-mode.always-visible", false);
+    // config options
+    private final boolean disableOnBoats =
+            config().getBoolean("scoreboard-teams.unlimited-nametag-mode.disable-on-boats", true);
+    private final List<String> dynamicLines = new ArrayList<>(config().getStringList(
+                    "scoreboard-teams.unlimited-nametag-mode.dynamic-lines",
+                    Arrays.asList(
+                            TabConstants.Property.ABOVENAME,
+                            TabConstants.Property.NAMETAG,
+                            TabConstants.Property.BELOWNAME,
+                            "another")));
+    private final Map<String, Object> staticLines =
+            config().getConfigurationSection("scoreboard-teams.unlimited-nametag-mode.static-lines");
+    private final boolean armorStandsAlwaysVisible = TAB.getInstance()
+            .getConfiguration()
+            .getSecretOption("scoreboard-teams.unlimited-nametag-mode.always-visible", false);
 
     private final BiFunction<NameTagX, TabPlayer, ArmorStandManager> armorStandFunction;
     private final DisableChecker unlimitedDisableChecker;
@@ -31,13 +39,23 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     protected NameTagX(@NonNull BiFunction<NameTagX, TabPlayer, ArmorStandManager> armorStandFunction) {
         this.armorStandFunction = armorStandFunction;
         Collections.reverse(dynamicLines);
-        Condition disableCondition = Condition.getCondition(config().getString("scoreboard-teams.unlimited-nametag-mode.disable-condition"));
-        unlimitedDisableChecker = new DisableChecker(getExtraFeatureName(), disableCondition, this::onUnlimitedDisableConditionChange, p -> p.disabledUnlimitedNametags);
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS + "-Condition", unlimitedDisableChecker);
+        Condition disableCondition =
+                Condition.getCondition(config().getString("scoreboard-teams.unlimited-nametag-mode.disable-condition"));
+        unlimitedDisableChecker = new DisableChecker(
+                getExtraFeatureName(),
+                disableCondition,
+                this::onUnlimitedDisableConditionChange,
+                p -> p.disabledUnlimitedNametags);
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS + "-Condition", unlimitedDisableChecker);
     }
 
     public boolean isPlayerDisabled(@NonNull TabPlayer p) {
-        return p.disabledNametags.get() || p.disabledUnlimitedNametags.get() || hasTeamHandlingPaused(p) || hasDisabledArmorStands(p);
+        return p.disabledNametags.get()
+                || p.disabledUnlimitedNametags.get()
+                || hasTeamHandlingPaused(p)
+                || hasDisabledArmorStands(p);
     }
 
     @Override
@@ -58,8 +76,7 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
 
     @Override
     public void onJoin(@NotNull TabPlayer connectedPlayer) {
-        if (unlimitedDisableChecker.isDisableConditionMet(connectedPlayer))
-            addDisabledPlayer(connectedPlayer);
+        if (unlimitedDisableChecker.isDisableConditionMet(connectedPlayer)) addDisabledPlayer(connectedPlayer);
         super.onJoin(connectedPlayer);
         connectedPlayer.unlimitedNametagData.armorStandManager = armorStandFunction.apply(this, connectedPlayer);
         TAB.getInstance().getPlaceholderManager().getTabExpansion().setNameTagPreview(connectedPlayer, false);
@@ -92,14 +109,21 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     public void toggleNameTagPreview(TabPlayer player, boolean sendToggleMessage) {
         if (player.unlimitedNametagData.previewing) {
             setNameTagPreview(player, false);
-            if (sendToggleMessage) player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getNametagPreviewOff(), true);
+            if (sendToggleMessage)
+                player.sendMessage(
+                        TAB.getInstance().getConfiguration().getMessages().getNametagPreviewOff(), true);
             player.unlimitedNametagData.previewing = false;
         } else {
             setNameTagPreview(player, true);
-            if (sendToggleMessage) player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getNametagPreviewOn(), true);
+            if (sendToggleMessage)
+                player.sendMessage(
+                        TAB.getInstance().getConfiguration().getMessages().getNametagPreviewOn(), true);
             player.unlimitedNametagData.previewing = true;
         }
-        TAB.getInstance().getPlaceholderManager().getTabExpansion().setNameTagPreview(player, player.unlimitedNametagData.previewing);
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .getTabExpansion()
+                .setNameTagPreview(player, player.unlimitedNametagData.previewing);
     }
 
     public void onUnlimitedDisableConditionChange(TabPlayer p, boolean disabledNow) {
@@ -117,20 +141,26 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     public boolean updateProperties(@NonNull TabPlayer p) {
         boolean changed = super.updateProperties(p);
         if (p.loadPropertyFromConfig(this, TabConstants.Property.CUSTOMTAGNAME, p.getName())) changed = true;
-        if (p.setProperty(this, TabConstants.Property.NAMETAG, p.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue() +
-                p.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue() + p.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue())) changed = true;
+        if (p.setProperty(
+                this,
+                TabConstants.Property.NAMETAG,
+                p.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
+                        + p.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue()
+                        + p.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue())) changed = true;
         for (String property : dynamicLines) {
-            if (!property.equals(TabConstants.Property.NAMETAG) && p.loadPropertyFromConfig(this, property)) changed = true;
+            if (!property.equals(TabConstants.Property.NAMETAG) && p.loadPropertyFromConfig(this, property))
+                changed = true;
         }
         for (String property : staticLines.keySet()) {
-            if (!property.equals(TabConstants.Property.NAMETAG) && p.loadPropertyFromConfig(this, property)) changed = true;
+            if (!property.equals(TabConstants.Property.NAMETAG) && p.loadPropertyFromConfig(this, property))
+                changed = true;
         }
         return changed;
     }
 
     @Override
     public boolean getTeamVisibility(@NonNull TabPlayer p, @NonNull TabPlayer viewer) {
-        if (p.hasInvisibilityPotion()) return false; //1.8.x client sided bug
+        if (p.hasInvisibilityPotion()) return false; // 1.8.x client sided bug
         if (viewer.teamData.invisibleNameTagView) return false;
         return isOnBoat(p) || isPlayerDisabled(p);
     }
@@ -148,7 +178,8 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     /* NameTag override */
 
     @Override
-    public void hideNameTag(@NonNull me.neznamy.tab.api.TabPlayer player, @NonNull me.neznamy.tab.api.TabPlayer viewer) {
+    public void hideNameTag(
+            @NonNull me.neznamy.tab.api.TabPlayer player, @NonNull me.neznamy.tab.api.TabPlayer viewer) {
         TabPlayer p = (TabPlayer) player;
         p.ensureLoaded();
         if (!p.teamData.hiddenNameTagFor.add((TabPlayer) viewer)) return;
@@ -157,7 +188,8 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     }
 
     @Override
-    public void showNameTag(@NonNull me.neznamy.tab.api.TabPlayer player, @NonNull me.neznamy.tab.api.TabPlayer viewer) {
+    public void showNameTag(
+            @NonNull me.neznamy.tab.api.TabPlayer player, @NonNull me.neznamy.tab.api.TabPlayer viewer) {
         TabPlayer p = (TabPlayer) player;
         p.ensureLoaded();
         if (!p.teamData.hiddenNameTagFor.remove((TabPlayer) viewer)) return;
@@ -166,8 +198,13 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     }
 
     private void rebuildNameTagLine(@NonNull TabPlayer player) {
-        player.setProperty(this, TabConstants.Property.NAMETAG, player.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue() +
-                player.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue() + player.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
+        player.setProperty(
+                this,
+                TabConstants.Property.NAMETAG,
+                player.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
+                        + player.getProperty(TabConstants.Property.CUSTOMTAGNAME)
+                                .getCurrentRawValue()
+                        + player.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
     }
 
     @NotNull
@@ -200,7 +237,7 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
         p.ensureLoaded();
         if (p.teamData.teamHandlingPaused) return;
         if (!p.disabledNametags.get()) unregisterTeam(p, p.sortingData.getShortTeamName());
-        p.teamData.teamHandlingPaused = true; //setting after, so unregisterTeam method runs
+        p.teamData.teamHandlingPaused = true; // setting after, so unregisterTeam method runs
         pauseArmorStands(p);
     }
 
@@ -210,7 +247,7 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
         TabPlayer p = (TabPlayer) player;
         p.ensureLoaded();
         if (!p.teamData.teamHandlingPaused) return;
-        p.teamData.teamHandlingPaused = false; //setting before, so registerTeam method runs
+        p.teamData.teamHandlingPaused = false; // setting before, so registerTeam method runs
         if (!p.disabledNametags.get()) registerTeam(p);
         resumeArmorStands(p);
     }
@@ -251,7 +288,7 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
     @Override
     public boolean hasDisabledArmorStands(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        return ((TabPlayer)player).unlimitedNametagData.disabledWithAPI;
+        return ((TabPlayer) player).unlimitedNametagData.disabledWithAPI;
     }
 
     @Override
@@ -269,7 +306,9 @@ public abstract class NameTagX extends NameTag implements UnlimitedNameTagManage
         ensureActive();
         TabPlayer p = (TabPlayer) player;
         p.ensureLoaded();
-        if (!getDefinedLines().contains(line)) throw new IllegalArgumentException("\"" + line + "\" is not a defined line. Defined lines: " + getDefinedLines());
+        if (!getDefinedLines().contains(line))
+            throw new IllegalArgumentException(
+                    "\"" + line + "\" is not a defined line. Defined lines: " + getDefinedLines());
         p.getProperty(line).setTemporaryValue(value);
         p.unlimitedNametagData.armorStandManager.refresh(true);
     }

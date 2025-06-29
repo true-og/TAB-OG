@@ -1,30 +1,19 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-plugins {
-    id("com.github.johnrengelman.shadow")
-}
+plugins { id("com.gradleup.shadow") }
 
-val platforms = setOf(
-    rootProject.projects.bukkit,
-).map { it.dependencyProject }
+val platforms = listOf(project(":bukkit"))
 
 tasks {
     shadowJar {
         archiveFileName.set("TAB-${project.version}.jar")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-        fun registerPlatform(project: Project, shadeTask: org.gradle.jvm.tasks.Jar) {
+        platforms.forEach { p ->
+            val shadeTask = p.tasks.named<ShadowJar>("shadowJar")
             dependsOn(shadeTask)
-            dependsOn(project.tasks.withType<Jar>())
-            from(zipTree(shadeTask.archiveFile))
+            from(zipTree(shadeTask.get().archiveFile))
         }
-
-        platforms.forEach {
-            registerPlatform(it, it.tasks.named<ShadowJar>("shadowJar").get())
-        }
-
     }
-    build {
-        dependsOn(shadowJar)
-    }
+    build { dependsOn(shadowJar) }
 }

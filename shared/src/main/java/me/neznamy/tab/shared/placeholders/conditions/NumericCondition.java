@@ -1,10 +1,9 @@
 package me.neznamy.tab.shared.placeholders.conditions;
 
+import java.util.function.BiFunction;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
 
 /**
  * A class handling numeric conditions to avoid
@@ -43,13 +42,13 @@ public class NumericCondition extends SimpleCondition {
             leftSideValue = Float.parseFloat(leftSide);
             leftSideStatic = true;
         } catch (NumberFormatException e) {
-            //not a valid number
+            // not a valid number
         }
         try {
             rightSideValue = Float.parseFloat(rightSide);
             rightSideStatic = true;
         } catch (NumberFormatException e) {
-            //not a valid number
+            // not a valid number
         }
     }
 
@@ -97,7 +96,8 @@ public class NumericCondition extends SimpleCondition {
      *          Player name used in error message
      * @return  parsed double or {@code defaultValue} if input is invalid
      */
-    public double parseDouble(@NotNull String placeholder, @NotNull String output, double defaultValue, TabPlayer player) {
+    public double parseDouble(
+            @NotNull String placeholder, @NotNull String output, double defaultValue, TabPlayer player) {
         try {
             return Double.parseDouble(output);
         } catch (NumberFormatException e) {

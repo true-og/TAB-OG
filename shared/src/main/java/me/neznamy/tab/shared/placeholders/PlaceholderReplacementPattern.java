@@ -2,10 +2,9 @@ package me.neznamy.tab.shared.placeholders;
 
 import java.util.*;
 import java.util.Map.Entry;
-
 import lombok.Getter;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,7 +14,8 @@ import org.jetbrains.annotations.NotNull;
 public class PlaceholderReplacementPattern {
 
     /** Instance for empty map to only have a single instance */
-    private static final PlaceholderReplacementPattern EMPTY = new PlaceholderReplacementPattern("", Collections.emptyMap());
+    private static final PlaceholderReplacementPattern EMPTY =
+            new PlaceholderReplacementPattern("", Collections.emptyMap());
 
     /**
      * Full replacement map with values colored and keys being duplicated,
@@ -31,7 +31,8 @@ public class PlaceholderReplacementPattern {
     private final Map<float[], String> numberIntervals = new HashMap<>();
 
     /** Set of all used placeholders in replacement values */
-    @Getter private final Set<String> nestedPlaceholders = new HashSet<>();
+    @Getter
+    private final Set<String> nestedPlaceholders = new HashSet<>();
 
     /** Flag tracking if this replacement map is empty */
     private final boolean empty;
@@ -52,8 +53,8 @@ public class PlaceholderReplacementPattern {
             replacements.put(EnumChatFormat.color(key), EnumChatFormat.color(value));
             replacements.put(key, EnumChatFormat.color(value));
             nestedPlaceholders.addAll(TAB.getInstance().getPlaceholderManager().detectPlaceholders(value));
-            nestedPlaceholders.remove("%value%"); //not a real placeholder
-            //snakeyaml converts yes & no to booleans, making them not work when used without "
+            nestedPlaceholders.remove("%value%"); // not a real placeholder
+            // snakeyaml converts yes & no to booleans, making them not work when used without "
             if ("true".equals(key)) {
                 replacements.put("yes", value);
                 replacements.put("Yes", value);
@@ -62,11 +63,17 @@ public class PlaceholderReplacementPattern {
                 replacements.put("No", value);
             } else if (key.contains("-")) {
                 try {
-                    numberIntervals.put(new float[]{Float.parseFloat(key.split("-")[0]), Float.parseFloat(key.split("-")[1])}, value);
-                } catch (NumberFormatException ignored) {}
+                    numberIntervals.put(
+                            new float[] {Float.parseFloat(key.split("-")[0]), Float.parseFloat(key.split("-")[1])},
+                            value);
+                } catch (NumberFormatException ignored) {
+                }
                 try {
-                    numberIntervals.put(new float[]{Float.parseFloat(key.split("~")[0]), Float.parseFloat(key.split("~")[1])}, value);
-                } catch (NumberFormatException ignored) {}
+                    numberIntervals.put(
+                            new float[] {Float.parseFloat(key.split("~")[0]), Float.parseFloat(key.split("~")[1])},
+                            value);
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
     }
@@ -99,29 +106,29 @@ public class PlaceholderReplacementPattern {
      */
     @NotNull
     private String findReplacement0(@NotNull String output) {
-        //exact output
+        // exact output
         if (replacements.containsKey(output)) {
             return replacements.get(output);
         }
-        
-        //number interval
-        if (!numberIntervals.isEmpty()) {  //not parsing number if no intervals are configured
+
+        // number interval
+        if (!numberIntervals.isEmpty()) { // not parsing number if no intervals are configured
             try {
-                //supporting placeholders with fancy output using "," every 3 digits
+                // supporting placeholders with fancy output using "," every 3 digits
                 String cleanValue = output.contains(",") ? output.replace(",", "") : output;
                 float value = Float.parseFloat(cleanValue);
                 for (Entry<float[], String> entry : numberIntervals.entrySet()) {
                     if (entry.getKey()[0] <= value && value <= entry.getKey()[1]) return entry.getValue();
                 }
             } catch (NumberFormatException e) {
-                //placeholder output is not a number
+                // placeholder output is not a number
             }
         }
 
-        //else
+        // else
         if (replacements.containsKey("else")) return replacements.get("else");
-        
-        //nothing was found
+
+        // nothing was found
         return output;
     }
 

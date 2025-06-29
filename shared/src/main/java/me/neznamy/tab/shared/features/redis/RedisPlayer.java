@@ -1,13 +1,12 @@
 package me.neznamy.tab.shared.features.redis;
 
+import java.util.UUID;
 import lombok.*;
 import me.neznamy.tab.shared.TabConstants.Permission;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.platform.TabList;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Class holding information about a player connected to another proxy.
@@ -84,7 +83,13 @@ public class RedisPlayer {
      * @param   staff
      *          Whether player has {@link Permission#STAFF} permission or not
      */
-    public RedisPlayer(@NotNull UUID uniqueId, @NotNull String name, @NotNull String nickname, @NotNull String server, boolean vanished, boolean staff) {
+    public RedisPlayer(
+            @NotNull UUID uniqueId,
+            @NotNull String name,
+            @NotNull String nickname,
+            @NotNull String server,
+            boolean vanished,
+            boolean staff) {
         this.uniqueId = uniqueId;
         this.name = name;
         this.nickname = nickname;

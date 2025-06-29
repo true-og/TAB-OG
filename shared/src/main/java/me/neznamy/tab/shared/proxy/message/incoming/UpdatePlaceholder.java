@@ -29,10 +29,10 @@ public class UpdatePlaceholder implements IncomingMessage {
         if (placeholder instanceof RelationalPlaceholder) {
             TabPlayer other = TAB.getInstance().getPlayer(target);
             if (other != null) { // Backend player did not connect via this proxy if null
-                ((RelationalPlaceholder)placeholder).updateValue(player, other, value);
+                ((RelationalPlaceholder) placeholder).updateValue(player, other, value);
             }
         } else {
-            ((PlayerPlaceholder)placeholder).updateValue(player, value);
+            ((PlayerPlaceholder) placeholder).updateValue(player, value);
         }
     }
 }

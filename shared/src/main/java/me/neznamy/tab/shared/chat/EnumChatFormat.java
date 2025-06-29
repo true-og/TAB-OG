@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
  */
 @Getter
 public enum EnumChatFormat {
-
     BLACK('0', 0x000000),
     DARK_BLUE('1', 0x0000AA),
     DARK_GREEN('2', 0x00AA00),

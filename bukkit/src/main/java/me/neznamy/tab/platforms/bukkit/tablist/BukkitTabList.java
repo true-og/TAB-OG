@@ -1,13 +1,12 @@
 package me.neznamy.tab.platforms.bukkit.tablist;
 
+import java.util.UUID;
 import lombok.NonNull;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.shared.chat.TabComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 /**
  * TabList handler using the almighty Bukkit API.
@@ -53,7 +52,14 @@ public class BukkitTabList extends TabListBase<String> {
     }
 
     @Override
-    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable String displayName) {
+    public void addEntry0(
+            @NonNull UUID id,
+            @NonNull String name,
+            @Nullable Skin skin,
+            boolean listed,
+            int latency,
+            int gameMode,
+            @Nullable String displayName) {
         // Shrug
     }
 

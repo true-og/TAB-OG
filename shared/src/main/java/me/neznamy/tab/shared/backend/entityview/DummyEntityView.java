@@ -1,11 +1,10 @@
 package me.neznamy.tab.shared.backend.entityview;
 
+import java.util.Collections;
+import java.util.UUID;
 import me.neznamy.tab.shared.backend.EntityData;
 import me.neznamy.tab.shared.backend.Location;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.UUID;
 
 /**
  * Dummy implementation for platforms that do not support entity view.
@@ -13,7 +12,12 @@ import java.util.UUID;
 public class DummyEntityView implements EntityView {
 
     @Override
-    public void spawnEntity(int entityId, @NotNull UUID id, @NotNull Object entityType, @NotNull Location location, @NotNull EntityData data) {
+    public void spawnEntity(
+            int entityId,
+            @NotNull UUID id,
+            @NotNull Object entityType,
+            @NotNull Location location,
+            @NotNull EntityData data) {
         // Do nothing
     }
 
@@ -90,7 +94,7 @@ public class DummyEntityView implements EntityView {
     @Override
     @NotNull
     public Location getMoveDiff(@NotNull Object movePacket) {
-        return new Location(0,0, 0);
+        return new Location(0, 0, 0);
     }
 
     @Override

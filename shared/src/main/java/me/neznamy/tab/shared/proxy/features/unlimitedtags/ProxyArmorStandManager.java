@@ -1,9 +1,9 @@
 package me.neznamy.tab.shared.proxy.features.unlimitedtags;
 
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.features.nametags.unlimited.ArmorStandManager;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.features.nametags.unlimited.ArmorStandManager;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.proxy.ProxyTabPlayer;
 import me.neznamy.tab.shared.proxy.message.outgoing.nametags.Destroy;
 import me.neznamy.tab.shared.proxy.message.outgoing.nametags.SetText;
@@ -28,9 +28,12 @@ public class ProxyArmorStandManager implements ArmorStandManager {
     public ProxyArmorStandManager(@NotNull NameTagX nameTagX, @NotNull TabPlayer owner) {
         this.nameTagX = nameTagX;
         this.owner = (ProxyTabPlayer) owner;
-        owner.setProperty(nameTagX, TabConstants.Property.NAMETAG, owner.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
-                + owner.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue()
-                + owner.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
+        owner.setProperty(
+                nameTagX,
+                TabConstants.Property.NAMETAG,
+                owner.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
+                        + owner.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue()
+                        + owner.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
         for (String line : nameTagX.getDefinedLines()) {
             String text = owner.getProperty(line).get();
             this.owner.sendPluginMessage(new SetText(line, text));

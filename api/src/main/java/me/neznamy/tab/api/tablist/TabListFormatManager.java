@@ -69,7 +69,8 @@ public interface TabListFormatManager {
      * @see     #setPrefix(TabPlayer, String)
      * @see     #getOriginalPrefix(TabPlayer)
      */
-    @Nullable String getCustomPrefix(@NonNull TabPlayer player);
+    @Nullable
+    String getCustomPrefix(@NonNull TabPlayer player);
 
     /**
      * Returns custom name assigned using {@link #setName(TabPlayer, String)} method.
@@ -81,7 +82,8 @@ public interface TabListFormatManager {
      * @see     #setName(TabPlayer, String)
      * @see     #getOriginalName(TabPlayer)
      */
-    @Nullable String getCustomName(@NonNull TabPlayer player);
+    @Nullable
+    String getCustomName(@NonNull TabPlayer player);
 
     /**
      * Returns suffix assigned using {@link #setSuffix(TabPlayer, String)} method.
@@ -93,7 +95,8 @@ public interface TabListFormatManager {
      * @see     #setSuffix(TabPlayer, String)
      * @see     #getOriginalSuffix(TabPlayer)
      */
-    @Nullable String getCustomSuffix(@NonNull TabPlayer player);
+    @Nullable
+    String getCustomSuffix(@NonNull TabPlayer player);
 
     /**
      * Returns player's original prefix applied using plugin's internal logic.
@@ -105,7 +108,8 @@ public interface TabListFormatManager {
      * @see     #setPrefix(TabPlayer, String)
      * @see     #getCustomPrefix(TabPlayer)
      */
-    @NotNull String getOriginalPrefix(@NonNull TabPlayer player);
+    @NotNull
+    String getOriginalPrefix(@NonNull TabPlayer player);
 
     /**
      * Returns player's original name applied using plugin's internal logic.
@@ -117,7 +121,8 @@ public interface TabListFormatManager {
      * @see     #setName(TabPlayer, String)
      * @see     #getCustomName(TabPlayer)
      */
-    @NotNull String getOriginalName(@NonNull TabPlayer player);
+    @NotNull
+    String getOriginalName(@NonNull TabPlayer player);
 
     /**
      * Returns player's original suffix applied using plugin's internal logic.
@@ -129,5 +134,6 @@ public interface TabListFormatManager {
      * @see     #setSuffix(TabPlayer, String)
      * @see     #getCustomSuffix(TabPlayer)
      */
-    @NotNull String getOriginalSuffix(@NonNull TabPlayer player);
+    @NotNull
+    String getOriginalSuffix(@NonNull TabPlayer player);
 }

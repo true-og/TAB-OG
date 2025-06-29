@@ -1,12 +1,11 @@
 package me.neznamy.tab.shared;
 
-import lombok.Getter;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import lombok.Getter;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Permission group manager retrieving groups from permission plugin
@@ -15,16 +14,22 @@ import java.util.function.Function;
 public class GroupManager {
 
     /** Permission plugin's name */
-    @NotNull private final String permissionPlugin;
+    @NotNull
+    private final String permissionPlugin;
 
     /** Group retrieve function */
-    @NotNull private final Function<TabPlayer, String> groupFunction;
+    @NotNull
+    private final Function<TabPlayer, String> groupFunction;
 
     /** If enabled, groups are assigned via permissions instead of permission plugin */
-    private final boolean groupsByPermissions = TAB.getInstance().getConfiguration().getConfig().getBoolean("assign-groups-by-permissions", false);
+    private final boolean groupsByPermissions =
+            TAB.getInstance().getConfiguration().getConfig().getBoolean("assign-groups-by-permissions", false);
 
     /** List of group permissions to iterate through if {@link #groupsByPermissions} is {@code true} */
-    private final List<String> primaryGroupFindingList = TAB.getInstance().getConfiguration().getConfig().getStringList("primary-group-finding-list", Arrays.asList("Owner", "Admin", "Helper", "default"));
+    private final List<String> primaryGroupFindingList = TAB.getInstance()
+            .getConfiguration()
+            .getConfig()
+            .getStringList("primary-group-finding-list", Arrays.asList("Owner", "Admin", "Helper", "default"));
 
     /**
      * Constructs new instance with given permission plugin and registers group placeholder.
@@ -37,12 +42,17 @@ public class GroupManager {
     public GroupManager(@NotNull String permissionPlugin, @NotNull Function<TabPlayer, String> groupFunction) {
         this.permissionPlugin = permissionPlugin;
         this.groupFunction = groupFunction;
-        TAB.getInstance().getCPUManager().startRepeatingMeasuredTask(TAB.getInstance().getConfiguration().getPermissionRefreshInterval(),
-                "Permission group refreshing", "Refreshing task", () -> {
-            for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-                all.setGroup(detectPermissionGroup(all));
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .startRepeatingMeasuredTask(
+                        TAB.getInstance().getConfiguration().getPermissionRefreshInterval(),
+                        "Permission group refreshing",
+                        "Refreshing task",
+                        () -> {
+                            for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
+                                all.setGroup(detectPermissionGroup(all));
+                            }
+                        });
     }
 
     /**

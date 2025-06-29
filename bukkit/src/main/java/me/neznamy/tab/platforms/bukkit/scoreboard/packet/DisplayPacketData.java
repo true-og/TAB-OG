@@ -1,5 +1,7 @@
 package me.neznamy.tab.platforms.bukkit.scoreboard.packet;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
@@ -7,9 +9,6 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.FunctionWithException;
 import me.neznamy.tab.shared.util.ReflectionUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 
 /**
  * Class storing NMS fields and methods of DisplayObjective packet.
@@ -29,22 +28,23 @@ public class DisplayPacketData {
      *          If something fails
      */
     public DisplayPacketData() throws ReflectiveOperationException {
-        Class<?> ScoreboardObjective = BukkitReflection.getClass("world.scores.Objective", "world.scores.ScoreboardObjective", "ScoreboardObjective");
+        Class<?> ScoreboardObjective = BukkitReflection.getClass(
+                "world.scores.Objective", "world.scores.ScoreboardObjective", "ScoreboardObjective");
         DisplayObjectiveClass = BukkitReflection.getClass(
                 "network.protocol.game.ClientboundSetDisplayObjectivePacket", // Mojang mapped
                 "network.protocol.game.PacketPlayOutScoreboardDisplayObjective", // Bukkit 1.17+
                 "PacketPlayOutScoreboardDisplayObjective", // Bukkit 1.7 - 1.16.5
                 "Packet208SetScoreboardDisplayObjective" // Bukkit 1.5 - 1.6.4
-        );
+                );
         DisplayObjective_OBJECTIVE_NAME = ReflectionUtils.getOnlyField(DisplayObjectiveClass, String.class);
         if (BukkitReflection.is1_20_2Plus()) {
             Class<?> DisplaySlot = BukkitReflection.getClass("world.scores.DisplaySlot");
             displaySlots = (Object[]) DisplaySlot.getDeclaredMethod("values").invoke(null);
             Field DisplayObjective_POSITION = ReflectionUtils.getOnlyField(DisplayObjectiveClass, DisplaySlot);
             newDisplayObjective = DisplayObjectiveClass.getConstructor(DisplaySlot, ScoreboardObjective);
-            packetToSlot = packet -> ((Enum<?>)DisplayObjective_POSITION.get(packet)).ordinal();
+            packetToSlot = packet -> ((Enum<?>) DisplayObjective_POSITION.get(packet)).ordinal();
         } else {
-            displaySlots = new Object[]{0, 1, 2};
+            displaySlots = new Object[] {0, 1, 2};
             Field DisplayObjective_POSITION = ReflectionUtils.getOnlyField(DisplayObjectiveClass, int.class);
             newDisplayObjective = DisplayObjectiveClass.getConstructor(int.class, ScoreboardObjective);
             packetToSlot = DisplayObjective_POSITION::getInt;
@@ -76,8 +76,8 @@ public class DisplayPacketData {
     @SneakyThrows
     public void onPacketSend(@NonNull TabPlayer player, @NonNull Object packet) {
         if (DisplayObjectiveClass.isInstance(packet)) {
-            TAB.getInstance().getFeatureManager().onDisplayObjective(player, packetToSlot.apply(packet),
-                    (String) DisplayObjective_OBJECTIVE_NAME.get(packet));
+            TAB.getInstance().getFeatureManager().onDisplayObjective(player, packetToSlot.apply(packet), (String)
+                    DisplayObjective_OBJECTIVE_NAME.get(packet));
         }
     }
 }

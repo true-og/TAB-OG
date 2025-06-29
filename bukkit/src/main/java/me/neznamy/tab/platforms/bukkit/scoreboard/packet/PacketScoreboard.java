@@ -1,11 +1,18 @@
 package me.neznamy.tab.platforms.bukkit.scoreboard.packet;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
-import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.PacketSender;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
@@ -14,14 +21,6 @@ import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Scoreboard implementation which uses packets
@@ -55,8 +54,13 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
     static Object IScoreboardCriteria_dummy;
 
     private static ScorePacketData scorePacketData;
-    @Getter private static TeamPacketData teamPacketData;
-    @Getter private static DisplayPacketData displayPacketData;
+
+    @Getter
+    private static TeamPacketData teamPacketData;
+
+    @Getter
+    private static DisplayPacketData displayPacketData;
+
     private static PacketSender packetSender;
 
     private final Map<String, Object> teams = new HashMap<>();
@@ -65,28 +69,33 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
         try {
             int minorVersion = BukkitReflection.getMinorVersion();
             Scoreboard = BukkitReflection.getClass("world.scores.Scoreboard", "Scoreboard");
-            ScoreboardObjective = BukkitReflection.getClass("world.scores.Objective", "world.scores.ScoreboardObjective", "ScoreboardObjective");
+            ScoreboardObjective = BukkitReflection.getClass(
+                    "world.scores.Objective", "world.scores.ScoreboardObjective", "ScoreboardObjective");
             Class<?> IScoreboardCriteria = BukkitReflection.getClass(
                     "world.scores.criteria.ObjectiveCriteria", // Mojang mapped
                     "world.scores.criteria.IScoreboardCriteria", // Bukkit 1.17.+
                     "IScoreboardCriteria", // 1.5.1 - 1.16.5
                     "IObjective" // 1.5.0
-            );
+                    );
             ObjectivePacketClass = BukkitReflection.getClass(
                     "network.protocol.game.ClientboundSetObjectivePacket", // Mojang mapped
                     "network.protocol.game.PacketPlayOutScoreboardObjective", // Bukkit 1.17+
                     "PacketPlayOutScoreboardObjective", // 1.7 - 1.16.5
                     "Packet206SetScoreboardObjective" // 1.5 - 1.6.4
-            );
+                    );
             emptyScoreboard = Scoreboard.getConstructor().newInstance();
-            Objective_OBJECTIVE_NAME = ReflectionUtils.getFields(ObjectivePacketClass, String.class).get(0);
+            Objective_OBJECTIVE_NAME = ReflectionUtils.getFields(ObjectivePacketClass, String.class)
+                    .get(0);
             List<Field> list = ReflectionUtils.getFields(ObjectivePacketClass, int.class);
-            Objective_METHOD = list.get(list.size()-1);
+            Objective_METHOD = list.get(list.size() - 1);
             newObjectivePacket = ObjectivePacketClass.getConstructor(ScoreboardObjective, int.class);
-            IScoreboardCriteria_dummy = ReflectionUtils.getFields(IScoreboardCriteria, IScoreboardCriteria).get(0).get(null);
+            IScoreboardCriteria_dummy = ReflectionUtils.getFields(IScoreboardCriteria, IScoreboardCriteria)
+                    .get(0)
+                    .get(null);
             newScoreboardObjective = ReflectionUtils.getOnlyConstructor(ScoreboardObjective);
             if (minorVersion >= 7) {
-                Component = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
+                Component = BukkitReflection.getClass(
+                        "network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
                 ComponentConverter.ensureAvailable();
             }
             if (minorVersion >= 8) {
@@ -95,17 +104,21 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
                         "world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay",
                         "IScoreboardCriteria$EnumScoreboardHealthDisplay",
                         "EnumScoreboardHealthDisplay");
-                healthDisplays = (Enum<?>[]) EnumScoreboardHealthDisplay.getMethod("values").invoke(null);
+                healthDisplays = (Enum<?>[])
+                        EnumScoreboardHealthDisplay.getMethod("values").invoke(null);
                 if (minorVersion < 13) {
-                    Objective_RENDER_TYPE = ReflectionUtils.getOnlyField(ObjectivePacketClass, EnumScoreboardHealthDisplay);
+                    Objective_RENDER_TYPE =
+                            ReflectionUtils.getOnlyField(ObjectivePacketClass, EnumScoreboardHealthDisplay);
                 }
             }
             if (minorVersion < 13) {
-                ScoreboardObjective_setDisplayName = ReflectionUtils.getOnlyMethod(ScoreboardObjective, void.class, String.class);
+                ScoreboardObjective_setDisplayName =
+                        ReflectionUtils.getOnlyMethod(ScoreboardObjective, void.class, String.class);
             }
             if (BukkitReflection.is1_20_3Plus()) {
                 NumberFormat = BukkitReflection.getClass("network.chat.numbers.NumberFormat");
-                newFixedFormat = BukkitReflection.getClass("network.chat.numbers.FixedFormat").getConstructor(Component);
+                newFixedFormat = BukkitReflection.getClass("network.chat.numbers.FixedFormat")
+                        .getConstructor(Component);
             }
             scorePacketData = new ScorePacketData();
             teamPacketData = new TeamPacketData();
@@ -129,30 +142,41 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
 
     @Override
     public void setDisplaySlot0(int slot, @NonNull String objective) {
-        packetSender.sendPacket(player.getPlayer(), displayPacketData.setDisplaySlot(slot, newObjective(objective, "", 0, null)));
+        packetSender.sendPacket(
+                player.getPlayer(), displayPacketData.setDisplaySlot(slot, newObjective(objective, "", 0, null)));
     }
 
     @Override
-    public void registerObjective0(@NonNull String objectiveName, @NonNull String title, int display,
-                                   @Nullable Object numberFormat) {
-        packetSender.sendPacket(player.getPlayer(), newObjectivePacket(ObjectiveAction.REGISTER, objectiveName, title, display, numberFormat));
+    public void registerObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable Object numberFormat) {
+        packetSender.sendPacket(
+                player.getPlayer(),
+                newObjectivePacket(ObjectiveAction.REGISTER, objectiveName, title, display, numberFormat));
     }
 
     @Override
     public void unregisterObjective0(@NonNull String objectiveName) {
-        packetSender.sendPacket(player.getPlayer(), newObjectivePacket(ObjectiveAction.UNREGISTER, objectiveName, "", 0, null));
+        packetSender.sendPacket(
+                player.getPlayer(), newObjectivePacket(ObjectiveAction.UNREGISTER, objectiveName, "", 0, null));
     }
 
     @Override
-    public void updateObjective0(@NonNull String objectiveName, @NonNull String title, int display,
-                                 @Nullable Object numberFormat) {
-        packetSender.sendPacket(player.getPlayer(), newObjectivePacket(ObjectiveAction.UPDATE, objectiveName, title, display, numberFormat));
+    public void updateObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable Object numberFormat) {
+        packetSender.sendPacket(
+                player.getPlayer(),
+                newObjectivePacket(ObjectiveAction.UPDATE, objectiveName, title, display, numberFormat));
     }
 
     @SneakyThrows
-    private Object newObjectivePacket(int action, @NonNull String objectiveName, @NonNull String title, int display,
-                                      @Nullable Object numberFormat) {
-        Object packet = newObjectivePacket.newInstance(newObjective(objectiveName, title, display, numberFormat), action);
+    private Object newObjectivePacket(
+            int action,
+            @NonNull String objectiveName,
+            @NonNull String title,
+            int display,
+            @Nullable Object numberFormat) {
+        Object packet =
+                newObjectivePacket.newInstance(newObjective(objectiveName, title, display, numberFormat), action);
         if (BukkitReflection.getMinorVersion() >= 8 && BukkitReflection.getMinorVersion() < 13) {
             Objective_RENDER_TYPE.set(packet, healthDisplays[display]);
         }
@@ -160,13 +184,30 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
     }
 
     @Override
-    public void registerTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                              @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                              @NonNull Collection<String> players, int options, @NonNull EnumChatFormat color) {
+    public void registerTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            @NonNull Collection<String> players,
+            int options,
+            @NonNull EnumChatFormat color) {
         Object team = teamPacketData.createTeam(name);
         teams.put(name, team);
-        packetSender.sendPacket(player.getPlayer(), teamPacketData.registerTeam(team, prefix, toComponent(prefix), suffix,
-                toComponent(suffix), visibility, collision, players, options, color));
+        packetSender.sendPacket(
+                player.getPlayer(),
+                teamPacketData.registerTeam(
+                        team,
+                        prefix,
+                        toComponent(prefix),
+                        suffix,
+                        toComponent(suffix),
+                        visibility,
+                        collision,
+                        players,
+                        options,
+                        color));
     }
 
     @Override
@@ -175,17 +216,38 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
     }
 
     @Override
-    public void updateTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                            @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                            int options, @NonNull EnumChatFormat color) {
-        packetSender.sendPacket(player.getPlayer(), teamPacketData.updateTeam(teams.get(name), prefix, toComponent(prefix), suffix,
-                toComponent(suffix), visibility, collision, options, color));
+    public void updateTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color) {
+        packetSender.sendPacket(
+                player.getPlayer(),
+                teamPacketData.updateTeam(
+                        teams.get(name),
+                        prefix,
+                        toComponent(prefix),
+                        suffix,
+                        toComponent(suffix),
+                        visibility,
+                        collision,
+                        options,
+                        color));
     }
 
     @Override
-    public void setScore0(@NonNull String objective, @NonNull String scoreHolder, int score,
-                          @Nullable Object displayName, @Nullable Object numberFormat) {
-        packetSender.sendPacket(player.getPlayer(), scorePacketData.setScore(objective, scoreHolder, score, displayName, toFixedFormat(numberFormat)));
+    public void setScore0(
+            @NonNull String objective,
+            @NonNull String scoreHolder,
+            int score,
+            @Nullable Object displayName,
+            @Nullable Object numberFormat) {
+        packetSender.sendPacket(
+                player.getPlayer(),
+                scorePacketData.setScore(objective, scoreHolder, score, displayName, toFixedFormat(numberFormat)));
     }
 
     @Override
@@ -197,9 +259,9 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
     @SneakyThrows
     public void onPacketSend(@NonNull Object packet) {
         displayPacketData.onPacketSend(player, packet);
-        if (ObjectivePacketClass.isInstance(packet))  {
-            TAB.getInstance().getFeatureManager().onObjective(player,
-                    Objective_METHOD.getInt(packet), (String) Objective_OBJECTIVE_NAME.get(packet));
+        if (ObjectivePacketClass.isInstance(packet)) {
+            TAB.getInstance().getFeatureManager().onObjective(player, Objective_METHOD.getInt(packet), (String)
+                    Objective_OBJECTIVE_NAME.get(packet));
         }
         if (isAntiOverrideTeams()) teamPacketData.onPacketSend(player, packet);
     }
@@ -218,8 +280,8 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
      * @return  Created objective
      */
     @SneakyThrows
-    public Object newObjective(@NonNull String objectiveName, @NonNull String title, int renderType,
-                               @Nullable Object numberFormat) {
+    public Object newObjective(
+            @NonNull String objectiveName, @NonNull String title, int renderType, @Nullable Object numberFormat) {
         if (BukkitReflection.is1_20_3Plus()) {
             // 1.20.3+
             return newScoreboardObjective.newInstance(
@@ -229,8 +291,7 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
                     toComponent(title),
                     healthDisplays[renderType],
                     false, // Auto update
-                    toFixedFormat(numberFormat)
-            );
+                    toFixedFormat(numberFormat));
         }
         if (BukkitReflection.getMinorVersion() >= 13) {
             // 1.13 - 1.20.2
@@ -239,11 +300,11 @@ public class PacketScoreboard extends Scoreboard<BukkitTabPlayer, Object> {
                     objectiveName,
                     null, // Criteria
                     toComponent(title),
-                    healthDisplays[renderType]
-            );
+                    healthDisplays[renderType]);
         }
         // 1.5 - 1.12.2
-        Object objective = newScoreboardObjective.newInstance(emptyScoreboard, objectiveName, IScoreboardCriteria_dummy);
+        Object objective =
+                newScoreboardObjective.newInstance(emptyScoreboard, objectiveName, IScoreboardCriteria_dummy);
         ScoreboardObjective_setDisplayName.invoke(objective, title);
         return objective;
     }

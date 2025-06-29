@@ -1,11 +1,9 @@
 package me.neznamy.tab.shared.cpu;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import lombok.Getter;
 import me.neznamy.tab.shared.TAB;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +23,9 @@ public class CpuManager {
     private volatile Map<String, AtomicLong> placeholderUsageCurrent = new ConcurrentHashMap<>();
 
     /** Last CPU report */
-    @Nullable @Getter private CpuReport lastReport;
+    @Nullable
+    @Getter
+    private CpuReport lastReport;
 
     /** Scheduler for scheduling delayed and repeating tasks */
     private final ScheduledExecutorService processingThread = Executors.newSingleThreadScheduledExecutor(
@@ -33,8 +33,10 @@ public class CpuManager {
 
     /** Scheduler for placeholder refreshing task to prevent inefficient placeholders from lagging the entire plugin */
     @Getter
-    private final ScheduledExecutorService placeholderThread = Executors.newSingleThreadScheduledExecutor(
-            new ThreadFactoryBuilder().setNameFormat("TAB Placeholder Refreshing Thread").build());
+    private final ScheduledExecutorService placeholderThread =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder()
+                    .setNameFormat("TAB Placeholder Refreshing Thread")
+                    .build());
 
     /** Tasks submitted to main thread before plugin was fully enabled */
     private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
@@ -43,7 +45,8 @@ public class CpuManager {
     private volatile boolean enabled;
 
     /** Boolean tracking whether CPU usage should be tracked or not */
-    @Getter private boolean trackUsage;
+    @Getter
+    private boolean trackUsage;
 
     /**
      * Enables CPU usage tracking and returns {@code true} if it was not enabled previously.
@@ -105,8 +108,10 @@ public class CpuManager {
      */
     public void addTime(@NotNull String feature, @NotNull String type, long nanoseconds) {
         if (!trackUsage) return;
-        featureUsageCurrent.computeIfAbsent(feature, f -> new ConcurrentHashMap<>())
-                .computeIfAbsent(type, t -> new AtomicLong()).addAndGet(nanoseconds);
+        featureUsageCurrent
+                .computeIfAbsent(feature, f -> new ConcurrentHashMap<>())
+                .computeIfAbsent(type, t -> new AtomicLong())
+                .addAndGet(nanoseconds);
     }
 
     /**
@@ -117,7 +122,9 @@ public class CpuManager {
      */
     public void addPlaceholderTime(@NotNull String placeholder, long nanoseconds) {
         if (!trackUsage) return;
-        placeholderUsageCurrent.computeIfAbsent(placeholder, l -> new AtomicLong()).addAndGet(nanoseconds);
+        placeholderUsageCurrent
+                .computeIfAbsent(placeholder, l -> new AtomicLong())
+                .addAndGet(nanoseconds);
     }
 
     /**
@@ -129,7 +136,9 @@ public class CpuManager {
     public void addPlaceholderTimes(@NotNull Map<String, Long> times) {
         if (!trackUsage) return;
         for (Map.Entry<String, Long> entry : times.entrySet()) {
-            placeholderUsageCurrent.computeIfAbsent(entry.getKey(), l -> new AtomicLong()).addAndGet(entry.getValue());
+            placeholderUsageCurrent
+                    .computeIfAbsent(entry.getKey(), l -> new AtomicLong())
+                    .addAndGet(entry.getValue());
         }
     }
 
@@ -141,17 +150,24 @@ public class CpuManager {
         submit(task);
     }
 
-    public void startRepeatingMeasuredTask(int intervalMilliseconds, @NotNull String feature, @NotNull String type, @NotNull Runnable task) {
+    public void startRepeatingMeasuredTask(
+            int intervalMilliseconds, @NotNull String feature, @NotNull String type, @NotNull Runnable task) {
         if (processingThread.isShutdown()) return;
-        processingThread.scheduleAtFixedRate(() -> runAndMeasure(task, feature, type), intervalMilliseconds, intervalMilliseconds, TimeUnit.MILLISECONDS);
+        processingThread.scheduleAtFixedRate(
+                () -> runAndMeasure(task, feature, type),
+                intervalMilliseconds,
+                intervalMilliseconds,
+                TimeUnit.MILLISECONDS);
     }
 
     public void startRepeatingTask(int intervalMilliseconds, @NotNull Runnable task) {
         if (processingThread.isShutdown()) return;
-        processingThread.scheduleAtFixedRate(() -> run(task), intervalMilliseconds, intervalMilliseconds, TimeUnit.MILLISECONDS);
+        processingThread.scheduleAtFixedRate(
+                () -> run(task), intervalMilliseconds, intervalMilliseconds, TimeUnit.MILLISECONDS);
     }
 
-    public void runTaskLater(int delayMilliseconds, @NotNull String feature, @NotNull String type, @NotNull Runnable task) {
+    public void runTaskLater(
+            int delayMilliseconds, @NotNull String feature, @NotNull String type, @NotNull Runnable task) {
         if (processingThread.isShutdown()) return;
         processingThread.schedule(() -> runAndMeasure(task, feature, type), delayMilliseconds, TimeUnit.MILLISECONDS);
     }

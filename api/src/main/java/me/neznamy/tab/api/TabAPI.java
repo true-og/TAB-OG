@@ -2,17 +2,16 @@ package me.neznamy.tab.api;
 
 import java.util.Collection;
 import java.util.UUID;
-
 import lombok.NonNull;
 import lombok.Setter;
 import me.neznamy.tab.api.bossbar.BossBarManager;
 import me.neznamy.tab.api.event.EventBus;
+import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.api.placeholder.PlaceholderManager;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
-import me.neznamy.tab.api.tablist.SortingManager;
 import me.neznamy.tab.api.tablist.HeaderFooterManager;
+import me.neznamy.tab.api.tablist.SortingManager;
 import me.neznamy.tab.api.tablist.TabListFormatManager;
-import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.api.tablist.layout.LayoutManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +22,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class TabAPI {
 
     /** Instance of the API */
-    @Setter private static TabAPI instance;
+    @Setter
+    private static TabAPI instance;
 
     /**
      * Returns API instance. If instance was not set by the plugin, throws
@@ -36,12 +36,13 @@ public abstract class TabAPI {
      *          If instance is {@code null}
      */
     public static @NotNull TabAPI getInstance() {
-        if (instance == null) throw new IllegalStateException("The API instance is null. This can have 2 possible causes: \n" +
-                "#1 - API was called before TAB was loaded. This means your plugin was loaded before TAB was. To make sure your " +
-                "plugin loads after TAB, add it as a depend or soft depend of your plugin.\n" +
-                "#2 - You shaded TAB's classes into your plugin, instead of only using them. This is not allowed. To verify this " +
-                "is your case, unzip your plugin and check for TAB's classes. If they are there, you will need to fix your compiler " +
-                "to not include them, such as scope provided for maven compilation.");
+        if (instance == null)
+            throw new IllegalStateException("The API instance is null. This can have 2 possible causes: \n"
+                    + "#1 - API was called before TAB was loaded. This means your plugin was loaded before TAB was. To make sure your "
+                    + "plugin loads after TAB, add it as a depend or soft depend of your plugin.\n"
+                    + "#2 - You shaded TAB's classes into your plugin, instead of only using them. This is not allowed. To verify this "
+                    + "is your case, unzip your plugin and check for TAB's classes. If they are there, you will need to fix your compiler "
+                    + "to not include them, such as scope provided for maven compilation.");
         return instance;
     }
 
@@ -70,7 +71,6 @@ public abstract class TabAPI {
      */
     @Deprecated
     public abstract @NotNull TabPlayer[] getOnlinePlayers();
-
 
     /**
      * Returns a stream of all online players

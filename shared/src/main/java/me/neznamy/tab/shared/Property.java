@@ -2,11 +2,10 @@ package me.neznamy.tab.shared;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Getter;
-import me.neznamy.tab.shared.features.types.Refreshable;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.chat.rgb.RGBUtils;
+import me.neznamy.tab.shared.features.types.Refreshable;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import me.neznamy.tab.shared.placeholders.types.RelationalPlaceholderImpl;
 import me.neznamy.tab.shared.platform.TabPlayer;
@@ -23,22 +22,29 @@ public class Property {
     private static long counter;
 
     /** Internal identifier for this text for PlaceholderAPI expansion, null if it should not be exposed */
-    @Nullable private final String name;
+    @Nullable
+    private final String name;
 
     /**
      * Feature defining this text, which will receive refresh function
      * if any of placeholders used in it change value.
      */
-    @Nullable private final Refreshable listener;
-    
+    @Nullable
+    private final Refreshable listener;
+
     /** Player this text belongs to */
-    @NotNull private final TabPlayer owner;
-    
+    @NotNull
+    private final TabPlayer owner;
+
     /** Raw value as defined in configuration */
-    @NotNull @Getter private String originalRawValue;
+    @NotNull
+    @Getter
+    private String originalRawValue;
 
     /** Raw value assigned via API, null if not set */
-    @Nullable @Getter private String temporaryValue;
+    @Nullable
+    @Getter
+    private String temporaryValue;
 
     /**
      * Raw value using %s for each placeholder ready to be inserted
@@ -49,9 +55,10 @@ public class Property {
 
     /** Last known value after parsing non-relational placeholders */
     private String lastReplacedValue;
-    
+
     /** Source defining value of the text, displayed in debug command */
-    @Nullable private String source;
+    @Nullable
+    private String source;
 
     /**
      * All placeholders used in the text in the same order they are used,
@@ -60,7 +67,7 @@ public class Property {
      * to their identifier.
      */
     private String[] placeholders;
-    
+
     /** Relational placeholders in the text in the same order they are used */
     private String[] relPlaceholders;
 
@@ -79,8 +86,12 @@ public class Property {
      * @param   source
      *          Source of the text used in debug command
      */
-    public Property(@Nullable String name, @Nullable Refreshable listener, @NotNull TabPlayer owner,
-                    @NotNull String rawValue, @Nullable String source) {
+    public Property(
+            @Nullable String name,
+            @Nullable Refreshable listener,
+            @NotNull TabPlayer owner,
+            @NotNull String rawValue,
+            @Nullable String source) {
         this.name = name;
         this.listener = listener;
         this.owner = owner;
@@ -116,9 +127,9 @@ public class Property {
         // Make % symbol not break String formatter by adding another one to display it
         if (!placeholders0.isEmpty() && rawFormattedValue0.contains("%")) {
             int index = rawFormattedValue0.lastIndexOf('%');
-            if (rawFormattedValue0.length() == index+1 || rawFormattedValue0.charAt(index+1) != 's') {
+            if (rawFormattedValue0.length() == index + 1 || rawFormattedValue0.charAt(index + 1) != 's') {
                 StringBuilder sb = new StringBuilder(rawFormattedValue0);
-                sb.insert(index+1, "%");
+                sb.insert(index + 1, "%");
                 rawFormattedValue0 = sb.toString();
             }
         }
@@ -230,11 +241,17 @@ public class Property {
         if (placeholders.length == 0) return false;
         String string;
         if ("%s".equals(rawFormattedValue)) {
-            string = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholders[0]).set(placeholders[0], owner);
+            string = TAB.getInstance()
+                    .getPlaceholderManager()
+                    .getPlaceholder(placeholders[0])
+                    .set(placeholders[0], owner);
         } else {
             Object[] values = new String[placeholders.length];
-            for (int i=0; i<placeholders.length; i++) {
-                values[i] = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholders[i]).set(placeholders[i], owner);
+            for (int i = 0; i < placeholders.length; i++) {
+                values[i] = TAB.getInstance()
+                        .getPlaceholderManager()
+                        .getPlaceholder(placeholders[i])
+                        .set(placeholders[i], owner);
             }
             string = String.format(rawFormattedValue, values);
         }
@@ -242,7 +259,10 @@ public class Property {
         if (!lastReplacedValue.equals(string)) {
             lastReplacedValue = string;
             if (name != null) {
-                TAB.getInstance().getPlaceholderManager().getTabExpansion().setPropertyValue(owner, name, lastReplacedValue);
+                TAB.getInstance()
+                        .getPlaceholderManager()
+                        .getTabExpansion()
+                        .setPropertyValue(owner, name, lastReplacedValue);
             }
             return true;
         }
@@ -269,14 +289,16 @@ public class Property {
         String format = lastReplacedValue;
         // Direct placeholders
         for (String identifier : relPlaceholders) {
-            RelationalPlaceholderImpl pl = (RelationalPlaceholderImpl) TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier);
+            RelationalPlaceholderImpl pl = (RelationalPlaceholderImpl)
+                    TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier);
             format = format.replace(pl.getIdentifier(), pl.getLastValue(viewer, owner));
         }
 
         // Nested placeholders
         for (String identifier : TAB.getInstance().getPlaceholderManager().detectPlaceholders(format)) {
             if (!identifier.startsWith("%rel_")) continue;
-            RelationalPlaceholderImpl pl = (RelationalPlaceholderImpl) TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier);
+            RelationalPlaceholderImpl pl = (RelationalPlaceholderImpl)
+                    TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier);
             format = format.replace(pl.getIdentifier(), pl.getLastValue(viewer, owner));
             if (listener != null) listener.addUsedPlaceholder(identifier);
         }

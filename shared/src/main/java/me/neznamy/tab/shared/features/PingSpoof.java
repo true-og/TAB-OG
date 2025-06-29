@@ -1,5 +1,6 @@
 package me.neznamy.tab.shared.features;
 
+import java.util.UUID;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.layout.LayoutManagerImpl;
@@ -8,8 +9,6 @@ import me.neznamy.tab.shared.features.layout.PlayerSlot;
 import me.neznamy.tab.shared.features.types.*;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * This feature hides real ping of players in connection bar and

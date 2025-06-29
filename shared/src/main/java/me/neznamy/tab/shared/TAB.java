@@ -1,38 +1,37 @@
 package me.neznamy.tab.shared;
 
-import lombok.Getter;
-import lombok.Setter;
-import me.neznamy.tab.api.TabAPI;
-import me.neznamy.tab.api.bossbar.BossBarManager;
-import me.neznamy.tab.api.tablist.SortingManager;
-import me.neznamy.tab.api.tablist.layout.LayoutManager;
-import me.neznamy.tab.api.scoreboard.ScoreboardManager;
-import me.neznamy.tab.api.tablist.HeaderFooterManager;
-import me.neznamy.tab.api.tablist.TabListFormatManager;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.config.helper.ConfigHelper;
-import me.neznamy.tab.shared.cpu.CpuManager;
-import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.platform.Platform;
-import me.neznamy.tab.shared.command.DisabledCommand;
-import me.neznamy.tab.shared.command.TabCommand;
-import me.neznamy.tab.shared.config.Configs;
-import me.neznamy.tab.shared.event.EventBusImpl;
-import me.neznamy.tab.shared.event.impl.TabLoadEventImpl;
-import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.proxy.ProxyPlatform;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.yaml.snakeyaml.error.YAMLException;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
+import lombok.Setter;
+import me.neznamy.tab.api.TabAPI;
+import me.neznamy.tab.api.bossbar.BossBarManager;
+import me.neznamy.tab.api.scoreboard.ScoreboardManager;
+import me.neznamy.tab.api.tablist.HeaderFooterManager;
+import me.neznamy.tab.api.tablist.SortingManager;
+import me.neznamy.tab.api.tablist.TabListFormatManager;
+import me.neznamy.tab.api.tablist.layout.LayoutManager;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.command.DisabledCommand;
+import me.neznamy.tab.shared.command.TabCommand;
+import me.neznamy.tab.shared.config.Configs;
+import me.neznamy.tab.shared.config.helper.ConfigHelper;
+import me.neznamy.tab.shared.cpu.CpuManager;
+import me.neznamy.tab.shared.event.EventBusImpl;
+import me.neznamy.tab.shared.event.impl.TabLoadEventImpl;
+import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
+import me.neznamy.tab.shared.features.nametags.NameTag;
+import me.neznamy.tab.shared.platform.Platform;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.proxy.ProxyPlatform;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /**
  * Main class of the plugin storing data and implementing API
@@ -104,7 +103,8 @@ public class TAB extends TabAPI {
     private final File dataFolder;
 
     /** File with YAML syntax error, which prevented plugin from loading */
-    @Setter private String brokenFile;
+    @Setter
+    private String brokenFile;
 
     /** Helper for detecting misconfiguration in configs and send it to user */
     private final ConfigHelper configHelper = new ConfigHelper();
@@ -134,7 +134,7 @@ public class TAB extends TabAPI {
         try {
             eventBus = new EventBusImpl();
         } catch (NoSuchMethodError e) {
-            //1.7.10 or lower
+            // 1.7.10 or lower
         }
         TabAPI.setInstance(this);
         platform.registerListener();
@@ -185,15 +185,20 @@ public class TAB extends TabAPI {
             cpu.enable();
             configHelper.startup().checkErrorLog();
             configHelper.startup().printWarnCount();
-            platform.logInfo(TabComponent.fromColoredText(EnumChatFormat.GREEN + "Enabled in " + (System.currentTimeMillis()-time) + "ms"));
+            platform.logInfo(TabComponent.fromColoredText(
+                    EnumChatFormat.GREEN + "Enabled in " + (System.currentTimeMillis() - time) + "ms"));
             return configuration.getMessages().getReloadSuccess();
         } catch (YAMLException e) {
-            platform.logWarn(TabComponent.fromColoredText(EnumChatFormat.RED + "Did not enable due to a broken configuration file."));
+            platform.logWarn(TabComponent.fromColoredText(
+                    EnumChatFormat.RED + "Did not enable due to a broken configuration file."));
             kill();
-            return (configuration == null ? "&4Failed to reload, file %file% has broken syntax. Check console for more info."
-                    : configuration.getMessages().getReloadFailBrokenFile()).replace("%file%", brokenFile);
+            return (configuration == null
+                            ? "&4Failed to reload, file %file% has broken syntax. Check console for more info."
+                            : configuration.getMessages().getReloadFailBrokenFile())
+                    .replace("%file%", brokenFile);
         } catch (Throwable e) {
-            errorManager.criticalError("Failed to enable. Did you just invent a new way to break the plugin by misconfiguring it?", e);
+            errorManager.criticalError(
+                    "Failed to enable. Did you just invent a new way to break the plugin by misconfiguring it?", e);
             kill();
             return "&cFailed to enable due to an internal plugin error. Check console for more info.";
         }
@@ -209,7 +214,8 @@ public class TAB extends TabAPI {
             long time = System.currentTimeMillis();
             if (configuration.getMysql() != null) configuration.getMysql().closeConnection();
             featureManager.unload();
-            platform.logInfo(TabComponent.fromColoredText(EnumChatFormat.GREEN + "Disabled in " + (System.currentTimeMillis()-time) + "ms"));
+            platform.logInfo(TabComponent.fromColoredText(
+                    EnumChatFormat.GREEN + "Disabled in " + (System.currentTimeMillis() - time) + "ms"));
         } catch (Throwable e) {
             errorManager.criticalError("Failed to disable", e);
         }
@@ -272,7 +278,8 @@ public class TAB extends TabAPI {
 
     @Override
     public @Nullable NameTag getNameTagManager() {
-        if (featureManager.isFeatureEnabled(TabConstants.Feature.NAME_TAGS)) return featureManager.getFeature(TabConstants.Feature.NAME_TAGS);
+        if (featureManager.isFeatureEnabled(TabConstants.Feature.NAME_TAGS))
+            return featureManager.getFeature(TabConstants.Feature.NAME_TAGS);
         return featureManager.getFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS);
     }
 

@@ -4,8 +4,8 @@ import lombok.NonNull;
 import me.neznamy.tab.shared.Limitations;
 import me.neznamy.tab.shared.Property;
 import me.neznamy.tab.shared.chat.rgb.RGBUtils;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.scoreboard.ScoreboardImpl;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,7 +35,7 @@ public class LongLine extends ScoreboardLine {
 
     @Override
     public void refresh(@NotNull TabPlayer refreshed, boolean force) {
-        if (!parent.getPlayers().contains(refreshed)) return; //player has different scoreboard displayed
+        if (!parent.getPlayers().contains(refreshed)) return; // player has different scoreboard displayed
         if (refreshed.getProperty(textProperty).update()) {
             if (refreshed.getVersion().getMinorVersion() >= 13) {
                 updateTeam(refreshed, refreshed.getProperty(textProperty).get(), "");
@@ -43,9 +43,12 @@ public class LongLine extends ScoreboardLine {
                 removeLine(refreshed, refreshed.getProperty(nameProperty).get());
                 String[] values = splitText(
                         getPlayerName(lineNumber),
-                        RGBUtils.getInstance().convertRGBtoLegacy(refreshed.getProperty(textProperty).get()),
-                        refreshed.getVersion().getMinorVersion() >= 8 ? Limitations.SCOREBOARD_SCORE_LENGTH_1_8 : Limitations.SCOREBOARD_SCORE_LENGTH_1_7
-                );
+                        RGBUtils.getInstance()
+                                .convertRGBtoLegacy(
+                                        refreshed.getProperty(textProperty).get()),
+                        refreshed.getVersion().getMinorVersion() >= 8
+                                ? Limitations.SCOREBOARD_SCORE_LENGTH_1_8
+                                : Limitations.SCOREBOARD_SCORE_LENGTH_1_7);
                 addLine(refreshed, values[1], values[0], values[2]);
                 refreshed.setProperty(this, nameProperty, values[1]);
             }
@@ -64,8 +67,9 @@ public class LongLine extends ScoreboardLine {
             String[] values = splitText(
                     playerName,
                     RGBUtils.getInstance().convertRGBtoLegacy(value),
-                    p.getVersion().getMinorVersion() >= 8 ? Limitations.SCOREBOARD_SCORE_LENGTH_1_8 : Limitations.SCOREBOARD_SCORE_LENGTH_1_7
-            );
+                    p.getVersion().getMinorVersion() >= 8
+                            ? Limitations.SCOREBOARD_SCORE_LENGTH_1_8
+                            : Limitations.SCOREBOARD_SCORE_LENGTH_1_7);
             addLine(p, values[1], values[0], values[2]);
             p.setProperty(this, nameProperty, values[1]);
         }

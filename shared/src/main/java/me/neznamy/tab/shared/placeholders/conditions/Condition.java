@@ -4,14 +4,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.placeholder.Placeholder;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,26 +25,31 @@ public class Condition {
     private static Map<String, Condition> registeredConditions = new HashMap<>();
 
     /** All supported sub-condition types */
-    @Getter private static final Map<String, Function<String, Function<TabPlayer, Boolean>>> conditionTypes =
-            new LinkedHashMap<String, Function<String, Function<TabPlayer, Boolean>>>() {{
-
-        put(">=", line -> new NumericCondition(line.split(">="), (left, right) -> left >= right)::isMet);
-        put(">", line -> new NumericCondition(line.split(">"), (left, right) -> left > right)::isMet);
-        put("<=", line -> new NumericCondition(line.split("<="), (left, right) -> left <= right)::isMet);
-        put("<-", line -> new StringCondition(line.split("<-"), String::contains)::isMet);
-        put("<", line -> new NumericCondition(line.split("<"), (left, right) -> left < right)::isMet);
-        put("|-", line -> new StringCondition(line.split("\\|-"), String::startsWith)::isMet);
-        put("-|", line -> new StringCondition(line.split("-\\|"), String::endsWith)::isMet);
-        put("!=", line -> new StringCondition(line.split("!="), (left, right) -> !left.equals(right))::isMet);
-        put("=", line -> new StringCondition(line.split("="), String::equals)::isMet);
-        put("permission:", line -> {
-            String node = line.split(":")[1];
-            return p -> p.hasPermission(node);
-        });
-    }};
+    @Getter
+    private static final Map<String, Function<String, Function<TabPlayer, Boolean>>> conditionTypes =
+            new LinkedHashMap<String, Function<String, Function<TabPlayer, Boolean>>>() {
+                {
+                    put(">=", line -> new NumericCondition(line.split(">="), (left, right) -> left >= right)::isMet);
+                    put(">", line -> new NumericCondition(line.split(">"), (left, right) -> left > right)::isMet);
+                    put("<=", line -> new NumericCondition(line.split("<="), (left, right) -> left <= right)::isMet);
+                    put("<-", line -> new StringCondition(line.split("<-"), String::contains)::isMet);
+                    put("<", line -> new NumericCondition(line.split("<"), (left, right) -> left < right)::isMet);
+                    put("|-", line -> new StringCondition(line.split("\\|-"), String::startsWith)::isMet);
+                    put("-|", line -> new StringCondition(line.split("-\\|"), String::endsWith)::isMet);
+                    put(
+                            "!=",
+                            line -> new StringCondition(line.split("!="), (left, right) -> !left.equals(right))::isMet);
+                    put("=", line -> new StringCondition(line.split("="), String::equals)::isMet);
+                    put("permission:", line -> {
+                        String node = line.split(":")[1];
+                        return p -> p.hasPermission(node);
+                    });
+                }
+            };
 
     /** Name of this condition defined in configuration */
-    @Getter private final String name;
+    @Getter
+    private final String name;
 
     /** All defined sub-conditions inside this conditions */
     protected final List<Function<TabPlayer, Boolean>> subConditions = new ArrayList<>();
@@ -63,7 +67,8 @@ public class Condition {
      * Refresh interval of placeholder created from this condition.
      * It is calculated based on nested placeholders used in sub-conditions.
      */
-    @Getter private int refresh = -1;
+    @Getter
+    private int refresh = -1;
 
     /** List of all placeholders used inside this condition */
     private final List<String> placeholdersInConditions = new ArrayList<>();
@@ -83,7 +88,12 @@ public class Condition {
      * @param   no
      *          value to return if condition is not met
      */
-    public Condition(boolean type, @NonNull String name, @NonNull List<String> conditions, @Nullable String yes, @Nullable String no) {
+    public Condition(
+            boolean type,
+            @NonNull String name,
+            @NonNull List<String> conditions,
+            @Nullable String yes,
+            @Nullable String no) {
         this.type = type;
         this.name = name;
         this.yes = yes;
@@ -115,7 +125,10 @@ public class Condition {
      */
     public void finishSetup() {
         for (String placeholder : placeholdersInConditions) {
-            TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholder).addParent(TabConstants.Placeholder.condition(name));
+            TAB.getInstance()
+                    .getPlaceholderManager()
+                    .getPlaceholder(placeholder)
+                    .addParent(TabConstants.Placeholder.condition(name));
             Placeholder pl = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholder);
             if (pl.getRefresh() < refresh && pl.getRefresh() != -1) {
                 refresh = pl.getRefresh();
@@ -183,8 +196,10 @@ public class Condition {
             }
             Condition c = new Condition(type, "AnonymousCondition[" + string + "]", conditions, "true", "false");
             c.finishSetup();
-            TAB.getInstance().getPlaceholderManager().registerPlayerPlaceholder(TabConstants.Placeholder.condition(c.name), c.refresh,
-                    p -> c.getText((TabPlayer) p));
+            TAB.getInstance()
+                    .getPlaceholderManager()
+                    .registerPlayerPlaceholder(
+                            TabConstants.Placeholder.condition(c.name), c.refresh, p -> c.getText((TabPlayer) p));
             return c;
         }
     }

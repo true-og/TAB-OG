@@ -1,7 +1,7 @@
 package me.neznamy.tab.shared.features.sorting.types;
 
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.sorting.Sorting;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,7 +24,8 @@ public class PlaceholderLowToHigh extends SortingType {
     @Override
     public String getChars(@NotNull TabPlayer p) {
         String output = setPlaceholders(p);
-        p.sortingData.teamNameNote += "\n-> " + sortingPlaceholder.getIdentifier() + " returned \"&e" + output + "&r\". &r";
+        p.sortingData.teamNameNote +=
+                "\n-> " + sortingPlaceholder.getIdentifier() + " returned \"&e" + output + "&r\". &r";
         return compressNumber(DEFAULT_NUMBER + parseDouble(sortingPlaceholder.getIdentifier(), output, 0, p));
     }
 }

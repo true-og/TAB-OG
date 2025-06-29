@@ -3,14 +3,13 @@ package me.neznamy.tab.shared.command;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.cpu.CpuReport;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.api.placeholder.Placeholder;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.cpu.CpuReport;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +33,9 @@ public class CpuCommand extends SubCommand {
         CpuReport report = TAB.getInstance().getCPUManager().getLastReport();
         if (report == null) {
             if (TAB.getInstance().getCPUManager().enableTracking()) {
-                sendMessage(sender, "&aCPU usage tracking has been enabled. Run the command again in 10 seconds to see the first results.");
+                sendMessage(
+                        sender,
+                        "&aCPU usage tracking has been enabled. Run the command again in 10 seconds to see the first results.");
             } else {
                 sendMessage(sender, "&cPlease wait at least 10 seconds since running the command for the first time.");
             }
@@ -54,9 +55,25 @@ public class CpuCommand extends SubCommand {
             sendToConsole(features);
         }
         sendMessage(sender, "&8&l" + LINE_CHAR + "&8&m                                                    ");
-        sendMessage(sender, String.format("&8&l%s &6&lPlaceholders Total: &a&l%s%%", LINE_CHAR, colorize(decimal3.format(report.getPlaceholderUsageTotal()), 10, 5)));
-        sendMessage(sender, String.format("&8&l%s &6&lPlugin internals: &a&l%s%%", LINE_CHAR, colorize(decimal3.format(report.getFeatureUsageTotal()-report.getPlaceholderUsageTotal()), 10, 5)));
-        sendMessage(sender, String.format("&8&l%s &6&lTotal: &e&l%s%%", LINE_CHAR, colorize(decimal3.format(report.getFeatureUsageTotal()), 10, 5)));
+        sendMessage(
+                sender,
+                String.format(
+                        "&8&l%s &6&lPlaceholders Total: &a&l%s%%",
+                        LINE_CHAR, colorize(decimal3.format(report.getPlaceholderUsageTotal()), 10, 5)));
+        sendMessage(
+                sender,
+                String.format(
+                        "&8&l%s &6&lPlugin internals: &a&l%s%%",
+                        LINE_CHAR,
+                        colorize(
+                                decimal3.format(report.getFeatureUsageTotal() - report.getPlaceholderUsageTotal()),
+                                10,
+                                5)));
+        sendMessage(
+                sender,
+                String.format(
+                        "&8&l%s &6&lTotal: &e&l%s%%",
+                        LINE_CHAR, colorize(decimal3.format(report.getFeatureUsageTotal()), 10, 5)));
         sendMessage(sender, "&8&l" + LINE_CHAR + "&8&m             &r&8&l[ &bTAB CPU Stats &8&l]&r&8&l&m             ");
         sendMessage(sender, " ");
     }
@@ -68,20 +85,36 @@ public class CpuCommand extends SubCommand {
             String refresh = "";
             Placeholder p = TAB.getInstance().getPlaceholderManager().getPlaceholder(entry.getKey());
             if (p.getRefresh() != -1) refresh = " &8(" + p.getRefresh() + ")&7";
-            String colorized = entry.getKey().startsWith("%sync:") ? "&c" + decimal3.format(entry.getValue()) : colorize(decimal3.format(entry.getValue()), 1, 0.3f);
+            String colorized = entry.getKey().startsWith("%sync:")
+                    ? "&c" + decimal3.format(entry.getValue())
+                    : colorize(decimal3.format(entry.getValue()), 1, 0.3f);
             sendMessage(sender, String.format("&8&l%s &7%s - %s%%", LINE_CHAR, entry.getKey() + refresh, colorized));
         }
     }
 
     public void sendToConsole(@NotNull Map<String, Map<String, Float>> features) {
-        TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.color("&8&l" + LINE_CHAR + " &6Features:")));
+        TAB.getInstance()
+                .getPlatform()
+                .logInfo(TabComponent.fromColoredText(EnumChatFormat.color("&8&l" + LINE_CHAR + " &6Features:")));
         for (Entry<String, Map<String, Float>> entry : features.entrySet()) {
-            TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.color(
-                    String.format("&8&l%s &7%s &7(%s%%&7):", LINE_CHAR, entry.getKey(),
-                            colorize(decimal3.format(entry.getValue().values().stream().mapToDouble(Float::floatValue).sum()), 5, 1)))));
+            TAB.getInstance()
+                    .getPlatform()
+                    .logInfo(TabComponent.fromColoredText(EnumChatFormat.color(String.format(
+                            "&8&l%s &7%s &7(%s%%&7):",
+                            LINE_CHAR,
+                            entry.getKey(),
+                            colorize(
+                                    decimal3.format(entry.getValue().values().stream()
+                                            .mapToDouble(Float::floatValue)
+                                            .sum()),
+                                    5,
+                                    1)))));
             for (Entry<String, Float> type : entry.getValue().entrySet()) {
-                TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.color(
-                        String.format("&8&l%s     &7%s - %s%%", LINE_CHAR, type.getKey(), colorize(decimal3.format(type.getValue()), 5, 1)))));
+                TAB.getInstance()
+                        .getPlatform()
+                        .logInfo(TabComponent.fromColoredText(EnumChatFormat.color(String.format(
+                                "&8&l%s     &7%s - %s%%",
+                                LINE_CHAR, type.getKey(), colorize(decimal3.format(type.getValue()), 5, 1)))));
             }
         }
     }
@@ -89,8 +122,12 @@ public class CpuCommand extends SubCommand {
     public void sendToPlayer(@NotNull TabPlayer sender, @NotNull Map<String, Map<String, Float>> features) {
         sendMessage(sender, "&8&l" + LINE_CHAR + " &6Features (execute from console for more info):");
         for (Entry<String, Map<String, Float>> entry : features.entrySet()) {
-            double featureTotal = entry.getValue().values().stream().mapToDouble(Float::floatValue).sum();
-            String core = String.format("&8&l%s &7%s &7(%s%%&7):", LINE_CHAR, entry.getKey(), colorize(decimal3.format(featureTotal), 5, 1));
+            double featureTotal = entry.getValue().values().stream()
+                    .mapToDouble(Float::floatValue)
+                    .sum();
+            String core = String.format(
+                    "&8&l%s &7%s &7(%s%%&7):",
+                    LINE_CHAR, entry.getKey(), colorize(decimal3.format(featureTotal), 5, 1));
             sender.sendMessage(TabComponent.fromColoredText(EnumChatFormat.color(core)));
         }
     }

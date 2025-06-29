@@ -1,5 +1,8 @@
 package me.neznamy.tab.shared.placeholders;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.api.placeholder.Placeholder;
@@ -9,10 +12,6 @@ import me.neznamy.tab.shared.placeholders.types.RelationalPlaceholderImpl;
 import me.neznamy.tab.shared.placeholders.types.ServerPlaceholderImpl;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A class that refreshes all requested placeholders using given refresh
@@ -47,7 +46,7 @@ public class PlaceholderRefreshTask implements Runnable {
                 ServerPlaceholderImpl serverPlaceholder = (ServerPlaceholderImpl) placeholder;
                 long startTime = System.nanoTime();
                 Object result = serverPlaceholder.request();
-                nanoTime += System.nanoTime()-startTime;
+                nanoTime += System.nanoTime() - startTime;
                 serverPlaceholderResults.put(serverPlaceholder, result);
             }
             if (placeholder instanceof PlayerPlaceholderImpl) {
@@ -56,7 +55,7 @@ public class PlaceholderRefreshTask implements Runnable {
                 for (TabPlayer player : players) {
                     long startTime = System.nanoTime();
                     Object result = playerPlaceholder.request(player);
-                    nanoTime += System.nanoTime()-startTime;
+                    nanoTime += System.nanoTime() - startTime;
                     playerResults.put(player, result);
                 }
                 playerPlaceholderResults.put(playerPlaceholder, playerResults);
@@ -69,7 +68,7 @@ public class PlaceholderRefreshTask implements Runnable {
                     for (TabPlayer target : players) {
                         long startTime = System.nanoTime();
                         Object result = relationalPlaceholder.request(viewer, target);
-                        nanoTime += System.nanoTime()-startTime;
+                        nanoTime += System.nanoTime() - startTime;
                         targetMap.put(target, result);
                     }
                     viewerMap.put(viewer, targetMap);

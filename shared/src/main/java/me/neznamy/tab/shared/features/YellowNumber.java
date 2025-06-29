@@ -1,45 +1,52 @@
 package me.neznamy.tab.shared.features;
 
-import lombok.Getter;
-import me.neznamy.tab.shared.Property;
-import me.neznamy.tab.shared.chat.SimpleComponent;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.placeholders.conditions.Condition;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.platform.Scoreboard;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
-import me.neznamy.tab.shared.features.types.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import me.neznamy.tab.shared.Property;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.SimpleComponent;
+import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.types.*;
+import me.neznamy.tab.shared.placeholders.conditions.Condition;
+import me.neznamy.tab.shared.platform.Scoreboard;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Feature handler for scoreboard objective with
  * PLAYER_LIST display slot (in tablist).
  */
-public class YellowNumber extends TabFeature implements JoinListener, Loadable, UnLoadable,
-        Refreshable, LoginPacketListener {
+public class YellowNumber extends TabFeature
+        implements JoinListener, Loadable, UnLoadable, Refreshable, LoginPacketListener {
 
-    @Getter private final String PROPERTY_VALUE = Property.randomName();
-    @Getter private final String PROPERTY_VALUE_FANCY = Property.randomName();
+    @Getter
+    private final String PROPERTY_VALUE = Property.randomName();
+
+    @Getter
+    private final String PROPERTY_VALUE_FANCY = Property.randomName();
 
     /** Objective name used by this feature */
     public static final String OBJECTIVE_NAME = "TAB-PlayerList";
 
     /** Scoreboard title which is unused in java */
-    private static final String TITLE = "PlayerListObjectiveTitle"; // Unused by this objective slot (on Java, only visible on Bedrock)
+    private static final String TITLE =
+            "PlayerListObjectiveTitle"; // Unused by this objective slot (on Java, only visible on Bedrock)
 
     /** Numeric value to display */
     private final String rawValue = config().getString("playerlist-objective.value", TabConstants.Placeholder.PING);
+
     private final String rawValueFancy = config().getString("playerlist-objective.fancy-value", "&7Ping: %ping%");
 
     /** Scoreboard display type */
-    private final int displayType = TabConstants.Placeholder.HEALTH.equals(rawValue) ||
-            "%player_health%".equals(rawValue) || "%player_health_rounded%".equals(rawValue) ?
-            Scoreboard.HealthDisplay.HEARTS : Scoreboard.HealthDisplay.INTEGER;
+    private final int displayType = TabConstants.Placeholder.HEALTH.equals(rawValue)
+                    || "%player_health%".equals(rawValue)
+                    || "%player_health_rounded%".equals(rawValue)
+            ? Scoreboard.HealthDisplay.HEARTS
+            : Scoreboard.HealthDisplay.INTEGER;
+
     private final DisableChecker disableChecker;
     private RedisSupport redis;
 
@@ -47,9 +54,13 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
      * Constructs new instance and registers disable condition checker to feature manager.
      */
     public YellowNumber() {
-        Condition disableCondition = Condition.getCondition(config().getString("playerlist-objective.disable-condition"));
-        disableChecker = new DisableChecker(getFeatureName(), disableCondition, this::onDisableConditionChange, p -> p.disabledYellowNumber);
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.YELLOW_NUMBER + "-Condition", disableChecker);
+        Condition disableCondition =
+                Condition.getCondition(config().getString("playerlist-objective.disable-condition"));
+        disableChecker = new DisableChecker(
+                getFeatureName(), disableCondition, this::onDisableConditionChange, p -> p.disabledYellowNumber);
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.YELLOW_NUMBER + "-Condition", disableChecker);
     }
 
     /**
@@ -94,7 +105,11 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
         }
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             for (Map.Entry<TabPlayer, Integer> entry : values.entrySet()) {
-                setScore(viewer, entry.getKey(), entry.getValue(), entry.getKey().getProperty(PROPERTY_VALUE_FANCY).getFormat(viewer));
+                setScore(
+                        viewer,
+                        entry.getKey(),
+                        entry.getValue(),
+                        entry.getKey().getProperty(PROPERTY_VALUE_FANCY).getFormat(viewer));
             }
         }
     }
@@ -122,7 +137,11 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             setScore(all, connectedPlayer, value, valueFancy.getFormat(connectedPlayer));
             if (all != connectedPlayer) {
-                setScore(connectedPlayer, all, getValueNumber(all), all.getProperty(PROPERTY_VALUE_FANCY).getFormat(connectedPlayer));
+                setScore(
+                        connectedPlayer,
+                        all,
+                        getValueNumber(all),
+                        all.getProperty(PROPERTY_VALUE_FANCY).getFormat(connectedPlayer));
             }
         }
         if (redis != null) redis.updateYellowNumber(connectedPlayer, value, valueFancy.get());
@@ -166,7 +185,12 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
         if (p.disabledYellowNumber.get() || !p.isLoaded()) return;
         register(p);
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-            if (all.isLoaded()) setScore(p, all, getValueNumber(all), all.getProperty(PROPERTY_VALUE_FANCY).getFormat(p));
+            if (all.isLoaded())
+                setScore(
+                        p,
+                        all,
+                        getValueNumber(all),
+                        all.getProperty(PROPERTY_VALUE_FANCY).getFormat(p));
         }
     }
 
@@ -187,15 +211,16 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
      * @param   fancyValue
      *          NumberFormat display of the score
      */
-    public void setScore(@NotNull TabPlayer viewer, @NotNull TabPlayer scoreHolder, int value, @NotNull String fancyValue) {
+    public void setScore(
+            @NotNull TabPlayer viewer, @NotNull TabPlayer scoreHolder, int value, @NotNull String fancyValue) {
         if (viewer.disabledYellowNumber.get()) return;
-        viewer.getScoreboard().setScore(
-                OBJECTIVE_NAME,
-                scoreHolder.getNickname(),
-                value,
-                null, // Unused by this objective slot
-                TabComponent.optimized(fancyValue)
-        );
+        viewer.getScoreboard()
+                .setScore(
+                        OBJECTIVE_NAME,
+                        scoreHolder.getNickname(),
+                        value,
+                        null, // Unused by this objective slot
+                        TabComponent.optimized(fancyValue));
     }
 
     @Override

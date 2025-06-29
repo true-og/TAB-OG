@@ -2,7 +2,6 @@ package me.neznamy.tab.shared.command;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import org.jetbrains.annotations.NotNull;
@@ -29,12 +28,16 @@ public class DisabledCommand {
             if (hasReloadPermission) {
                 messages.add(TAB.getInstance().load());
             } else {
-                //cannot take message from file when syntax is broken
-                messages.add("&cI'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.");
+                // cannot take message from file when syntax is broken
+                messages.add(
+                        "&cI'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.");
             }
         } else {
             if (hasAdminPermission) {
-                String command = "/" + (TAB.getInstance().getPlatform().isProxy() ? TabConstants.COMMAND_PROXY : TabConstants.COMMAND_BACKEND);
+                String command = "/"
+                        + (TAB.getInstance().getPlatform().isProxy()
+                                ? TabConstants.COMMAND_PROXY
+                                : TabConstants.COMMAND_BACKEND);
                 messages.add("&m                                                                                ");
                 messages.add(" &cPlugin is disabled due to an error. Check console for more details.");
                 messages.add(" &8>> &3&l" + command + " reload");

@@ -10,7 +10,11 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public class GroupPattern {
 
-    @NotNull private final String name;
-    @Nullable private final Condition condition;
+    @NotNull
+    private final String name;
+
+    @Nullable
+    private final Condition condition;
+
     private final int[] slots;
 }

@@ -1,10 +1,9 @@
 package me.neznamy.tab.shared.features.types;
 
+import java.util.Collection;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
 
 /**
  * Interface for features periodically refreshing visuals
@@ -27,7 +26,8 @@ public interface Refreshable {
      *
      * @return  Display name of refresh function in this feature
      */
-    @NotNull String getRefreshDisplayName();
+    @NotNull
+    String getRefreshDisplayName();
 
     /**
      * Registers this feature as one using specified placeholders
@@ -55,5 +55,6 @@ public interface Refreshable {
      *
      * @return  name of this feature display in /tab cpu
      */
-    @NotNull String getFeatureName();
+    @NotNull
+    String getFeatureName();
 }

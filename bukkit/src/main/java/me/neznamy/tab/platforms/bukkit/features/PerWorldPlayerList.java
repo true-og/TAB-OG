@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.types.Loadable;
+import me.neznamy.tab.shared.features.types.TabFeature;
 import me.neznamy.tab.shared.features.types.UnLoadable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,10 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import me.neznamy.tab.shared.features.types.TabFeature;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.TAB;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,8 +28,11 @@ public class PerWorldPlayerList extends TabFeature implements Listener, Loadable
 
     /** Config options */
     private final boolean allowBypass = config().getBoolean("per-world-playerlist.allow-bypass-permission", false);
-    private final List<String> ignoredWorlds = config().getStringList("per-world-playerlist.ignore-effect-in-worlds", Arrays.asList("ignored_world", "build"));
-    private final Map<String, List<String>> sharedWorlds = config().getConfigurationSection("per-world-playerlist.shared-playerlist-world-groups");
+
+    private final List<String> ignoredWorlds = config().getStringList(
+                    "per-world-playerlist.ignore-effect-in-worlds", Arrays.asList("ignored_world", "build"));
+    private final Map<String, List<String>> sharedWorlds =
+            config().getConfigurationSection("per-world-playerlist.shared-playerlist-world-groups");
 
     /**
      * Constructs new instance and registers events
@@ -70,7 +71,9 @@ public class PerWorldPlayerList extends TabFeature implements Listener, Loadable
     public void onJoin(PlayerJoinEvent e) {
         long time = System.nanoTime();
         checkPlayer(e.getPlayer());
-        TAB.getInstance().getCPUManager().addTime(getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, System.nanoTime()-time);
+        TAB.getInstance()
+                .getCPUManager()
+                .addTime(getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, System.nanoTime() - time);
     }
 
     /**
@@ -83,7 +86,9 @@ public class PerWorldPlayerList extends TabFeature implements Listener, Loadable
     public void onWorldChange(PlayerChangedWorldEvent e) {
         long time = System.nanoTime();
         checkPlayer(e.getPlayer());
-        TAB.getInstance().getCPUManager().addTime(getFeatureName(), TabConstants.CpuUsageCategory.WORLD_SWITCH, System.nanoTime()-time);
+        TAB.getInstance()
+                .getCPUManager()
+                .addTime(getFeatureName(), TabConstants.CpuUsageCategory.WORLD_SWITCH, System.nanoTime() - time);
     }
 
     /**
@@ -114,8 +119,10 @@ public class PerWorldPlayerList extends TabFeature implements Listener, Loadable
      */
     private boolean shouldSee(@NotNull Player viewer, @NotNull Player target) {
         if (target == viewer) return true;
-        if ((allowBypass && viewer.hasPermission(TabConstants.Permission.PER_WORLD_PLAYERLIST_BYPASS)) || ignoredWorlds.contains(viewer.getWorld().getName())) return true;
-        String viewerWorldGroup = viewer.getWorld().getName() + "-default"; //preventing unwanted behavior when some group is called exactly like a world
+        if ((allowBypass && viewer.hasPermission(TabConstants.Permission.PER_WORLD_PLAYERLIST_BYPASS))
+                || ignoredWorlds.contains(viewer.getWorld().getName())) return true;
+        String viewerWorldGroup = viewer.getWorld().getName()
+                + "-default"; // preventing unwanted behavior when some group is called exactly like a world
         String targetWorldGroup = target.getWorld().getName() + "-default";
         for (Entry<String, List<String>> group : sharedWorlds.entrySet()) {
             if (group.getValue() != null) {

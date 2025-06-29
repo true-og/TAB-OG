@@ -6,5 +6,4 @@ package me.neznamy.tab.api.event;
  * <p>This is a marker interface. All events <strong>must</strong> implement this
  * interface.
  */
-public interface TabEvent {
-}
+public interface TabEvent {}

@@ -1,9 +1,8 @@
 package me.neznamy.tab.shared.placeholders.conditions;
 
+import java.util.function.BiFunction;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
 
 /**
  * Condition class for conditions that use String operations.

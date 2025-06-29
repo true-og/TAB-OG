@@ -7,13 +7,13 @@ import me.neznamy.tab.platforms.bukkit.nms.PingRetriever;
 import me.neznamy.tab.platforms.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.platforms.bukkit.scoreboard.ScoreboardLoader;
 import me.neznamy.tab.platforms.bukkit.tablist.TabListBase;
+import me.neznamy.tab.shared.backend.BackendTabPlayer;
 import me.neznamy.tab.shared.backend.entityview.DummyEntityView;
 import me.neznamy.tab.shared.backend.entityview.EntityView;
-import me.neznamy.tab.shared.platform.BossBar;
 import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.platform.TabList;
+import me.neznamy.tab.shared.platform.BossBar;
 import me.neznamy.tab.shared.platform.Scoreboard;
-import me.neznamy.tab.shared.backend.BackendTabPlayer;
+import me.neznamy.tab.shared.platform.TabList;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffectType;
@@ -28,7 +28,8 @@ import org.jetbrains.annotations.Nullable;
 public class BukkitTabPlayer extends BackendTabPlayer {
 
     @NotNull
-    private final Scoreboard<BukkitTabPlayer, ?> scoreboard = ScoreboardLoader.getInstance().apply(this);
+    private final Scoreboard<BukkitTabPlayer, ?> scoreboard =
+            ScoreboardLoader.getInstance().apply(this);
 
     @NotNull
     private final TabListBase<?> tabList = TabListBase.getInstance().apply(this);
@@ -37,7 +38,8 @@ public class BukkitTabPlayer extends BackendTabPlayer {
     private final BossBar bossBar = BossBarLoader.findInstance(this);
 
     @NotNull
-    private final EntityView entityView = PacketEntityView.isAvailable() ? new PacketEntityView(this) : new DummyEntityView();
+    private final EntityView entityView =
+            PacketEntityView.isAvailable() ? new PacketEntityView(this) : new DummyEntityView();
 
     /**
      * Constructs new instance with given bukkit player
@@ -48,7 +50,13 @@ public class BukkitTabPlayer extends BackendTabPlayer {
      *          bukkit player
      */
     public BukkitTabPlayer(@NotNull BukkitPlatform platform, @NotNull Player p) {
-        super(platform, p, p.getUniqueId(), p.getName(), p.getWorld().getName(), platform.getServerVersion().getNetworkId());
+        super(
+                platform,
+                p,
+                p.getUniqueId(),
+                p.getName(),
+                p.getWorld().getName(),
+                platform.getServerVersion().getNetworkId());
     }
 
     @Override
@@ -63,7 +71,8 @@ public class BukkitTabPlayer extends BackendTabPlayer {
 
     @Override
     public void sendMessage(@NotNull TabComponent message) {
-        getPlayer().sendMessage(getPlatform().toBukkitFormat(message, getVersion().supportsRGB()));
+        getPlayer()
+                .sendMessage(getPlatform().toBukkitFormat(message, getVersion().supportsRGB()));
     }
 
     @Override

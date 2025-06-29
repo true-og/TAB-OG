@@ -1,13 +1,12 @@
 package me.neznamy.tab.api.event.plugin;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.event.TabEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Called when an unknown placeholder is about to be registered.
@@ -20,7 +19,8 @@ public interface PlaceholderRegisterEvent extends TabEvent {
      *
      * @return  placeholder identifier starting and ending with {@code %}
      */
-    @NotNull String getIdentifier();
+    @NotNull
+    String getIdentifier();
 
     /**
      * Sets placeholder to specified server placeholder implementation.

@@ -1,5 +1,7 @@
 package me.neznamy.tab.shared.hook;
 
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.shared.TabConstants;
@@ -10,9 +12,6 @@ import net.luckperms.api.cacheddata.CachedMetaData;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.query.QueryOptions;
 
-import java.util.Optional;
-import java.util.function.Function;
-
 /**
  * Class that hooks into LuckPerms if installed.
  */
@@ -20,7 +19,8 @@ import java.util.function.Function;
 public class LuckPermsHook {
 
     /** Instance of the class */
-    @Getter private static final LuckPermsHook instance = new LuckPermsHook();
+    @Getter
+    private static final LuckPermsHook instance = new LuckPermsHook();
 
     /** Flag tracking if LuckPerms is installed or not */
     private final boolean installed = ReflectionUtils.classExists("net.luckperms.api.LuckPerms");
@@ -67,7 +67,8 @@ public class LuckPermsHook {
     private String getValue(@NonNull TabPlayer p, boolean prefix) {
         User user = LuckPermsProvider.get().getUserManager().getUser(p.getUniqueId());
         if (user == null) return "";
-        Optional<QueryOptions> options = LuckPermsProvider.get().getContextManager().getQueryOptions(user);
+        Optional<QueryOptions> options =
+                LuckPermsProvider.get().getContextManager().getQueryOptions(user);
         if (!options.isPresent()) return "";
         CachedMetaData data = user.getCachedData().getMetaData(options.get());
         String value;

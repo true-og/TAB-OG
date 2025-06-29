@@ -1,26 +1,26 @@
 package me.neznamy.tab.shared.proxy;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.proxy.message.outgoing.OutgoingMessage;
 import me.neznamy.tab.shared.proxy.message.outgoing.PermissionRequest;
 import me.neznamy.tab.shared.proxy.message.outgoing.PlayerJoin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 /**
  * Abstract class for player on proxy containing variables and methods
  * shared between proxies.
  */
-@Getter @Setter
+@Getter
+@Setter
 public abstract class ProxyTabPlayer extends TabPlayer {
 
     /** Player's vanish status from backend server */
@@ -64,9 +64,22 @@ public abstract class ProxyTabPlayer extends TabPlayer {
      * @param   protocolVersion
      *          Player's protocol network id
      */
-    protected ProxyTabPlayer(@NotNull ProxyPlatform platform, @NotNull Object player, @NotNull UUID uniqueId,
-                             @NotNull String name, @NotNull String server, int protocolVersion) {
-        super(platform, player, uniqueId, name, server, "N/A", protocolVersion, TAB.getInstance().getConfiguration().isOnlineUuidInTabList());
+    protected ProxyTabPlayer(
+            @NotNull ProxyPlatform platform,
+            @NotNull Object player,
+            @NotNull UUID uniqueId,
+            @NotNull String name,
+            @NotNull String server,
+            int protocolVersion) {
+        super(
+                platform,
+                player,
+                uniqueId,
+                name,
+                server,
+                "N/A",
+                protocolVersion,
+                TAB.getInstance().getConfiguration().isOnlineUuidInTabList());
         sendJoinPluginMessage();
     }
 
@@ -85,17 +98,18 @@ public abstract class ProxyTabPlayer extends TabPlayer {
                     nametagx.isArmorStandsAlwaysVisible(),
                     disabledNametags.get() || disabledUnlimitedNametags.get(),
                     nametagx.getDynamicLines(),
-                    nametagx.getStaticLines()
-            );
+                    nametagx.getStaticLines());
         }
         sendPluginMessage(new PlayerJoin(
                 getVersion().getNetworkId(),
-                TAB.getInstance().getGroupManager().getPermissionPlugin().contains("Vault") &&
-                    !TAB.getInstance().getGroupManager().isGroupsByPermissions(),
+                TAB.getInstance().getGroupManager().getPermissionPlugin().contains("Vault")
+                        && !TAB.getInstance().getGroupManager().isGroupsByPermissions(),
                 ((ProxyPlatform) getPlatform()).getBridgePlaceholders(),
-                TAB.getInstance().getConfiguration().getConfig().getConfigurationSection("placeholder-output-replacements"),
-                settings
-        ));
+                TAB.getInstance()
+                        .getConfiguration()
+                        .getConfig()
+                        .getConfigurationSection("placeholder-output-replacements"),
+                settings));
         TabExpansion expansion = TAB.getInstance().getPlaceholderManager().getTabExpansion();
         if (expansion instanceof ProxyTabExpansion) {
             ((ProxyTabExpansion) expansion).resendAllValues(this);

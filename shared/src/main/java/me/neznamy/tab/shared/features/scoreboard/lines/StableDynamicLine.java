@@ -35,7 +35,7 @@ public class StableDynamicLine extends ScoreboardLine {
 
     @Override
     public void refresh(@NotNull TabPlayer refreshed, boolean force) {
-        if (!parent.getPlayers().contains(refreshed)) return; //player has different scoreboard displayed
+        if (!parent.getPlayers().contains(refreshed)) return; // player has different scoreboard displayed
         String[] prefixSuffix = replaceText(refreshed, force, false);
         if (prefixSuffix.length == 0) return;
         updateTeam(refreshed, prefixSuffix[0], prefixSuffix[1]);
@@ -52,7 +52,8 @@ public class StableDynamicLine extends ScoreboardLine {
 
     @Override
     public void unregister(@NonNull TabPlayer p) {
-        if (parent.getPlayers().contains(p) && !p.getProperty(textProperty).get().isEmpty()) {
+        if (parent.getPlayers().contains(p)
+                && !p.getProperty(textProperty).get().isEmpty()) {
             removeLine(p, getPlayerName());
         }
     }
@@ -71,17 +72,21 @@ public class StableDynamicLine extends ScoreboardLine {
      */
     private String[] replaceText(TabPlayer p, boolean force, boolean suppressToggle) {
         Property scoreProperty = p.getProperty(textProperty);
-        if (scoreProperty == null) return EMPTY_ARRAY; //not actually loaded yet (force refresh called from placeholder manager register method)
+        if (scoreProperty == null)
+            return EMPTY_ARRAY; // not actually loaded yet (force refresh called from placeholder manager register
+        // method)
         boolean emptyBefore = scoreProperty.get().isEmpty();
         if (!scoreProperty.update() && !force) return EMPTY_ARRAY;
         String replaced = scoreProperty.get();
         if (!p.getVersion().supportsRGB()) {
-            replaced = RGBUtils.getInstance().convertRGBtoLegacy(replaced); //converting RGB to legacy here to avoid splitting in the middle of RGB code
+            replaced = RGBUtils.getInstance()
+                    .convertRGBtoLegacy(
+                            replaced); // converting RGB to legacy here to avoid splitting in the middle of RGB code
         }
         String[] split = split(p, replaced);
         if (!replaced.isEmpty()) {
             if (emptyBefore) {
-                //was "", now it is not
+                // was "", now it is not
                 addLine(p, getPlayerName(), split[0], split[1]);
                 parent.recalculateScores(p);
                 return EMPTY_ARRAY;
@@ -90,7 +95,7 @@ public class StableDynamicLine extends ScoreboardLine {
             }
         } else {
             if (!suppressToggle) {
-                //new string is "", but before it was not
+                // new string is "", but before it was not
                 removeLine(p, getPlayerName());
                 parent.recalculateScores(p);
             }
@@ -115,8 +120,8 @@ public class StableDynamicLine extends ScoreboardLine {
             StringBuilder suffix = new StringBuilder(text);
             prefix.setLength(charLimit);
             suffix.delete(0, charLimit);
-            if (prefix.charAt(charLimit-1) == EnumChatFormat.COLOR_CHAR) {
-                prefix.setLength(prefix.length()-1);
+            if (prefix.charAt(charLimit - 1) == EnumChatFormat.COLOR_CHAR) {
+                prefix.setLength(prefix.length() - 1);
                 suffix.insert(0, EnumChatFormat.COLOR_CHAR);
             }
             String prefixString = prefix.toString();

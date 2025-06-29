@@ -19,5 +19,6 @@ public interface Placeholder {
      *
      * @return  placeholder's identifier
      */
-    @NotNull String getIdentifier();
+    @NotNull
+    String getIdentifier();
 }

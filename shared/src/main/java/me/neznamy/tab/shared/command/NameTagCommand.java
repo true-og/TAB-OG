@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.command;
 
-import me.neznamy.tab.shared.platform.TabPlayer;
+import java.util.*;
 import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
 
 /**
  * Handler for "/tab nametag" subcommand
@@ -32,10 +31,24 @@ public class NameTagCommand extends SubCommand {
 
         switch (args[0].toLowerCase(Locale.US)) {
             case "preview":
-                preview(sender,getTarget(sender, args, TabConstants.Permission.COMMAND_NAMETAG_PREVIEW_OTHER, TabConstants.Permission.COMMAND_NAMETAG_PREVIEW),silent);
+                preview(
+                        sender,
+                        getTarget(
+                                sender,
+                                args,
+                                TabConstants.Permission.COMMAND_NAMETAG_PREVIEW_OTHER,
+                                TabConstants.Permission.COMMAND_NAMETAG_PREVIEW),
+                        silent);
                 break;
             case "toggle":
-                toggle(sender,getTarget(sender, args, TabConstants.Permission.COMMAND_NAMETAG_TOGGLE_OTHER, TabConstants.Permission.COMMAND_NAMETAG_TOGGLE),silent);
+                toggle(
+                        sender,
+                        getTarget(
+                                sender,
+                                args,
+                                TabConstants.Permission.COMMAND_NAMETAG_TOGGLE_OTHER,
+                                TabConstants.Permission.COMMAND_NAMETAG_TOGGLE),
+                        silent);
                 break;
             default:
                 sendMessages(sender, getMessages().getNameTagHelpMenu());
@@ -69,7 +82,11 @@ public class NameTagCommand extends SubCommand {
         teams.toggleNameTagVisibilityView(target, !silent);
     }
 
-    private @Nullable TabPlayer getTarget(@Nullable TabPlayer sender, @NotNull String[] args, @NotNull String permissionOther, @NotNull String permission) {
+    private @Nullable TabPlayer getTarget(
+            @Nullable TabPlayer sender,
+            @NotNull String[] args,
+            @NotNull String permissionOther,
+            @NotNull String permission) {
         if (args.length >= 2 && TAB.getInstance().getPlayer(args[1]) != null) {
             if (hasPermission(sender, permissionOther)) {
                 return TAB.getInstance().getPlayer(args[1]);

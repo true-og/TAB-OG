@@ -1,4 +1,3 @@
-
 package me.neznamy.tab.shared.platform.impl;
 
 import java.util.HashMap;
@@ -37,16 +36,16 @@ public class AdventureBossBar implements BossBar {
     private boolean frozen;
 
     @Override
-    public void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
+    public void create(
+            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
         if (frozen) return; // Server switch
         net.kyori.adventure.bossbar.BossBar bar = net.kyori.adventure.bossbar.BossBar.bossBar(
                 TabComponent.optimized(title).convert(player.getVersion()),
                 progress,
                 Color.valueOf(color.name()),
-                Overlay.valueOf(style.name())
-        );
+                Overlay.valueOf(style.name()));
         bossBars.put(id, bar);
-        ((Audience)player.getPlayer()).showBossBar(bar);
+        ((Audience) player.getPlayer()).showBossBar(bar);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class AdventureBossBar implements BossBar {
     @Override
     public void remove(@NotNull UUID id) {
         if (frozen) return; // Server switch
-        ((Audience)player.getPlayer()).hideBossBar(bossBars.remove(id));
+        ((Audience) player.getPlayer()).hideBossBar(bossBars.remove(id));
     }
 
     @Override

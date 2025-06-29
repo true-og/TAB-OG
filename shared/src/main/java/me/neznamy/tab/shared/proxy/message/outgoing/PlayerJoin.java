@@ -2,12 +2,11 @@ package me.neznamy.tab.shared.proxy.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 @AllArgsConstructor
 @SuppressWarnings("UnstableApiUsage")

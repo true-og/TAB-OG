@@ -1,19 +1,18 @@
 package me.neznamy.tab.shared.placeholders.types;
 
-import lombok.Getter;
-import lombok.NonNull;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.placeholders.PlaceholderReplacementPattern;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.api.placeholder.Placeholder;
-import me.neznamy.tab.shared.TAB;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.NonNull;
+import me.neznamy.tab.api.placeholder.Placeholder;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.placeholders.PlaceholderReplacementPattern;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * General collection of variables and functions shared between all placeholder types
@@ -31,10 +30,12 @@ public abstract class TabPlaceholder implements Placeholder {
     private final int refresh;
 
     /** Placeholder's identifier including % */
-    @NonNull protected final String identifier;
+    @NonNull
+    protected final String identifier;
 
     /** Configured placeholder output replacements */
-    @NonNull protected final PlaceholderReplacementPattern replacements;
+    @NonNull
+    protected final PlaceholderReplacementPattern replacements;
 
     /**
      * List of placeholders using this placeholder as a nested placeholder,
@@ -54,13 +55,19 @@ public abstract class TabPlaceholder implements Placeholder {
      */
     protected TabPlaceholder(@NonNull String identifier, int refresh) {
         if (refresh % TabConstants.Placeholder.MINIMUM_REFRESH_INTERVAL != 0 && refresh != -1)
-            throw new IllegalArgumentException("Refresh interval must be divisible by " + TabConstants.Placeholder.MINIMUM_REFRESH_INTERVAL);
+            throw new IllegalArgumentException(
+                    "Refresh interval must be divisible by " + TabConstants.Placeholder.MINIMUM_REFRESH_INTERVAL);
         if (!identifier.startsWith("%") || !identifier.endsWith("%"))
-            throw new IllegalArgumentException("Identifier must start and end with % (attempted to use \"" + identifier + "\")");
+            throw new IllegalArgumentException(
+                    "Identifier must start and end with % (attempted to use \"" + identifier + "\")");
         this.identifier = identifier;
         this.refresh = refresh;
-        Map<String, Map<Object, Object>> map = TAB.getInstance().getConfiguration().getConfig().getConfigurationSection("placeholder-output-replacements");
-        replacements = PlaceholderReplacementPattern.create(identifier, map.getOrDefault(identifier, Collections.emptyMap()));
+        Map<String, Map<Object, Object>> map = TAB.getInstance()
+                .getConfiguration()
+                .getConfig()
+                .getConfigurationSection("placeholder-output-replacements");
+        replacements =
+                PlaceholderReplacementPattern.create(identifier, map.getOrDefault(identifier, Collections.emptyMap()));
         for (String nested : getNestedPlaceholders("")) {
             TAB.getInstance().getPlaceholderManager().getPlaceholder(nested).addParent(identifier);
         }
@@ -130,8 +137,11 @@ public abstract class TabPlaceholder implements Placeholder {
         if (identifier.equals(text)) return text;
         String replaced = text;
         for (String s : getNestedPlaceholders(text)) {
-            if (s.equals(identifier) || (identifier.startsWith("%sync:") && ("%" + identifier.substring(6)).equals(s)) || s.startsWith("%rel_")) continue;
-            replaced = TAB.getInstance().getPlaceholderManager().getPlaceholder(s).set(replaced, p);
+            if (s.equals(identifier)
+                    || (identifier.startsWith("%sync:") && ("%" + identifier.substring(6)).equals(s))
+                    || s.startsWith("%rel_")) continue;
+            replaced =
+                    TAB.getInstance().getPlaceholderManager().getPlaceholder(s).set(replaced, p);
         }
         return replaced;
     }

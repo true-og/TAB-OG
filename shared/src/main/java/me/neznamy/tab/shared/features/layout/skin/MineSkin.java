@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import me.neznamy.tab.shared.config.file.ConfigurationFile;
-import me.neznamy.tab.shared.TAB;
 
 /**
  * Skin source using mineskin.org for skins.

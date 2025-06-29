@@ -1,15 +1,14 @@
 package me.neznamy.tab.shared.backend.features.unlimitedtags;
 
+import java.util.*;
 import lombok.Getter;
-import me.neznamy.tab.shared.backend.Location;
-import me.neznamy.tab.shared.features.nametags.unlimited.ArmorStandManager;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.backend.BackendTabPlayer;
+import me.neznamy.tab.shared.backend.Location;
+import me.neznamy.tab.shared.features.nametags.unlimited.ArmorStandManager;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 public class BackendArmorStandManager implements ArmorStandManager {
 
@@ -20,7 +19,8 @@ public class BackendArmorStandManager implements ArmorStandManager {
 
     private final TabPlayer owner;
 
-    @Getter private boolean sneaking;
+    @Getter
+    private boolean sneaking;
 
     /** Armor stands in an array for speed while iterating */
     private final ArmorStand[] armorStandArray;
@@ -29,7 +29,8 @@ public class BackendArmorStandManager implements ArmorStandManager {
     private final List<BackendTabPlayer> nearbyPlayerList = new ArrayList<>();
 
     /** Nearby players in an array for speed while iterating */
-    @Getter private BackendTabPlayer[] nearbyPlayers = new BackendTabPlayer[0];
+    @Getter
+    private BackendTabPlayer[] nearbyPlayers = new BackendTabPlayer[0];
 
     /**
      * Constructs new instance with given parameters and loads armor stands.
@@ -43,9 +44,12 @@ public class BackendArmorStandManager implements ArmorStandManager {
         this.nameTagX = (BackendNameTagX) nameTagX;
         this.owner = owner;
         sneaking = this.nameTagX.isSneaking(owner);
-        owner.setProperty(nameTagX, TabConstants.Property.NAMETAG, owner.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
-                + owner.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue()
-                + owner.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
+        owner.setProperty(
+                nameTagX,
+                TabConstants.Property.NAMETAG,
+                owner.getProperty(TabConstants.Property.TAGPREFIX).getCurrentRawValue()
+                        + owner.getProperty(TabConstants.Property.CUSTOMTAGNAME).getCurrentRawValue()
+                        + owner.getProperty(TabConstants.Property.TAGSUFFIX).getCurrentRawValue());
         double height = 0;
         List<ArmorStand> armorStands = new ArrayList<>();
         for (String line : nameTagX.getDynamicLines()) {
@@ -53,7 +57,13 @@ public class BackendArmorStandManager implements ArmorStandManager {
             height += SPACE_BETWEEN_LINES;
         }
         for (Map.Entry<String, Object> line : nameTagX.getStaticLines().entrySet()) {
-            armorStands.add(new ArmorStand((BackendNameTagX) nameTagX, this, owner, line.getKey(), Double.parseDouble(line.getValue().toString()), true));
+            armorStands.add(new ArmorStand(
+                    (BackendNameTagX) nameTagX,
+                    this,
+                    owner,
+                    line.getKey(),
+                    Double.parseDouble(line.getValue().toString()),
+                    true));
         }
         armorStandArray = armorStands.toArray(new ArmorStand[0]);
         fixArmorStandHeights();
@@ -114,14 +124,14 @@ public class BackendArmorStandManager implements ArmorStandManager {
         }
         for (BackendTabPlayer viewer : nearbyPlayers) {
             if (viewer.getVersion().getMinorVersion() == 14 && !nameTagX.isArmorStandsAlwaysVisible()) {
-                //1.14.x client sided bug, de-spawning completely
+                // 1.14.x client sided bug, de-spawning completely
                 if (sneaking) {
                     destroy(viewer);
                 } else {
                     spawn(viewer);
                 }
             } else {
-                //respawning so there's no animation and it's instant
+                // respawning so there's no animation and it's instant
                 respawn(viewer);
             }
         }
@@ -233,7 +243,9 @@ public class BackendArmorStandManager implements ArmorStandManager {
 
     public void updateMetadata(@NotNull BackendTabPlayer viewer) {
         for (ArmorStand a : armorStandArray) {
-            viewer.getEntityView().updateEntityMetadata(a.entityId, a.createDataWatcher(a.getProperty().getFormat(viewer), viewer));
+            viewer.getEntityView()
+                    .updateEntityMetadata(
+                            a.entityId, a.createDataWatcher(a.getProperty().getFormat(viewer), viewer));
         }
     }
 }

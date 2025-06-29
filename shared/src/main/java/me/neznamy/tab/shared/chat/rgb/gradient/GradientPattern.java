@@ -30,7 +30,7 @@ public interface GradientPattern {
      * @return  reformatted text
      */
     default String asGradient(@NotNull TextColor start, @NotNull String text, @NotNull TextColor end) {
-        //lazy support for magic codes in gradients
+        // lazy support for magic codes in gradients
         String magicCodes = EnumChatFormat.getLastColors(text);
         String deColorized = text.substring(magicCodes.length());
         StringBuilder sb = new StringBuilder();
@@ -38,18 +38,20 @@ public interface GradientPattern {
         if (length == 1) {
             sb.append("#");
             sb.append(start.getHexCode());
-            if (start.isLegacyColorForced()) sb.append("|").append(start.getLegacyColor().getCharacter());
+            if (start.isLegacyColorForced())
+                sb.append("|").append(start.getLegacyColor().getCharacter());
             sb.append(magicCodes);
             sb.append(deColorized);
             return sb.toString();
         }
-        for (int i=0; i<length; i++) {
-            int red = (int) (start.getRed() + (float)(end.getRed() - start.getRed())/(length-1)*i);
-            int green = (int) (start.getGreen() + (float)(end.getGreen() - start.getGreen())/(length-1)*i);
-            int blue = (int) (start.getBlue() + (float)(end.getBlue() - start.getBlue())/(length-1)*i);
+        for (int i = 0; i < length; i++) {
+            int red = (int) (start.getRed() + (float) (end.getRed() - start.getRed()) / (length - 1) * i);
+            int green = (int) (start.getGreen() + (float) (end.getGreen() - start.getGreen()) / (length - 1) * i);
+            int blue = (int) (start.getBlue() + (float) (end.getBlue() - start.getBlue()) / (length - 1) * i);
             sb.append("#");
             sb.append(new TextColor(red, green, blue).getHexCode());
-            if (start.isLegacyColorForced()) sb.append("|").append(start.getLegacyColor().getCharacter());
+            if (start.isLegacyColorForced())
+                sb.append("|").append(start.getLegacyColor().getCharacter());
             sb.append(magicCodes);
             sb.append(deColorized.charAt(i));
         }

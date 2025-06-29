@@ -1,5 +1,7 @@
 package me.neznamy.tab.shared.platform;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.*;
 import me.neznamy.tab.shared.Limitations;
 import me.neznamy.tab.shared.TAB;
@@ -8,9 +10,6 @@ import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.chat.rgb.RGBUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Scoreboard class for sending scoreboard-related packets.
@@ -78,11 +77,17 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * @param   numberFormat
      *          Number format of score value (1.20.3+)
      */
-    public final void setScore(@NonNull String objective, @NonNull String scoreHolder, int score,
-                               @Nullable TabComponent displayName, @Nullable TabComponent numberFormat) {
+    public final void setScore(
+            @NonNull String objective,
+            @NonNull String scoreHolder,
+            int score,
+            @Nullable TabComponent displayName,
+            @Nullable TabComponent numberFormat) {
         if (frozen) return;
         if (!registeredObjectives.contains(objective)) {
-            error("Tried to update score (%s) without the existence of its requested objective '%s' to player ", scoreHolder, objective);
+            error(
+                    "Tried to update score (%s) without the existence of its requested objective '%s' to player ",
+                    scoreHolder, objective);
             return;
         }
         setScore0(
@@ -90,8 +95,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 scoreHolder,
                 score,
                 displayName == null ? null : displayName.convert(player.getVersion()),
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
-        );
+                numberFormat == null ? null : numberFormat.convert(player.getVersion()));
     }
 
     /**
@@ -105,7 +109,9 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
     public final void removeScore(@NonNull String objective, @NonNull String scoreHolder) {
         if (frozen) return;
         if (!registeredObjectives.contains(objective)) {
-            error("Tried to remove score (%s) without the existence of its requested objective '%s' to player ", scoreHolder, objective);
+            error(
+                    "Tried to remove score (%s) without the existence of its requested objective '%s' to player ",
+                    scoreHolder, objective);
             return;
         }
         removeScore0(objective, scoreHolder);
@@ -123,8 +129,8 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * @param   numberFormat
      *          Default number format for all scores in this objective (1.20.3+)
      */
-    public final void registerObjective(@NonNull String objectiveName, @NonNull String title, int display,
-                                  @Nullable TabComponent numberFormat) {
+    public final void registerObjective(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable TabComponent numberFormat) {
         if (frozen) return;
         if (!registeredObjectives.add(objectiveName)) {
             error("Tried to register duplicated objective %s to player ", objectiveName);
@@ -134,8 +140,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 objectiveName,
                 cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
                 display,
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
-        );
+                numberFormat == null ? null : numberFormat.convert(player.getVersion()));
     }
 
     /**
@@ -165,8 +170,8 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * @param   numberFormat
      *          New default number format for all scores
      */
-    public final void updateObjective(@NonNull String objectiveName, @NonNull String title, int display,
-                                @Nullable TabComponent numberFormat) {
+    public final void updateObjective(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable TabComponent numberFormat) {
         if (frozen) return;
         if (!registeredObjectives.contains(objectiveName)) {
             error("Tried to modify non-existing objective %s for player ", objectiveName);
@@ -176,8 +181,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 objectiveName,
                 cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
                 display,
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
-        );
+                numberFormat == null ? null : numberFormat.convert(player.getVersion()));
     }
 
     /**
@@ -202,9 +206,15 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * @param   color
      *          Team color (name color and prefix/suffix color start)
      */
-    public final void registerTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                                   @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                                   @NonNull Collection<String> players, int options, @NonNull EnumChatFormat color) {
+    public final void registerTeam(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            @NonNull Collection<String> players,
+            int options,
+            @NonNull EnumChatFormat color) {
         if (frozen) return;
         if (!registeredTeams.add(name)) {
             error("Tried to register duplicated team %s to player ", name);
@@ -221,8 +231,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 collision,
                 players,
                 options,
-                color
-        );
+                color);
     }
 
     /**
@@ -266,9 +275,14 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * @param   color
      *          New team color (name color and prefix/suffix color start)
      */
-    public final void updateTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                                 @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                                 int options, @NonNull EnumChatFormat color) {
+    public final void updateTeam(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color) {
         if (frozen) return;
         if (!registeredTeams.contains(name)) {
             error("Tried to modify non-existing team %s for player ", name);
@@ -281,8 +295,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 visibility,
                 collision,
                 options,
-                color
-        );
+                color);
     }
 
     /**
@@ -330,12 +343,12 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
         if (string == null) return "";
         String legacyText = string;
         if (string.contains("#")) {
-            //converting RGB to legacy colors
+            // converting RGB to legacy colors
             legacyText = RGBUtils.getInstance().convertRGBtoLegacy(string);
         }
         if (legacyText.length() <= length) return legacyText;
-        if (legacyText.charAt(length-1) == EnumChatFormat.COLOR_CHAR) {
-            return legacyText.substring(0, length-1); //cutting one extra character to prevent prefix ending with "&"
+        if (legacyText.charAt(length - 1) == EnumChatFormat.COLOR_CHAR) {
+            return legacyText.substring(0, length - 1); // cutting one extra character to prevent prefix ending with "&"
         } else {
             return legacyText.substring(0, length);
         }
@@ -434,38 +447,60 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      *          Expected team
      */
     public static void logTeamOverride(@NonNull String team, @NonNull String player, @NonNull String expectedTeam) {
-        String message = "Blocked attempt to add player " + player + " into team " + team + " (expected team: " + expectedTeam + ")";
-        //not logging the same message for every online player who received the packet
+        String message = "Blocked attempt to add player " + player + " into team " + team + " (expected team: "
+                + expectedTeam + ")";
+        // not logging the same message for every online player who received the packet
         if (!message.equals(lastTeamOverrideMessage)) {
             lastTeamOverrideMessage = message;
-            TAB.getInstance().getErrorManager().printError(message, Collections.emptyList(), false, TAB.getInstance().getErrorManager().getAntiOverrideLog());
+            TAB.getInstance()
+                    .getErrorManager()
+                    .printError(
+                            message,
+                            Collections.emptyList(),
+                            false,
+                            TAB.getInstance().getErrorManager().getAntiOverrideLog());
         }
     }
 
     protected abstract void setDisplaySlot0(int slot, @NonNull String objective);
 
-    protected abstract void setScore0(@NonNull String objective, @NonNull String scoreHolder, int score,
-                                   @Nullable C displayName, @Nullable C numberFormat);
+    protected abstract void setScore0(
+            @NonNull String objective,
+            @NonNull String scoreHolder,
+            int score,
+            @Nullable C displayName,
+            @Nullable C numberFormat);
 
     protected abstract void removeScore0(@NonNull String objective, @NonNull String scoreHolder);
 
-    protected abstract void registerObjective0(@NonNull String objectiveName, @NonNull String title,
-                                            int display, @Nullable C numberFormat);
+    protected abstract void registerObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable C numberFormat);
 
     protected abstract void unregisterObjective0(@NonNull String objectiveName);
 
-    protected abstract void updateObjective0(@NonNull String objectiveName, @NonNull String title,
-                                          int display, @Nullable C numberFormat);
+    protected abstract void updateObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable C numberFormat);
 
-    protected abstract void registerTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                                          @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                                          @NonNull Collection<String> players, int options, @NonNull EnumChatFormat color);
+    protected abstract void registerTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            @NonNull Collection<String> players,
+            int options,
+            @NonNull EnumChatFormat color);
 
     protected abstract void unregisterTeam0(@NonNull String name);
 
-    protected abstract void updateTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                                        @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                                        int options, @NonNull EnumChatFormat color);
+    protected abstract void updateTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color);
 
     /**
      * Team collision rule enum.
@@ -486,7 +521,8 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
         PUSH_OWN_TEAM("pushOwnTeam");
 
         /** Map of code name to enum constant */
-        private static final Map<String, CollisionRule> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(collisionRule -> collisionRule.string, collisionRule -> collisionRule));
+        private static final Map<String, CollisionRule> BY_NAME = Arrays.stream(values())
+                .collect(Collectors.toMap(collisionRule -> collisionRule.string, collisionRule -> collisionRule));
 
         /** Code name of this constant */
         private final String string;
@@ -529,7 +565,8 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
         HIDE_FOR_OWN_TEAM("hideForOwnTeam");
 
         /** Map of code name to enum constant */
-        private static final Map<String, NameVisibility> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(visibility -> visibility.string, visibility -> visibility));
+        private static final Map<String, NameVisibility> BY_NAME = Arrays.stream(values())
+                .collect(Collectors.toMap(visibility -> visibility.string, visibility -> visibility));
 
         /** Code name of this constant */
         private final String string;

@@ -1,10 +1,9 @@
 package me.neznamy.tab.api;
 
+import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 /**
  * An interface representing a player
@@ -17,21 +16,24 @@ public interface TabPlayer {
      *
      * @return  Player's name
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Returns player's UUID
      *
      * @return  Player's UUID
      */
-    @NotNull UUID getUniqueId();
+    @NotNull
+    UUID getUniqueId();
 
     /**
      * Returns platform-specific entity
      *
      * @return  platform's player object
      */
-    @NotNull Object getPlayer();
+    @NotNull
+    Object getPlayer();
 
     /**
      * Returns true once the player is successfully loaded (onJoin method ran through all methods)
@@ -47,7 +49,8 @@ public interface TabPlayer {
      *
      * @return  player's primary permission group
      */
-    @NotNull String getGroup();
+    @NotNull
+    String getGroup();
 
     /**
      * Temporarily overrides player's group and applies all changes coming from new group.

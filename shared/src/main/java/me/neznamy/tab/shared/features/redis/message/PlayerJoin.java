@@ -2,6 +2,7 @@ package me.neznamy.tab.shared.features.redis.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.neznamy.tab.shared.TAB;
@@ -11,13 +12,14 @@ import me.neznamy.tab.shared.features.redis.RedisSupport;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 @NoArgsConstructor
 public class PlayerJoin extends RedisMessage {
 
     private RedisSupport redisSupport;
-    @Getter private RedisPlayer decodedPlayer;
+
+    @Getter
+    private RedisPlayer decodedPlayer;
+
     private TabPlayer encodedPlayer;
 
     public PlayerJoin(@NotNull RedisSupport redisSupport, @NotNull TabPlayer encodedPlayer) {
@@ -37,7 +39,9 @@ public class PlayerJoin extends RedisMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
-        redisSupport = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE); // this is not ideal
+        redisSupport = TAB.getInstance()
+                .getFeatureManager()
+                .getFeature(TabConstants.Feature.REDIS_BUNGEE); // this is not ideal
         UUID uniqueId = readUUID(in);
         String name = in.readUTF();
         String server = in.readUTF();

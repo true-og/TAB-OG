@@ -6,10 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.TAB;
@@ -22,11 +20,21 @@ import org.jetbrains.annotations.Nullable;
 public class MySQL {
 
     private Connection con;
-    @NotNull private final String host;
+
+    @NotNull
+    private final String host;
+
     private final int port;
-    @NotNull private final String database;
-    @NotNull private final String username;
-    @NotNull private final String password;
+
+    @NotNull
+    private final String database;
+
+    @NotNull
+    private final String username;
+
+    @NotNull
+    private final String password;
+
     private final boolean useSSL;
 
     public void openConnection() throws SQLException {
@@ -37,9 +45,11 @@ public class MySQL {
         properties.setProperty("useSSL", String.valueOf(useSSL));
         properties.setProperty("characterEncoding", "UTF-8");
         con = DriverManager.getConnection(String.format("jdbc:mysql://%s:%d/%s", host, port, database), properties);
-        TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.GREEN + "Successfully connected to MySQL"));
+        TAB.getInstance()
+                .getPlatform()
+                .logInfo(TabComponent.fromColoredText(EnumChatFormat.GREEN + "Successfully connected to MySQL"));
     }
-    
+
     public void closeConnection() throws SQLException {
         if (isConnected()) con.close();
     }

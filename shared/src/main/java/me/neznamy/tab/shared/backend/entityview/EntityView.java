@@ -1,10 +1,9 @@
 package me.neznamy.tab.shared.backend.entityview;
 
+import java.util.UUID;
 import me.neznamy.tab.shared.backend.EntityData;
 import me.neznamy.tab.shared.backend.Location;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Class for manipulating entity view.
@@ -26,7 +25,12 @@ public interface EntityView {
      * @param   data
      *          Entity metadata
      */
-    void spawnEntity(int entityId, @NotNull UUID id, @NotNull Object entityType, @NotNull Location location, @NotNull EntityData data);
+    void spawnEntity(
+            int entityId,
+            @NotNull UUID id,
+            @NotNull Object entityType,
+            @NotNull Location location,
+            @NotNull EntityData data);
 
     /**
      * Sends update metadata packet.

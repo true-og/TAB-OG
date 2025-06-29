@@ -2,30 +2,29 @@ package me.neznamy.tab.shared.proxy;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import lombok.Getter;
-import me.neznamy.tab.shared.GroupManager;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.hook.LuckPermsHook;
-import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.features.types.TabFeature;
-import me.neznamy.tab.api.placeholder.Placeholder;
-import me.neznamy.tab.shared.platform.Platform;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
-import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.placeholders.UniversalPlaceholderRegistry;
-import me.neznamy.tab.shared.proxy.features.unlimitedtags.ProxyNameTagX;
-import me.neznamy.tab.shared.proxy.message.incoming.*;
-import me.neznamy.tab.shared.proxy.message.outgoing.RegisterPlaceholder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import lombok.Getter;
+import me.neznamy.tab.api.placeholder.Placeholder;
+import me.neznamy.tab.shared.GroupManager;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
+import me.neznamy.tab.shared.features.nametags.NameTag;
+import me.neznamy.tab.shared.features.types.TabFeature;
+import me.neznamy.tab.shared.hook.LuckPermsHook;
+import me.neznamy.tab.shared.placeholders.UniversalPlaceholderRegistry;
+import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
+import me.neznamy.tab.shared.platform.Platform;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.proxy.features.unlimitedtags.ProxyNameTagX;
+import me.neznamy.tab.shared.proxy.message.incoming.*;
+import me.neznamy.tab.shared.proxy.message.outgoing.RegisterPlaceholder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract class containing common variables and methods
@@ -55,13 +54,14 @@ public abstract class ProxyPlatform implements Platform {
         registeredMessages.put("Vanished", Vanished::new);
         registeredMessages.put("Placeholder", UpdatePlaceholder::new);
         registeredMessages.put("PlayerJoinResponse", PlayerJoinResponse::new);
-        registeredMessages.put("RegisterPlaceholder", me.neznamy.tab.shared.proxy.message.incoming.RegisterPlaceholder::new);
+        registeredMessages.put(
+                "RegisterPlaceholder", me.neznamy.tab.shared.proxy.message.incoming.RegisterPlaceholder::new);
     }
 
     @Override
     public @NotNull GroupManager detectPermissionPlugin() {
-        if (LuckPermsHook.getInstance().isInstalled() &&
-                !TAB.getInstance().getConfiguration().isBukkitPermissions()) {
+        if (LuckPermsHook.getInstance().isInstalled()
+                && !TAB.getInstance().getConfiguration().isBukkitPermissions()) {
             return new GroupManager("LuckPerms", LuckPermsHook.getInstance().getGroupFunction());
         }
         return new GroupManager("Vault through Bridge", TabPlayer::getGroup);
@@ -70,9 +70,9 @@ public abstract class ProxyPlatform implements Platform {
     @Override
     public void registerUnknownPlaceholder(@NotNull String identifier) {
         PlaceholderManagerImpl pl = TAB.getInstance().getPlaceholderManager();
-        //internal dynamic %online_<server>% placeholder
+        // internal dynamic %online_<server>% placeholder
         if (identifier.startsWith("%online_")) {
-            String server = identifier.substring(8, identifier.length()-1);
+            String server = identifier.substring(8, identifier.length() - 1);
             pl.registerServerPlaceholder(identifier, 1000, () -> {
                 int count = 0;
                 for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
@@ -91,16 +91,22 @@ public abstract class ProxyPlatform implements Platform {
         }
         bridgePlaceholders.put(placeholder.getIdentifier(), refresh);
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-            ((ProxyTabPlayer)all).sendPluginMessage(new RegisterPlaceholder(placeholder.getIdentifier(), refresh));
+            ((ProxyTabPlayer) all).sendPluginMessage(new RegisterPlaceholder(placeholder.getIdentifier(), refresh));
         }
     }
 
     @Override
     public void registerPlaceholders() {
-        TAB.getInstance().getPlaceholderManager().registerServerPlaceholder(TabConstants.Placeholder.TPS, -1,
-                () -> "\"tps\" is a backend-only placeholder as the proxy does not tick anything. If you wish to display TPS of " +
-                        "the server player is connected to, use placeholders from PlaceholderAPI and install TAB-Bridge for forwarding support to the proxy.");
-        new UniversalPlaceholderRegistry().registerPlaceholders(TAB.getInstance().getPlaceholderManager());
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerServerPlaceholder(
+                        TabConstants.Placeholder.TPS,
+                        -1,
+                        () ->
+                                "\"tps\" is a backend-only placeholder as the proxy does not tick anything. If you wish to display TPS of "
+                                        + "the server player is connected to, use placeholders from PlaceholderAPI and install TAB-Bridge for forwarding support to the proxy.");
+        new UniversalPlaceholderRegistry()
+                .registerPlaceholders(TAB.getInstance().getPlaceholderManager());
     }
 
     @Override
@@ -109,7 +115,9 @@ public abstract class ProxyPlatform implements Platform {
     }
 
     @Override
-    public @Nullable TabFeature getPerWorldPlayerList() { return null; }
+    public @Nullable TabFeature getPerWorldPlayerList() {
+        return null;
+    }
 
     public @NotNull TabExpansion createTabExpansion() {
         return new ProxyTabExpansion();

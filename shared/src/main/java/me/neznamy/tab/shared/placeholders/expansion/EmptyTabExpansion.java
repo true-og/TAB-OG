@@ -20,8 +20,12 @@ public class EmptyTabExpansion implements TabExpansion {
     }
 
     @Override
-    public void setValue(@NonNull TabPlayer player, @NonNull String key, @NonNull String value) {/*Do nothing*/}
+    public void setValue(@NonNull TabPlayer player, @NonNull String key, @NonNull String value) {
+        /*Do nothing*/
+    }
 
     @Override
-    public void unregisterExpansion() {/* Do nothing */}
+    public void unregisterExpansion() {
+        /* Do nothing */
+    }
 }

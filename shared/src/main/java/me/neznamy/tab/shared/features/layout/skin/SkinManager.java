@@ -7,11 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import lombok.Getter;
+import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import me.neznamy.tab.shared.config.file.YamlConfigurationFile;
-import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabList.Skin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +24,8 @@ public class SkinManager {
     private final List<String> invalidSkins = new ArrayList<>();
 
     /** Configured default skin */
-    @Getter private Skin defaultSkin;
+    @Getter
+    private Skin defaultSkin;
 
     /** Default skins per slot */
     private final Map<Integer, Skin> defaultSkinHashMap = new HashMap<>();
@@ -87,7 +87,8 @@ public class SkinManager {
         if (invalidSkins.contains(skin)) return defaultSkin;
         for (Entry<String, SkinSource> entry : sources.entrySet()) {
             if (skin.startsWith(entry.getKey() + ":")) {
-                List<String> value = entry.getValue().getSkin(skin.substring(entry.getKey().length()+1));
+                List<String> value =
+                        entry.getValue().getSkin(skin.substring(entry.getKey().length() + 1));
                 if (value.isEmpty()) {
                     invalidSkins.add(skin);
                     return defaultSkin;

@@ -1,9 +1,8 @@
 package me.neznamy.tab.shared.placeholders.conditions;
 
+import java.util.Collections;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
 
 /**
  * Condition that always returns false.

@@ -1,24 +1,28 @@
 package me.neznamy.tab.shared.features.layout;
 
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.chat.SimpleComponent;
 import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.features.PlayerList;
 import me.neznamy.tab.shared.platform.TabList;
 import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.features.PlayerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class PlayerSlot {
 
     private final int slot;
     private final LayoutView layout;
-    @Getter private final UUID uniqueId;
-    @Getter private TabPlayer player;
+
+    @Getter
+    private final UUID uniqueId;
+
+    @Getter
+    private TabPlayer player;
+
     private String text = "";
 
     public void setPlayer(@Nullable TabPlayer newPlayer) {
@@ -32,7 +36,7 @@ public class PlayerSlot {
 
     public @NotNull TabList.Entry getSlot(@NotNull TabPlayer p) {
         TabList.Entry data;
-        TabPlayer player = this.player; //avoiding NPE from concurrent access
+        TabPlayer player = this.player; // avoiding NPE from concurrent access
         if (player != null) {
             PlayerList playerList = layout.getManager().getPlayerList();
             data = new TabList.Entry(
@@ -42,8 +46,7 @@ public class PlayerSlot {
                     true,
                     player.getPing(),
                     0,
-                    playerList == null ? new SimpleComponent(player.getName()) : playerList.getTabFormat(player, p)
-            );
+                    playerList == null ? new SimpleComponent(player.getName()) : playerList.getTabFormat(player, p));
         } else {
             data = new TabList.Entry(
                     uniqueId,
@@ -52,8 +55,7 @@ public class PlayerSlot {
                     true,
                     layout.getManager().getEmptySlotPing(),
                     0,
-                    new SimpleComponent(text)
-            );
+                    new SimpleComponent(text));
         }
         return data;
     }

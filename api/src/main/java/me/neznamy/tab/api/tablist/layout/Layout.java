@@ -15,7 +15,8 @@ public interface Layout {
      *
      * @return  name of the layout
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Adds fixed slot with specified parameters

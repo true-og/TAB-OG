@@ -1,5 +1,6 @@
 package me.neznamy.tab.shared.features;
 
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.tablist.TabListFormatManager;
@@ -17,19 +18,25 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 /**
  * Feature handler for TabList display names
  */
 @Getter
-public class PlayerList extends TabFeature implements TabListFormatManager, JoinListener, Loadable,
-        UnLoadable, WorldSwitchListener, ServerSwitchListener, Refreshable, VanishListener {
+public class PlayerList extends TabFeature
+        implements TabListFormatManager,
+                JoinListener,
+                Loadable,
+                UnLoadable,
+                WorldSwitchListener,
+                ServerSwitchListener,
+                Refreshable,
+                VanishListener {
 
     /** Config option toggling anti-override which prevents other plugins from overriding TAB */
     protected final boolean antiOverrideTabList = config().getBoolean("tablist-name-formatting.anti-override", true);
 
-    private final LayoutManagerImpl layoutManager = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.LAYOUT);
+    private final LayoutManagerImpl layoutManager =
+            TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.LAYOUT);
     private RedisSupport redis;
     protected final DisableChecker disableChecker;
 
@@ -44,15 +51,22 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
      * Constructs new instance, registers disable checker into feature manager and starts anti-override.
      */
     public PlayerList() {
-        Condition disableCondition = Condition.getCondition(config().getString("tablist-name-formatting.disable-condition"));
-        disableChecker = new DisableChecker(getFeatureName(), disableCondition, this::onDisableConditionChange, p -> p.disabledPlayerList);
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.PLAYER_LIST + "-Condition", disableChecker);
+        Condition disableCondition =
+                Condition.getCondition(config().getString("tablist-name-formatting.disable-condition"));
+        disableChecker = new DisableChecker(
+                getFeatureName(), disableCondition, this::onDisableConditionChange, p -> p.disabledPlayerList);
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.PLAYER_LIST + "-Condition", disableChecker);
         if (antiOverrideTabList) {
-            TAB.getInstance().getCPUManager().startRepeatingMeasuredTask(500, getFeatureName(), TabConstants.CpuUsageCategory.ANTI_OVERRIDE, () -> {
-                for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-                    p.getTabList().checkDisplayNames();
-                }
-            });
+            TAB.getInstance()
+                    .getCPUManager()
+                    .startRepeatingMeasuredTask(
+                            500, getFeatureName(), TabConstants.CpuUsageCategory.ANTI_OVERRIDE, () -> {
+                                for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
+                                    p.getTabList().checkDisplayNames();
+                                }
+                            });
         } else {
             TAB.getInstance().getConfigHelper().startup().tablistAntiOverrideDisabled();
         }
@@ -79,7 +93,7 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
                 }
             }
         }
-        return p.getTablistId(); //layout not enabled or player not visible to viewer
+        return p.getTablistId(); // layout not enabled or player not visible to viewer
     }
 
     /**
@@ -109,13 +123,25 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
         TabPlayer player = (TabPlayer) p;
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
-            //if (!viewer.getTabList().containsEntry(player.getTablistId())) continue;
+            // if (!viewer.getTabList().containsEntry(player.getTablistId())) continue;
             UUID tablistId = getTablistUUID(player, viewer);
-            viewer.getTabList().updateDisplayName(tablistId, format ? getTabFormat(player, viewer) :
-                    tablistId.getMostSignificantBits() == 0 ? new SimpleComponent(player.getName()) : null);
+            viewer.getTabList()
+                    .updateDisplayName(
+                            tablistId,
+                            format
+                                    ? getTabFormat(player, viewer)
+                                    : tablistId.getMostSignificantBits() == 0
+                                            ? new SimpleComponent(player.getName())
+                                            : null);
         }
-        if (redis != null) redis.updateTabFormat(player, player.getProperty(TabConstants.Property.TABPREFIX).get() +
-                player.getProperty(TabConstants.Property.CUSTOMTABNAME).get() + player.getProperty(TabConstants.Property.TABSUFFIX).get());
+        if (redis != null)
+            redis.updateTabFormat(
+                    player,
+                    player.getProperty(TabConstants.Property.TABPREFIX).get()
+                            + player.getProperty(TabConstants.Property.CUSTOMTABNAME)
+                                    .get()
+                            + player.getProperty(TabConstants.Property.TABSUFFIX)
+                                    .get());
     }
 
     /**
@@ -146,14 +172,21 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
             if (disableChecker.isDisableConditionMet(all)) {
                 all.disabledPlayerList.set(true);
             } else {
-                if (redis != null) redis.updateTabFormat(all, all.getProperty(TabConstants.Property.TABPREFIX).get() + all.getProperty(TabConstants.Property.CUSTOMTABNAME).get() + all.getProperty(TabConstants.Property.TABSUFFIX).get());
+                if (redis != null)
+                    redis.updateTabFormat(
+                            all,
+                            all.getProperty(TabConstants.Property.TABPREFIX).get()
+                                    + all.getProperty(TabConstants.Property.CUSTOMTABNAME)
+                                            .get()
+                                    + all.getProperty(TabConstants.Property.TABSUFFIX)
+                                            .get());
             }
         }
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
             for (TabPlayer target : TAB.getInstance().getOnlinePlayers()) {
                 if (target.disabledPlayerList.get()) continue;
-                //if (!viewer.getTabList().containsEntry(target.getTablistId())) continue;
+                // if (!viewer.getTabList().containsEntry(target.getTablistId())) continue;
                 viewer.getTabList().updateDisplayName(getTablistUUID(target, viewer), getTabFormat(target, viewer));
             }
         }
@@ -166,7 +199,7 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
             if (viewer.getVersion().getMinorVersion() < 8) continue;
             for (TabPlayer target : TAB.getInstance().getOnlinePlayers()) {
                 if (target.disabledPlayerList.get()) continue;
-                //if (!viewer.getTabList().containsEntry(target.getTablistId())) continue;
+                // if (!viewer.getTabList().containsEntry(target.getTablistId())) continue;
                 viewer.getTabList().updateDisplayName(getTablistUUID(target, target), null);
             }
         }
@@ -176,18 +209,20 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
     public void onServerChange(@NotNull TabPlayer p, @NotNull String from, @NotNull String to) {
         if (updateProperties(p) && !p.disabledPlayerList.get()) updatePlayer(p, true);
         if (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.PIPELINE_INJECTION)) return;
-        TAB.getInstance().getCPUManager().runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, () -> {
-            for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-                if (!all.disabledPlayerList.get() && p.getVersion().getMinorVersion() >= 8
-                        //&& p.getTabList().containsEntry(all.getTablistId())
-                )
-                    p.getTabList().updateDisplayName(getTablistUUID(all, p), getTabFormat(all, p));
-                if (all != p && !p.disabledPlayerList.get() && all.getVersion().getMinorVersion() >= 8
-                        //&& all.getTabList().containsEntry(p.getTablistId())
-                )
-                    all.getTabList().updateDisplayName(getTablistUUID(p, all), getTabFormat(p, all));
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, () -> {
+                    for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
+                        if (!all.disabledPlayerList.get() && p.getVersion().getMinorVersion() >= 8
+                        // && p.getTabList().containsEntry(all.getTablistId())
+                        ) p.getTabList().updateDisplayName(getTablistUUID(all, p), getTabFormat(all, p));
+                        if (all != p
+                                && !p.disabledPlayerList.get()
+                                && all.getVersion().getMinorVersion() >= 8
+                        // && all.getTabList().containsEntry(p.getTablistId())
+                        ) all.getTabList().updateDisplayName(getTablistUUID(p, all), getTabFormat(p, all));
+                    }
+                });
     }
 
     @Override
@@ -215,9 +250,12 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
             updateProperties(refreshed);
             refresh = true;
         } else {
-            boolean prefix = refreshed.getProperty(TabConstants.Property.TABPREFIX).update();
-            boolean name = refreshed.getProperty(TabConstants.Property.CUSTOMTABNAME).update();
-            boolean suffix = refreshed.getProperty(TabConstants.Property.TABSUFFIX).update();
+            boolean prefix =
+                    refreshed.getProperty(TabConstants.Property.TABPREFIX).update();
+            boolean name =
+                    refreshed.getProperty(TabConstants.Property.CUSTOMTABNAME).update();
+            boolean suffix =
+                    refreshed.getProperty(TabConstants.Property.TABSUFFIX).update();
             refresh = prefix || name || suffix;
         }
         if (refreshed.disabledPlayerList.get()) return;
@@ -244,12 +282,17 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
             refresh(connectedPlayer, true);
             if (connectedPlayer.getVersion().getMinorVersion() < 8) return;
             for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-                connectedPlayer.getTabList().updateDisplayName(getTablistUUID(all, connectedPlayer), getTabFormat(all, connectedPlayer));
+                connectedPlayer
+                        .getTabList()
+                        .updateDisplayName(getTablistUUID(all, connectedPlayer), getTabFormat(all, connectedPlayer));
             }
         };
-        //add packet might be sent after tab's refresh packet, resending again when anti-override is disabled
-        if (!antiOverrideTabList || !TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.PIPELINE_INJECTION)) {
-            TAB.getInstance().getCPUManager().runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, r);
+        // add packet might be sent after tab's refresh packet, resending again when anti-override is disabled
+        if (!antiOverrideTabList
+                || !TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.PIPELINE_INJECTION)) {
+            TAB.getInstance()
+                    .getCPUManager()
+                    .runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN, r);
         } else {
             r.run();
         }
@@ -260,7 +303,7 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
         if (player.isVanished() || player.disabledPlayerList.get()) return;
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
-            //if (!viewer.getTabList().containsEntry(player.getTablistId())) continue;
+            // if (!viewer.getTabList().containsEntry(player.getTablistId())) continue;
             viewer.getTabList().updateDisplayName(player.getTablistId(), getTabFormat(player, viewer));
         }
     }
@@ -274,70 +317,74 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
     // ------------------
     // API Implementation
     // ------------------
-    
+
     @Override
     public void setPrefix(@NonNull me.neznamy.tab.api.TabPlayer player, @Nullable String prefix) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        ((TabPlayer)player).getProperty(TabConstants.Property.TABPREFIX).setTemporaryValue(prefix);
+        ((TabPlayer) player).ensureLoaded();
+        ((TabPlayer) player).getProperty(TabConstants.Property.TABPREFIX).setTemporaryValue(prefix);
         updatePlayer(player, true);
     }
 
     @Override
     public void setName(@NonNull me.neznamy.tab.api.TabPlayer player, @Nullable String customName) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        ((TabPlayer)player).getProperty(TabConstants.Property.CUSTOMTABNAME).setTemporaryValue(customName);
+        ((TabPlayer) player).ensureLoaded();
+        ((TabPlayer) player).getProperty(TabConstants.Property.CUSTOMTABNAME).setTemporaryValue(customName);
         updatePlayer(player, true);
     }
 
     @Override
     public void setSuffix(@NonNull me.neznamy.tab.api.TabPlayer player, @Nullable String suffix) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        ((TabPlayer)player).getProperty(TabConstants.Property.TABSUFFIX).setTemporaryValue(suffix);
+        ((TabPlayer) player).ensureLoaded();
+        ((TabPlayer) player).getProperty(TabConstants.Property.TABSUFFIX).setTemporaryValue(suffix);
         updatePlayer(player, true);
     }
 
     @Override
     public String getCustomPrefix(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.TABPREFIX).getTemporaryValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player).getProperty(TabConstants.Property.TABPREFIX).getTemporaryValue();
     }
 
     @Override
     public String getCustomName(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.CUSTOMTABNAME).getTemporaryValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player)
+                .getProperty(TabConstants.Property.CUSTOMTABNAME)
+                .getTemporaryValue();
     }
 
     @Override
     public String getCustomSuffix(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.TABSUFFIX).getTemporaryValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player).getProperty(TabConstants.Property.TABSUFFIX).getTemporaryValue();
     }
 
     @Override
     public @NotNull String getOriginalPrefix(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.TABPREFIX).getOriginalRawValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player).getProperty(TabConstants.Property.TABPREFIX).getOriginalRawValue();
     }
 
     @Override
     public @NotNull String getOriginalName(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.CUSTOMTABNAME).getOriginalRawValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player)
+                .getProperty(TabConstants.Property.CUSTOMTABNAME)
+                .getOriginalRawValue();
     }
 
     @Override
     public @NotNull String getOriginalSuffix(@NonNull me.neznamy.tab.api.TabPlayer player) {
         ensureActive();
-        ((TabPlayer)player).ensureLoaded();
-        return ((TabPlayer)player).getProperty(TabConstants.Property.TABSUFFIX).getOriginalRawValue();
+        ((TabPlayer) player).ensureLoaded();
+        return ((TabPlayer) player).getProperty(TabConstants.Property.TABSUFFIX).getOriginalRawValue();
     }
 }

@@ -1,13 +1,12 @@
 package me.neznamy.tab.api.placeholder;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * An interface allowing placeholder registration. Instance can be
@@ -30,7 +29,9 @@ public interface PlaceholderManager {
      *          If {@code identifier} does not start and end with {@code %} or
      *          {@code refresh} is not divisible by 50
      */
-    @NotNull ServerPlaceholder registerServerPlaceholder(@NonNull String identifier, int refresh, @NonNull Supplier<Object> supplier);
+    @NotNull
+    ServerPlaceholder registerServerPlaceholder(
+            @NonNull String identifier, int refresh, @NonNull Supplier<Object> supplier);
 
     /**
      * Registers a player placeholder (placeholder different output per player)
@@ -46,7 +47,9 @@ public interface PlaceholderManager {
      *          If {@code identifier} does not start and end with {@code %} or
      *          {@code refresh} is not divisible by 50
      */
-    @NotNull PlayerPlaceholder registerPlayerPlaceholder(@NonNull String identifier, int refresh, @NonNull Function<TabPlayer, Object> function);
+    @NotNull
+    PlayerPlaceholder registerPlayerPlaceholder(
+            @NonNull String identifier, int refresh, @NonNull Function<TabPlayer, Object> function);
 
     /**
      * Registers a relational placeholder (placeholder with output different for each player duo)
@@ -63,7 +66,9 @@ public interface PlaceholderManager {
      *          does not start with {@code %rel_} or
      *          {@code refresh} is not divisible by 50
      */
-    @NotNull RelationalPlaceholder registerRelationalPlaceholder(@NonNull String identifier, int refresh, @NonNull BiFunction<TabPlayer, TabPlayer, Object> function);
+    @NotNull
+    RelationalPlaceholder registerRelationalPlaceholder(
+            @NonNull String identifier, int refresh, @NonNull BiFunction<TabPlayer, TabPlayer, Object> function);
 
     /**
      * Returns placeholder from specified identifier. If it does not exist, it is registered
@@ -73,7 +78,8 @@ public interface PlaceholderManager {
      *          Placeholder identifier
      * @return  Placeholder with specified identifier
      */
-    @NotNull Placeholder getPlaceholder(@NonNull String identifier);
+    @NotNull
+    Placeholder getPlaceholder(@NonNull String identifier);
 
     /**
      * Unregisters placeholder and makes plugin no longer refresh it.

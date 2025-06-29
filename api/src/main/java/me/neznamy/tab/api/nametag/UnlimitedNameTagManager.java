@@ -1,7 +1,6 @@
 package me.neznamy.tab.api.nametag;
 
 import java.util.List;
-
 import lombok.NonNull;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
@@ -83,7 +82,8 @@ public interface UnlimitedNameTagManager extends NameTagManager {
      * @return  Custom name set previously or {@code null} if not set
      * @see     #setName(TabPlayer, String)
      */
-    @Nullable String getCustomName(@NonNull TabPlayer player);
+    @Nullable
+    String getCustomName(@NonNull TabPlayer player);
 
     /**
      * Returns custom line value set using {@link #setLine(TabPlayer, String, String)}.
@@ -96,7 +96,8 @@ public interface UnlimitedNameTagManager extends NameTagManager {
      * @see     #setName(TabPlayer, String)
      * @see     #getDefinedLines()
      */
-    @Nullable String getCustomLineValue(@NonNull TabPlayer player, @NonNull String line);
+    @Nullable
+    String getCustomLineValue(@NonNull TabPlayer player, @NonNull String line);
 
     /**
      * Returns original name value configured in files.
@@ -106,7 +107,8 @@ public interface UnlimitedNameTagManager extends NameTagManager {
      * @return  Original configured name
      * @see     #setName(TabPlayer, String)
      */
-    @NotNull String getOriginalName(@NonNull TabPlayer player);
+    @NotNull
+    String getOriginalName(@NonNull TabPlayer player);
 
     /**
      * Returns original line value configured in files.
@@ -118,12 +120,14 @@ public interface UnlimitedNameTagManager extends NameTagManager {
      * @return  Original configured line
      * @see     #setLine(TabPlayer, String, String)
      */
-    @NotNull String getOriginalLineValue(@NonNull TabPlayer player, @NonNull String line);
+    @NotNull
+    String getOriginalLineValue(@NonNull TabPlayer player, @NonNull String line);
 
     /**
      * Returns list of all defined lines in config, both static and dynamic lines.
      *
      * @return  List of all defined lines in config
      */
-    @NotNull List<String> getDefinedLines();
+    @NotNull
+    List<String> getDefinedLines();
 }

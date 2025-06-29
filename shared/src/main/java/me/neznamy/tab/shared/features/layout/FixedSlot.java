@@ -1,24 +1,26 @@
 package me.neznamy.tab.shared.features.layout;
 
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.platform.TabList;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.types.Refreshable;
 import me.neznamy.tab.shared.features.types.TabFeature;
+import me.neznamy.tab.shared.platform.TabList;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class FixedSlot extends TabFeature implements Refreshable {
 
     private final LayoutManagerImpl manager;
-    @Getter private final int slot;
+
+    @Getter
+    private final int slot;
+
     private final LayoutPattern pattern;
     private final UUID id;
     private final String text;
@@ -29,13 +31,17 @@ public class FixedSlot extends TabFeature implements Refreshable {
 
     @Override
     public void refresh(@NotNull TabPlayer p, boolean force) {
-        if (p.layoutData.view == null || p.layoutData.view.getPattern() != pattern ||
-                p.getVersion().getMinorVersion() < 8) return;
+        if (p.layoutData.view == null
+                || p.layoutData.view.getPattern() != pattern
+                || p.getVersion().getMinorVersion() < 8) return;
         if (p.getProperty(skinProperty).update()) {
             p.getTabList().removeEntry(id);
             p.getTabList().addEntry(createEntry(p));
         } else {
-            p.getTabList().updateDisplayName(id, TabComponent.optimized(p.getProperty(propertyName).updateAndGet()));
+            p.getTabList()
+                    .updateDisplayName(
+                            id,
+                            TabComponent.optimized(p.getProperty(propertyName).updateAndGet()));
         }
     }
 
@@ -51,15 +57,16 @@ public class FixedSlot extends TabFeature implements Refreshable {
         return new TabList.Entry(
                 id,
                 manager.getDirection().getEntryName(viewer, slot),
-                manager.getSkinManager().getSkin(viewer.getProperty(skinProperty).updateAndGet()),
+                manager.getSkinManager()
+                        .getSkin(viewer.getProperty(skinProperty).updateAndGet()),
                 true,
                 ping,
                 0,
-                TabComponent.optimized(viewer.getProperty(propertyName).updateAndGet())
-        );
+                TabComponent.optimized(viewer.getProperty(propertyName).updateAndGet()));
     }
 
-    public static @Nullable FixedSlot fromLine(@NotNull String line, @NotNull LayoutPattern pattern, @NotNull LayoutManagerImpl manager) {
+    public static @Nullable FixedSlot fromLine(
+            @NotNull String line, @NotNull LayoutPattern pattern, @NotNull LayoutManagerImpl manager) {
         String[] array = line.split("\\|");
         if (array.length < 1) {
             TAB.getInstance().getConfigHelper().startup().invalidFixedSlotDefinition(pattern.getName(), line);
@@ -91,9 +98,11 @@ public class FixedSlot extends TabFeature implements Refreshable {
                 "Layout-" + pattern.getName() + "-SLOT-" + slot,
                 skin.isEmpty() ? manager.getDefaultSkin(slot) : skin,
                 "Layout-" + pattern.getName() + "-SLOT-" + slot + "-skin",
-                ping
-        );
-        if (!text.isEmpty()) TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.layoutSlot(pattern.getName(), slot), f);
+                ping);
+        if (!text.isEmpty())
+            TAB.getInstance()
+                    .getFeatureManager()
+                    .registerFeature(TabConstants.Feature.layoutSlot(pattern.getName(), slot), f);
         return f;
     }
 

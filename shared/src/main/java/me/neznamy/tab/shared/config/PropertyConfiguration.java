@@ -1,10 +1,9 @@
 package me.neznamy.tab.shared.config;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface representing user or group configuration.
@@ -29,7 +28,12 @@ public interface PropertyConfiguration {
      * @param   value
      *          Value of the property
      */
-    void setProperty(@NotNull String groupOrUser, @NotNull String property, @Nullable String server, @Nullable String world, @Nullable String value);
+    void setProperty(
+            @NotNull String groupOrUser,
+            @NotNull String property,
+            @Nullable String server,
+            @Nullable String world,
+            @Nullable String value);
 
     /**
      * Gets property of group or user. If {@code server} or {@code world}
@@ -49,7 +53,9 @@ public interface PropertyConfiguration {
      * @return  Array with 2 elements with value being first, source second if found,
      *          empty array if nothing was found.
      */
-    @NotNull String[] getProperty(@NotNull String groupOrUser, @NotNull String property, @Nullable String server, @Nullable String world);
+    @NotNull
+    String[] getProperty(
+            @NotNull String groupOrUser, @NotNull String property, @Nullable String server, @Nullable String world);
 
     /**
      * Removes all data applied to specified group or user.
@@ -67,7 +73,8 @@ public interface PropertyConfiguration {
      *          Name of group or user, depending on what this instance handles
      * @return  Map of global settings of specified group or user
      */
-    @NotNull Map<String, Object> getGlobalSettings(@NotNull String groupOrUser);
+    @NotNull
+    Map<String, Object> getGlobalSettings(@NotNull String groupOrUser);
 
     /**
      * Returns map of per-world settings of specified group or user.
@@ -77,7 +84,8 @@ public interface PropertyConfiguration {
      *          Name of group or user, depending on what this instance handles
      * @return  Map of per-world settings of specified group or user
      */
-    @NotNull Map<String, Map<String, Object>> getPerWorldSettings(@NotNull String groupOrUser);
+    @NotNull
+    Map<String, Map<String, Object>> getPerWorldSettings(@NotNull String groupOrUser);
 
     /**
      * Returns map of per-server settings of specified group or user.
@@ -87,7 +95,8 @@ public interface PropertyConfiguration {
      *          Name of group or user, depending on what this instance handles
      * @return  Map of per-server settings of specified group or user
      */
-    @NotNull Map<String, Map<String, Object>> getPerServerSettings(@NotNull String groupOrUser);
+    @NotNull
+    Map<String, Map<String, Object>> getPerServerSettings(@NotNull String groupOrUser);
 
     /**
      * Returns set of all groups or users that have anything configured,
@@ -95,7 +104,8 @@ public interface PropertyConfiguration {
      *
      * @return  Set of all entries with something configured
      */
-    @NotNull Set<String> getAllEntries();
+    @NotNull
+    Set<String> getAllEntries();
 
     /**
      * Converts per-world or per-server map into a per-world or per-server map
@@ -108,7 +118,8 @@ public interface PropertyConfiguration {
      *          Name of group or user, depending on what this instance handles
      * @return  Converted map only containing data of specified group or user
      */
-    default @NotNull Map<String, Map<String, Object>> convertMap(@NotNull Map<String, Map<String, Map<String, Object>>> map, String groupOrUser) {
+    default @NotNull Map<String, Map<String, Object>> convertMap(
+            @NotNull Map<String, Map<String, Map<String, Object>>> map, String groupOrUser) {
         Map<String, Map<String, Object>> converted = new HashMap<>();
         for (Map.Entry<String, Map<String, Map<String, Object>>> entry : map.entrySet()) {
             converted.put(entry.getKey(), entry.getValue().get(groupOrUser));
@@ -127,7 +138,7 @@ public interface PropertyConfiguration {
     @SuppressWarnings("unchecked")
     default @NotNull String toString(@NotNull Object obj) {
         if (obj instanceof List) {
-            return ((List<Object>)obj).stream().map(Object::toString).collect(Collectors.joining("\n"));
+            return ((List<Object>) obj).stream().map(Object::toString).collect(Collectors.joining("\n"));
         }
         return obj.toString();
     }

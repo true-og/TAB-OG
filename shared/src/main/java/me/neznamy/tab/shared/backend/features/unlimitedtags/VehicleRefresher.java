@@ -1,16 +1,15 @@
 package me.neznamy.tab.shared.backend.features.unlimitedtags;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.backend.BackendTabPlayer;
-import me.neznamy.tab.shared.features.types.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.backend.BackendTabPlayer;
+import me.neznamy.tab.shared.features.types.*;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Sub-feature for unlimited name tag mode to secure
@@ -39,23 +38,27 @@ public class VehicleRefresher extends TabFeature implements JoinListener, QuitLi
 
     @Override
     public void load() {
-        TAB.getInstance().getCPUManager().startRepeatingMeasuredTask(50,
-                getFeatureName(), TabConstants.CpuUsageCategory.PROCESSING_PLAYER_MOVEMENT, () -> {
-                    for (TabPlayer inVehicle : playersInVehicleArray) {
-                        feature.getArmorStandManager(inVehicle).teleport();
-                    }
-                    for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-                        if (p.unlimitedNametagData.previewing) {
-                            feature.getArmorStandManager(p).teleport((BackendTabPlayer) p);
-                        }
-                    }
-                });
+        TAB.getInstance()
+                .getCPUManager()
+                .startRepeatingMeasuredTask(
+                        50, getFeatureName(), TabConstants.CpuUsageCategory.PROCESSING_PLAYER_MOVEMENT, () -> {
+                            for (TabPlayer inVehicle : playersInVehicleArray) {
+                                feature.getArmorStandManager(inVehicle).teleport();
+                            }
+                            for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
+                                if (p.unlimitedNametagData.previewing) {
+                                    feature.getArmorStandManager(p).teleport((BackendTabPlayer) p);
+                                }
+                            }
+                        });
         addUsedPlaceholder(TabConstants.Placeholder.VEHICLE);
-        TAB.getInstance().getPlaceholderManager().registerPlayerPlaceholder(TabConstants.Placeholder.VEHICLE, 100, p -> {
-            Object v = feature.getVehicle((TabPlayer) p);
-            //There's a bug in Bukkit 1.19.3 throwing NPE on .toString(), use default toString implementation
-            return v == null ? "" : v.getClass().getName() + "@" + Integer.toHexString(v.hashCode());
-        });
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerPlayerPlaceholder(TabConstants.Placeholder.VEHICLE, 100, p -> {
+                    Object v = feature.getVehicle((TabPlayer) p);
+                    // There's a bug in Bukkit 1.19.3 throwing NPE on .toString(), use default toString implementation
+                    return v == null ? "" : v.getClass().getName() + "@" + Integer.toHexString(v.hashCode());
+                });
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
             Object vehicle = feature.getVehicle(p);
             if (vehicle != null) {
@@ -76,10 +79,11 @@ public class VehicleRefresher extends TabFeature implements JoinListener, QuitLi
 
     @Override
     public void onQuit(@NotNull TabPlayer disconnectedPlayer) {
-        if (playersInVehicle.containsKey(disconnectedPlayer)) vehicles.remove(feature.getEntityId(playersInVehicle.remove(disconnectedPlayer)));
+        if (playersInVehicle.containsKey(disconnectedPlayer))
+            vehicles.remove(feature.getEntityId(playersInVehicle.remove(disconnectedPlayer)));
         playersInVehicleArray = playersInVehicle.keySet().toArray(new TabPlayer[0]);
         for (List<Integer> entities : vehicles.values()) {
-            entities.remove((Integer)feature.getEntityId(disconnectedPlayer));
+            entities.remove((Integer) feature.getEntityId(disconnectedPlayer));
         }
     }
 
@@ -88,7 +92,7 @@ public class VehicleRefresher extends TabFeature implements JoinListener, QuitLi
         if (feature.isPlayerDisabled(p)) return;
         Object vehicle = feature.getVehicle(p);
         if (playersInVehicle.containsKey(p) && vehicle == null) {
-            //vehicle exit
+            // vehicle exit
             vehicles.remove(feature.getEntityId(playersInVehicle.remove(p)));
             feature.getArmorStandManager(p).teleport();
             playersInVehicleArray = playersInVehicle.keySet().toArray(new TabPlayer[0]);
@@ -99,9 +103,9 @@ public class VehicleRefresher extends TabFeature implements JoinListener, QuitLi
             feature.getArmorStandManager(p).updateVisibility(true);
         }
         if (!playersInVehicle.containsKey(p) && vehicle != null) {
-            //vehicle enter
+            // vehicle enter
             updateVehicle(vehicle);
-            feature.getArmorStandManager(p).respawn(); //making teleport instant instead of showing teleport animation
+            feature.getArmorStandManager(p).respawn(); // making teleport instant instead of showing teleport animation
             addToVehicle(p, vehicle);
             if (feature.isDisableOnBoats() && feature.getEntityType(vehicle).contains("boat")) {
                 p.unlimitedNametagData.onBoat = true;
@@ -123,7 +127,8 @@ public class VehicleRefresher extends TabFeature implements JoinListener, QuitLi
     }
 
     private void updateVehicle(Object vehicle) {
-        feature.runInEntityScheduler(vehicle, () -> vehicles.put(feature.getEntityId(vehicle), feature.getPassengers(vehicle)));
+        feature.runInEntityScheduler(
+                vehicle, () -> vehicles.put(feature.getEntityId(vehicle), feature.getPassengers(vehicle)));
     }
 
     @Override

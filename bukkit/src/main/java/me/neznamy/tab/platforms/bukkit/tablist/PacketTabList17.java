@@ -1,5 +1,10 @@
 package me.neznamy.tab.platforms.bukkit.tablist;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
@@ -10,12 +15,6 @@ import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import me.neznamy.tab.shared.util.TriFunctionWithException;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * TabList handler for 1.7- servers using packets.
@@ -107,7 +106,14 @@ public class PacketTabList17 extends TabListBase<String> {
 
     @Override
     @SneakyThrows
-    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable String displayName) {
+    public void addEntry0(
+            @NonNull UUID id,
+            @NonNull String name,
+            @Nullable Skin skin,
+            boolean listed,
+            int latency,
+            int gameMode,
+            @Nullable String displayName) {
         String display = displayName == null ? name : displayName;
         packetSender.sendPacket(player.getPlayer(), newPacket.apply(display, true, latency));
         userNames.put(id, name);
@@ -117,7 +123,8 @@ public class PacketTabList17 extends TabListBase<String> {
     @Override
     public String toComponent(@NonNull TabComponent component) {
         String name = component.toLegacyText();
-        if (name.length() > Limitations.MAX_DISPLAY_NAME_LENGTH_1_7) name = name.substring(0, Limitations.MAX_DISPLAY_NAME_LENGTH_1_7);
+        if (name.length() > Limitations.MAX_DISPLAY_NAME_LENGTH_1_7)
+            name = name.substring(0, Limitations.MAX_DISPLAY_NAME_LENGTH_1_7);
         return name;
     }
 }

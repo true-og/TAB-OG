@@ -1,17 +1,16 @@
 package me.neznamy.tab.shared.backend.features.unlimitedtags;
 
+import java.util.UUID;
 import lombok.Getter;
 import me.neznamy.tab.shared.Property;
-import me.neznamy.tab.shared.chat.StructuredComponent;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.backend.BackendTabPlayer;
 import me.neznamy.tab.shared.backend.EntityData;
 import me.neznamy.tab.shared.backend.Location;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.chat.StructuredComponent;
+import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public class ArmorStand {
 
@@ -28,13 +27,16 @@ public class ArmorStand {
     protected final TabPlayer owner;
 
     /** Offset in blocks, 0 for original height */
-    @Getter protected double offset;
+    @Getter
+    protected double offset;
 
     /** If offset is static, or dynamic based on other armor stands */
-    @Getter private final boolean staticOffset;
+    @Getter
+    private final boolean staticOffset;
 
     /** Entity ID of this armor stand */
-    @Getter protected final int entityId = idCounter++;
+    @Getter
+    protected final int entityId = idCounter++;
 
     /** Unique ID of this armor stand */
     protected final UUID uuid = UUID.randomUUID();
@@ -46,7 +48,8 @@ public class ArmorStand {
     private boolean visibleWPotion;
 
     /** Refresh property dedicated to this armor stand */
-    @Getter protected final Property property;
+    @Getter
+    protected final Property property;
 
     /**
      * Constructs new instance with given parameters.
@@ -62,8 +65,13 @@ public class ArmorStand {
      * @param   staticOffset
      *          {@code true} if offset is static, {@code false} if not
      */
-    public ArmorStand(@NotNull BackendNameTagX feature, @NotNull BackendArmorStandManager asm, @NotNull TabPlayer owner,
-                      @NotNull String propertyName, double yOffset, boolean staticOffset) {
+    public ArmorStand(
+            @NotNull BackendNameTagX feature,
+            @NotNull BackendArmorStandManager asm,
+            @NotNull TabPlayer owner,
+            @NotNull String propertyName,
+            double yOffset,
+            boolean staticOffset) {
         manager = feature;
         this.asm = asm;
         this.owner = owner;
@@ -89,7 +97,10 @@ public class ArmorStand {
     }
 
     public void updateVisibility(boolean force) {
-        boolean visibility = calculateVisibility() && !owner.hasInvisibilityPotion(); //trigger packet send but don't save, so it can be reverted if viewer is spectator
+        boolean visibility = calculateVisibility()
+                && !owner
+                        .hasInvisibilityPotion(); // trigger packet send but don't save, so it can be reverted if viewer
+        // is spectator
         if (visibleWPotion != visibility || force) {
             refresh();
         }
@@ -119,9 +130,13 @@ public class ArmorStand {
 
     public void spawn(BackendTabPlayer viewer) {
         visible = calculateVisibility();
-        viewer.getEntityView().spawnEntity(entityId, uuid, manager.getArmorStandType(),
-                new Location(manager.getX(owner), getYLocation(viewer), manager.getZ(owner)),
-                createDataWatcher(property.getFormat(viewer), viewer));
+        viewer.getEntityView()
+                .spawnEntity(
+                        entityId,
+                        uuid,
+                        manager.getArmorStandType(),
+                        new Location(manager.getX(owner), getYLocation(viewer), manager.getZ(owner)),
+                        createDataWatcher(property.getFormat(viewer), viewer));
     }
 
     /**
@@ -132,8 +147,10 @@ public class ArmorStand {
     public boolean calculateVisibility() {
         if (manager.isArmorStandsAlwaysVisible()) return true;
         if (manager.isOnBoat(owner)) return false;
-        return owner.getGamemode() != 3 && !manager.hasHiddenNameTag(owner) && !property.get().isEmpty() &&
-                !owner.disabledUnlimitedNametags.get();
+        return owner.getGamemode() != 3
+                && !manager.hasHiddenNameTag(owner)
+                && !property.get().isEmpty()
+                && !owner.disabledUnlimitedNametags.get();
     }
 
     /**
@@ -147,9 +164,11 @@ public class ArmorStand {
     protected boolean isNameVisiblyEmpty(@NotNull String displayName) {
         if (displayName.isEmpty()) return true;
         String rawText = displayName.contains(" ") ? displayName.replace(" ", "") : displayName;
-        if (!rawText.startsWith(EnumChatFormat.COLOR_STRING) && !rawText.startsWith("&") && !rawText.startsWith("#")) return false;
+        if (!rawText.startsWith(EnumChatFormat.COLOR_STRING) && !rawText.startsWith("&") && !rawText.startsWith("#"))
+            return false;
         TabComponent component = TabComponent.fromColoredText(rawText);
-        if (component instanceof StructuredComponent) return ((StructuredComponent) component).toRawText().isEmpty();
+        if (component instanceof StructuredComponent)
+            return ((StructuredComponent) component).toRawText().isEmpty();
         return component.toLegacyText().isEmpty();
     }
 
@@ -189,18 +208,22 @@ public class ArmorStand {
      */
     public void updateMetadata() {
         for (BackendTabPlayer viewer : asm.getNearbyPlayers()) {
-            viewer.getEntityView().updateEntityMetadata(entityId, createDataWatcher(property.getFormat(viewer), viewer));
+            viewer.getEntityView()
+                    .updateEntityMetadata(entityId, createDataWatcher(property.getFormat(viewer), viewer));
         }
     }
 
     public boolean shouldBeInvisibleFor(@NotNull TabPlayer viewer, @NotNull String displayName) {
-        return isNameVisiblyEmpty(displayName) || !manager.canSee(viewer, owner) ||
-                manager.hasHiddenNameTag(owner, viewer) || manager.hasHiddenNameTagVisibilityView(viewer) ||
-                (owner.hasInvisibilityPotion() && viewer.getGamemode() != 3);
+        return isNameVisiblyEmpty(displayName)
+                || !manager.canSee(viewer, owner)
+                || manager.hasHiddenNameTag(owner, viewer)
+                || manager.hasHiddenNameTagVisibilityView(viewer)
+                || (owner.hasInvisibilityPotion() && viewer.getGamemode() != 3);
     }
 
     public void sendTeleportPacket(@NotNull BackendTabPlayer viewer) {
-        viewer.getEntityView().teleportEntity(entityId, new Location(manager.getX(owner), getYLocation(viewer), manager.getZ(owner)));
+        viewer.getEntityView()
+                .teleportEntity(entityId, new Location(manager.getX(owner), getYLocation(viewer), manager.getZ(owner)));
     }
 
     /**
@@ -229,27 +252,27 @@ public class ArmorStand {
      */
     public double getYLocation(@NotNull TabPlayer viewer) {
         double y = manager.getY(owner.getPlayer());
-        //1.14+ server sided bug
+        // 1.14+ server sided bug
         Object vehicle = manager.getVehicle(owner);
         if (vehicle != null) {
             String type = manager.getEntityType(vehicle);
             double vehicleY = manager.getY(vehicle);
-            if (type.contains("horse")) { //covering all 3 horse types
+            if (type.contains("horse")) { // covering all 3 horse types
                 y = vehicleY + 0.85;
             }
-            if (type.equals("donkey")) { //1.11+
+            if (type.equals("donkey")) { // 1.11+
                 y = vehicleY + 0.525;
             }
             if (type.equals("pig")) {
                 y = vehicleY + 0.325;
             }
-            if (type.equals("strider")) { //1.16+
+            if (type.equals("strider")) { // 1.16+
                 y = vehicleY + 1.15;
             }
         } else {
-            //1.13+ swimming or 1.9+ flying with elytra
+            // 1.13+ swimming or 1.9+ flying with elytra
             if (manager.isSwimming(owner) || manager.isGliding(owner)) {
-                y = manager.getY(owner.getPlayer())-1.22;
+                y = manager.getY(owner.getPlayer()) - 1.22;
             }
         }
         y += getYAdd(manager.isSleeping(owner), manager.isSneaking(owner), viewer);

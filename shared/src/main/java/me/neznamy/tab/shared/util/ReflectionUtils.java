@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class storing methods working with reflection
@@ -45,7 +44,8 @@ public class ReflectionUtils {
      *          Method parameters
      * @return  {@code true} if exists, {@code false} if not
      */
-    public static boolean methodExists(@NotNull Class<?> clazz, @NotNull String method, @NotNull Class<?>... parameterTypes) {
+    public static boolean methodExists(
+            @NotNull Class<?> clazz, @NotNull String method, @NotNull Class<?>... parameterTypes) {
         try {
             clazz.getMethod(method, parameterTypes);
             return true;
@@ -86,13 +86,15 @@ public class ReflectionUtils {
      * @return  List of found methods matching requirements. If nothing is found, empty list is returned.
      */
     @NotNull
-    public static List<Method> getMethods(@NotNull Class<?> clazz, @NotNull Class<?> returnType, @NotNull Class<?>... parameterTypes) {
+    public static List<Method> getMethods(
+            @NotNull Class<?> clazz, @NotNull Class<?> returnType, @NotNull Class<?>... parameterTypes) {
         List<Method> list = new ArrayList<>();
         for (Method m : clazz.getMethods()) {
-            if (!returnType.isAssignableFrom(m.getReturnType()) || m.getParameterCount() != parameterTypes.length) continue;
+            if (!returnType.isAssignableFrom(m.getReturnType()) || m.getParameterCount() != parameterTypes.length)
+                continue;
             Class<?>[] types = m.getParameterTypes();
             boolean valid = true;
-            for (int i=0; i<types.length; i++) {
+            for (int i = 0; i < types.length; i++) {
                 if (types[i] != parameterTypes[i]) {
                     valid = false;
                     break;
@@ -117,13 +119,15 @@ public class ReflectionUtils {
      *          if no such method exists
      */
     @NotNull
-    public static Method getMethod(@NotNull Class<?> clazz, @NotNull String[] names, @NotNull Class<?>... parameterTypes) throws NoSuchMethodException {
+    public static Method getMethod(
+            @NotNull Class<?> clazz, @NotNull String[] names, @NotNull Class<?>... parameterTypes)
+            throws NoSuchMethodException {
         List<String> list = new ArrayList<>();
         for (Method m : clazz.getMethods()) {
             if (m.getParameterCount() != parameterTypes.length) continue;
             Class<?>[] types = m.getParameterTypes();
             boolean valid = true;
-            for (int i=0; i<types.length; i++) {
+            for (int i = 0; i < types.length; i++) {
                 if (types[i] != parameterTypes[i]) {
                     valid = false;
                     break;
@@ -133,13 +137,15 @@ public class ReflectionUtils {
                 for (String name : names) {
                     if (m.getName().equals(name)) return m;
                     String[] array = m.getName().split("_");
-                    if (array.length > 2 && array[2].equals(name)) return m; // Bukkit/Forge hybrids may sometimes use these mappings
+                    if (array.length > 2 && array[2].equals(name))
+                        return m; // Bukkit/Forge hybrids may sometimes use these mappings
                 }
                 list.add(m.getName());
             }
         }
-        throw new NoSuchMethodException("No method found with possible names " + Arrays.toString(names) + " with parameters " +
-                Arrays.toString(parameterTypes) + " in class " + clazz.getName() + ". Methods with matching parameters: " + list);
+        throw new NoSuchMethodException("No method found with possible names " + Arrays.toString(names)
+                + " with parameters " + Arrays.toString(parameterTypes) + " in class " + clazz.getName()
+                + ". Methods with matching parameters: " + list);
     }
 
     /**
@@ -191,8 +197,9 @@ public class ReflectionUtils {
     public static Constructor<?> getOnlyConstructor(@NotNull Class<?> clazz) {
         Constructor<?>[] constructors = clazz.getConstructors();
         if (constructors.length != 1) {
-            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 constructor, but has " +
-                    constructors.length + ": \n" + Arrays.stream(constructors).map(Constructor::toString).collect(Collectors.joining("\n")));
+            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 constructor, but has "
+                    + constructors.length + ": \n"
+                    + Arrays.stream(constructors).map(Constructor::toString).collect(Collectors.joining("\n")));
         }
         return constructors[0];
     }
@@ -218,9 +225,9 @@ public class ReflectionUtils {
             }
         }
         if (list.size() != 1) {
-            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 field of type " + type.getName() + ", but has " +
-                    list.size() + ": " + list.stream().map(Field::getName).collect(Collectors.toList()));
-
+            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 field of type "
+                    + type.getName() + ", but has " + list.size() + ": "
+                    + list.stream().map(Field::getName).collect(Collectors.toList()));
         }
         return list.get(0);
     }
@@ -240,13 +247,14 @@ public class ReflectionUtils {
      *          If more than 1 methods meets the criteria or if none do.
      */
     @NotNull
-    public static Method getOnlyMethod(@NotNull Class<?> clazz, @NotNull Class<?> returnType, @NotNull Class<?>... parameterTypes) {
+    public static Method getOnlyMethod(
+            @NotNull Class<?> clazz, @NotNull Class<?> returnType, @NotNull Class<?>... parameterTypes) {
         List<Method> list = getMethods(clazz, returnType, parameterTypes);
         if (list.size() != 1) {
-            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 method with return type " +
-                    returnType.getName() + " and parameters " + Arrays.toString(parameterTypes) + ", but has " +
-                    list.size() + ": \n" + list.stream().map(Method::toString).collect(Collectors.joining("\n")));
-
+            throw new IllegalStateException("Class " + clazz.getName()
+                    + " is expected to have 1 method with return type " + returnType.getName()
+                    + " and parameters " + Arrays.toString(parameterTypes) + ", but has " + list.size()
+                    + ": \n" + list.stream().map(Method::toString).collect(Collectors.joining("\n")));
         }
         return list.get(0);
     }
@@ -262,10 +270,13 @@ public class ReflectionUtils {
      */
     @NotNull
     public static Field getOnlyField(@NotNull Class<?> clazz) {
-        Field[] fields = Arrays.stream(clazz.getDeclaredFields()).filter(f -> !Modifier.isStatic(f.getModifiers())).toArray(Field[]::new);
+        Field[] fields = Arrays.stream(clazz.getDeclaredFields())
+                .filter(f -> !Modifier.isStatic(f.getModifiers()))
+                .toArray(Field[]::new);
         if (fields.length != 1) {
-            throw new IllegalStateException("Class " + clazz.getName() + " is expected to have 1 field, but has " +
-                    fields.length + ": " + Arrays.stream(fields).map(Field::getName).collect(Collectors.toList()));
+            throw new IllegalStateException(
+                    "Class " + clazz.getName() + " is expected to have 1 field, but has " + fields.length + ": "
+                            + Arrays.stream(fields).map(Field::getName).collect(Collectors.toList()));
         }
         return setAccessible(fields[0]);
     }
@@ -286,9 +297,10 @@ public class ReflectionUtils {
         for (String name : names) {
             try {
                 return setAccessible(clazz.getDeclaredField(name));
-            } catch (NoSuchFieldException ignored) {}
+            } catch (NoSuchFieldException ignored) {
+            }
         }
-        throw new IllegalArgumentException("Class " + clazz.getName() + " does not contain a field with potential names " +
-                Arrays.toString(names));
+        throw new IllegalArgumentException("Class " + clazz.getName()
+                + " does not contain a field with potential names " + Arrays.toString(names));
     }
 }

@@ -1,5 +1,10 @@
 package me.neznamy.tab.shared.command.bossbar;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import me.neznamy.tab.api.bossbar.BossBar;
 import me.neznamy.tab.api.bossbar.BossBarManager;
 import me.neznamy.tab.shared.TAB;
@@ -8,12 +13,6 @@ import me.neznamy.tab.shared.command.SubCommand;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Handler for "/tab bossbar announce &lt;name&gt; &lt;length&gt;" subcommand
@@ -70,7 +69,10 @@ public class BossBarAnnounceCommand extends SubCommand {
         if (feature == null) return Collections.emptyList();
         List<String> suggestions = new ArrayList<>();
         if (arguments.length == 1) {
-            for (String bar : feature.getRegisteredBossBars().values().stream().filter(BossBar::isAnnouncementBar).map(BossBar::getName).collect(Collectors.toList())) {
+            for (String bar : feature.getRegisteredBossBars().values().stream()
+                    .filter(BossBar::isAnnouncementBar)
+                    .map(BossBar::getName)
+                    .collect(Collectors.toList())) {
                 if (bar.toLowerCase().startsWith(arguments[0].toLowerCase())) suggestions.add(bar);
             }
         } else if (arguments.length == 2 && feature.getRegisteredBossBars().get(arguments[0]) != null) {

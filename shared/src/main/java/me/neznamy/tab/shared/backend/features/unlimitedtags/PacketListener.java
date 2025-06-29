@@ -1,20 +1,19 @@
 package me.neznamy.tab.shared.backend.features.unlimitedtags;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.backend.BackendTabPlayer;
 import me.neznamy.tab.shared.backend.Location;
 import me.neznamy.tab.shared.features.types.JoinListener;
 import me.neznamy.tab.shared.features.types.Loadable;
 import me.neznamy.tab.shared.features.types.QuitListener;
 import me.neznamy.tab.shared.features.types.TabFeature;
 import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.backend.BackendTabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The packet listening part for securing proper functionality of armor stands.
@@ -68,8 +67,12 @@ public class PacketListener extends TabFeature implements JoinListener, QuitList
     }
 
     private void checkPacket(@NotNull BackendTabPlayer player, @NotNull Object packet) {
-        if (player.getEntityView().isMovePacket(packet) && !player.getEntityView().isLookPacket(packet)) { //ignoring head rotation only packets
-            onEntityMove(player, player.getEntityView().getMoveEntityId(packet), player.getEntityView().getMoveDiff(packet));
+        if (player.getEntityView().isMovePacket(packet)
+                && !player.getEntityView().isLookPacket(packet)) { // ignoring head rotation only packets
+            onEntityMove(
+                    player,
+                    player.getEntityView().getMoveEntityId(packet),
+                    player.getEntityView().getMoveDiff(packet));
         } else if (player.getEntityView().isTeleportPacket(packet)) {
             onEntityTeleport(player, player.getEntityView().getTeleportEntityId(packet));
         } else if (player.getEntityView().isNamedEntitySpawnPacket(packet)) {
@@ -91,8 +94,12 @@ public class PacketListener extends TabFeature implements JoinListener, QuitList
     public void onEntitySpawn(@NotNull BackendTabPlayer receiver, int entityId) {
         TabPlayer spawnedPlayer = entityIdMap.get(entityId);
         if (spawnedPlayer != null && spawnedPlayer.isLoaded() && !nameTagX.isPlayerDisabled(spawnedPlayer)) {
-            TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_ENTITY_SPAWN,
-                    () -> nameTagX.getArmorStandManager(spawnedPlayer).spawn(receiver));
+            TAB.getInstance()
+                    .getCPUManager()
+                    .runMeasuredTask(
+                            getFeatureName(),
+                            TabConstants.CpuUsageCategory.PACKET_ENTITY_SPAWN,
+                            () -> nameTagX.getArmorStandManager(spawnedPlayer).spawn(receiver));
         }
     }
 
@@ -115,17 +122,26 @@ public class PacketListener extends TabFeature implements JoinListener, QuitList
             // player moved
             if (nameTagX.isPlayerDisabled(pl) || !pl.isLoaded()) return;
             BackendArmorStandManager asm = nameTagX.getArmorStandManager(pl);
-            TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_PLAYER_MOVE,
-                    () -> asm.move(receiver, positionDiff));
+            TAB.getInstance()
+                    .getCPUManager()
+                    .runMeasuredTask(
+                            getFeatureName(),
+                            TabConstants.CpuUsageCategory.PACKET_PLAYER_MOVE,
+                            () -> asm.move(receiver, positionDiff));
         } else {
             // a non-player entity moved
-            for (Integer entity : nameTagX.getVehicleManager().getVehicles().getOrDefault(entityId, Collections.emptyList())) {
+            for (Integer entity :
+                    nameTagX.getVehicleManager().getVehicles().getOrDefault(entityId, Collections.emptyList())) {
                 TabPlayer passenger = entityIdMap.get(entity);
                 if (passenger != null) {
                     BackendArmorStandManager asm = nameTagX.getArmorStandManager(passenger);
                     if (asm != null) {
-                        TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_ENTITY_MOVE_PASSENGER,
-                                () -> asm.move(receiver, positionDiff));
+                        TAB.getInstance()
+                                .getCPUManager()
+                                .runMeasuredTask(
+                                        getFeatureName(),
+                                        TabConstants.CpuUsageCategory.PACKET_ENTITY_MOVE_PASSENGER,
+                                        () -> asm.move(receiver, positionDiff));
                     }
                 }
             }
@@ -149,17 +165,26 @@ public class PacketListener extends TabFeature implements JoinListener, QuitList
             // player teleported
             if (nameTagX.isPlayerDisabled(pl) || !pl.isLoaded()) return;
             BackendArmorStandManager asm = nameTagX.getArmorStandManager(pl);
-            TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_PLAYER_MOVE,
-                    () -> asm.teleport(receiver));
+            TAB.getInstance()
+                    .getCPUManager()
+                    .runMeasuredTask(
+                            getFeatureName(),
+                            TabConstants.CpuUsageCategory.PACKET_PLAYER_MOVE,
+                            () -> asm.teleport(receiver));
         } else {
             // a non-player entity teleported
-            for (Integer entity : nameTagX.getVehicleManager().getVehicles().getOrDefault(entityId, Collections.emptyList())) {
+            for (Integer entity :
+                    nameTagX.getVehicleManager().getVehicles().getOrDefault(entityId, Collections.emptyList())) {
                 TabPlayer passenger = entityIdMap.get(entity);
                 if (passenger != null) {
                     BackendArmorStandManager asm = nameTagX.getArmorStandManager(passenger);
                     if (asm != null) {
-                        TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_ENTITY_MOVE_PASSENGER,
-                                () -> asm.teleport(receiver));
+                        TAB.getInstance()
+                                .getCPUManager()
+                                .runMeasuredTask(
+                                        getFeatureName(),
+                                        TabConstants.CpuUsageCategory.PACKET_ENTITY_MOVE_PASSENGER,
+                                        () -> asm.teleport(receiver));
                     }
                 }
             }
@@ -180,8 +205,12 @@ public class PacketListener extends TabFeature implements JoinListener, QuitList
             TabPlayer deSpawnedPlayer = entityIdMap.get(entity);
             if (deSpawnedPlayer != null && deSpawnedPlayer.isLoaded() && !nameTagX.isPlayerDisabled(deSpawnedPlayer)) {
                 BackendArmorStandManager asm = nameTagX.getArmorStandManager(deSpawnedPlayer);
-                TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.PACKET_ENTITY_DESTROY,
-                        () -> asm.destroy(receiver));
+                TAB.getInstance()
+                        .getCPUManager()
+                        .runMeasuredTask(
+                                getFeatureName(),
+                                TabConstants.CpuUsageCategory.PACKET_ENTITY_DESTROY,
+                                () -> asm.destroy(receiver));
             }
         }
     }

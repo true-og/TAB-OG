@@ -33,7 +33,8 @@ public interface SortingManager {
      *          player to check forced team name of
      * @return  forced team name of player or null if not forced
      */
-    @Nullable String getForcedTeamName(@NonNull TabPlayer player);
+    @Nullable
+    String getForcedTeamName(@NonNull TabPlayer player);
 
     /**
      * Returns original team name of the player set by the plugin.
@@ -42,5 +43,6 @@ public interface SortingManager {
      *          Player to get team name of
      * @return  Player's team name based on configuration.
      */
-    @NotNull String getOriginalTeamName(@NonNull TabPlayer player);
+    @NotNull
+    String getOriginalTeamName(@NonNull TabPlayer player);
 }

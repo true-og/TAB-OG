@@ -1,5 +1,10 @@
 package me.neznamy.tab.platforms.bukkit.scoreboard.packet;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -11,12 +16,6 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.BiConsumerWithException;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Class storing all team related fields and methods.
@@ -31,7 +30,10 @@ public class TeamPacketData {
     private final int STATIC_CONSTRUCTOR_VERSION = 17;
 
     private final Object emptyScoreboard;
-    @Getter private final Class<?> TeamPacketClass;
+
+    @Getter
+    private final Class<?> TeamPacketClass;
+
     private Constructor<?> newTeamPacket;
     private final Constructor<?> newScoreboardTeam;
     private Method TeamPacketConstructor_of;
@@ -60,17 +62,19 @@ public class TeamPacketData {
     public TeamPacketData() throws ReflectiveOperationException {
         int minorVersion = BukkitReflection.getMinorVersion();
         Class<?> Scoreboard = BukkitReflection.getClass("world.scores.Scoreboard", "Scoreboard");
-        Class<?> scoreboardTeam = BukkitReflection.getClass("world.scores.PlayerTeam", "world.scores.ScoreboardTeam", "ScoreboardTeam");
+        Class<?> scoreboardTeam =
+                BukkitReflection.getClass("world.scores.PlayerTeam", "world.scores.ScoreboardTeam", "ScoreboardTeam");
         Class<?> enumChatFormatClass = BukkitReflection.getClass("ChatFormatting", "EnumChatFormat", "EnumChatFormat");
         TeamPacketClass = BukkitReflection.getClass(
                 "network.protocol.game.ClientboundSetPlayerTeamPacket", // Mojang mapped
                 "network.protocol.game.PacketPlayOutScoreboardTeam", // Bukkit 1.17+
                 "PacketPlayOutScoreboardTeam", // Bukkit 1.7 - 1.16.5
                 "Packet209SetScoreboardTeam" // 1.5 - 1.6.4
-        );
+                );
         emptyScoreboard = Scoreboard.getConstructor().newInstance();
         newScoreboardTeam = scoreboardTeam.getConstructor(Scoreboard, String.class);
-        TeamPacket_NAME = ReflectionUtils.getFields(TeamPacketClass, String.class).get(0);
+        TeamPacket_NAME =
+                ReflectionUtils.getFields(TeamPacketClass, String.class).get(0);
         List<Field> intFields = ReflectionUtils.getInstanceFields(TeamPacketClass, int.class);
         if (minorVersion >= 8 && minorVersion <= 12) {
             TeamPacket_ACTION = intFields.get(1);
@@ -82,44 +86,44 @@ public class TeamPacketData {
         chatFormats = (Enum<?>[]) enumChatFormatClass.getMethod("values").invoke(null);
         ScoreboardTeam_setAllowFriendlyFire = ReflectionUtils.getMethod(
                 scoreboardTeam,
-                new String[]{"func_96660_a", "setAllowFriendlyFire", "a", "m_83355_"}, // {Thermos, 1.5.1+, 1.5 & 1.18+, Mohist 1.18.2}
-                boolean.class
-        );
+                new String[] {"func_96660_a", "setAllowFriendlyFire", "a", "m_83355_"
+                }, // {Thermos, 1.5.1+, 1.5 & 1.18+, Mohist 1.18.2}
+                boolean.class);
         ScoreboardTeam_setCanSeeFriendlyInvisibles = ReflectionUtils.getMethod(
                 scoreboardTeam,
-                new String[]{"func_98300_b", "setCanSeeFriendlyInvisibles", "b", "m_83362_", "setSeeFriendlyInvisibles"}, // {Thermos, 1.5.1+, 1.5 & 1.18+, Mohist 1.18.2, 1.20.2+}
-                boolean.class
-        );
+                new String[] {"func_98300_b", "setCanSeeFriendlyInvisibles", "b", "m_83362_", "setSeeFriendlyInvisibles"
+                }, // {Thermos, 1.5.1+, 1.5 & 1.18+, Mohist 1.18.2, 1.20.2+}
+                boolean.class);
         if (minorVersion >= 8) loadVisibility(scoreboardTeam);
         if (minorVersion >= 9) loadCollision(scoreboardTeam);
         if (minorVersion >= MODERN_TEAM_DATA_VERSION) {
-            Class<?> Component = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
+            Class<?> Component = BukkitReflection.getClass(
+                    "network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
             ScoreboardTeam_setColor = ReflectionUtils.getOnlyMethod(scoreboardTeam, void.class, enumChatFormatClass);
             ScoreboardTeam_setPrefix = ReflectionUtils.getMethod(
                     scoreboardTeam,
-                    new String[]{"setPrefix", "b", "m_83360_", "setPlayerPrefix"}, // {1.17.1-, 1.18 - 1.20.1, Mohist 1.18.2, 1.20.2+}
-                    Component
-            );
+                    new String[] {"setPrefix", "b", "m_83360_", "setPlayerPrefix"
+                    }, // {1.17.1-, 1.18 - 1.20.1, Mohist 1.18.2, 1.20.2+}
+                    Component);
             ScoreboardTeam_setSuffix = ReflectionUtils.getMethod(
                     scoreboardTeam,
-                    new String[]{"setSuffix", "c", "m_83365_", "setPlayerSuffix"}, // {1.17.1-, 1.18 - 1.20.1, Mohist 1.18.2, 1.20.2+}
-                    Component
-            );
+                    new String[] {"setSuffix", "c", "m_83365_", "setPlayerSuffix"
+                    }, // {1.17.1-, 1.18 - 1.20.1, Mohist 1.18.2, 1.20.2+}
+                    Component);
         } else {
             ScoreboardTeam_setPrefix = ReflectionUtils.getMethod(
                     scoreboardTeam,
-                    new String[]{"func_96666_b", "setPrefix", "b"}, // {Thermos, 1.5.1+, 1.5}
-                    String.class
-            );
+                    new String[] {"func_96666_b", "setPrefix", "b"}, // {Thermos, 1.5.1+, 1.5}
+                    String.class);
             ScoreboardTeam_setSuffix = ReflectionUtils.getMethod(
                     scoreboardTeam,
-                    new String[]{"func_96662_c", "setSuffix", "c"}, // {Thermos, 1.5.1+, 1.5}
-                    String.class
-            );
+                    new String[] {"func_96662_c", "setSuffix", "c"}, // {Thermos, 1.5.1+, 1.5}
+                    String.class);
         }
         if (minorVersion >= STATIC_CONSTRUCTOR_VERSION) {
             TeamPacketConstructor_of = ReflectionUtils.getOnlyMethod(TeamPacketClass, TeamPacketClass, scoreboardTeam);
-            TeamPacketConstructor_ofBoolean = ReflectionUtils.getOnlyMethod(TeamPacketClass, TeamPacketClass, scoreboardTeam, boolean.class);
+            TeamPacketConstructor_ofBoolean =
+                    ReflectionUtils.getOnlyMethod(TeamPacketClass, TeamPacketClass, scoreboardTeam, boolean.class);
         } else {
             newTeamPacket = TeamPacketClass.getConstructor(scoreboardTeam, int.class);
         }
@@ -132,20 +136,22 @@ public class TeamPacketData {
                 "world.scores.ScoreboardTeamBase$EnumNameTagVisibility", // Bukkit 1.17+
                 "ScoreboardTeamBase$EnumNameTagVisibility", // Bukkit 1.8.1 - 1.16.5
                 "EnumNameTagVisibility" // Bukkit 1.8.0
-        );
-        Enum<?>[] nameVisibilities = (Enum<?>[]) enumNameTagVisibility.getMethod("values").invoke(null);
+                );
+        Enum<?>[] nameVisibilities =
+                (Enum<?>[]) enumNameTagVisibility.getMethod("values").invoke(null);
         Method setNameTagVisibility = ReflectionUtils.getMethod(
                 scoreboardTeam,
-                new String[]{"setNameTagVisibility", "a", "m_83346_"}, // {1.8.1+, 1.8 & 1.18+, Mohist 1.18.2}
-                enumNameTagVisibility
-        );
+                new String[] {"setNameTagVisibility", "a", "m_83346_"}, // {1.8.1+, 1.8 & 1.18+, Mohist 1.18.2}
+                enumNameTagVisibility);
         setVisibility = (team, visibility) -> setNameTagVisibility.invoke(team, nameVisibilities[visibility.ordinal()]);
     }
 
     @SneakyThrows
     private void loadCollision(@NonNull Class<?> scoreboardTeam) {
-        Class<?> enumTeamPush = BukkitReflection.getClass("world.scores.Team$CollisionRule",
-                "world.scores.ScoreboardTeamBase$EnumTeamPush", "ScoreboardTeamBase$EnumTeamPush");
+        Class<?> enumTeamPush = BukkitReflection.getClass(
+                "world.scores.Team$CollisionRule",
+                "world.scores.ScoreboardTeamBase$EnumTeamPush",
+                "ScoreboardTeamBase$EnumTeamPush");
         Enum<?>[] collisionRules = (Enum<?>[]) enumTeamPush.getMethod("values").invoke(null);
         Method setCollisionRule = ReflectionUtils.getOnlyMethod(scoreboardTeam, void.class, enumTeamPush);
         setCollision = (team, collision) -> setCollisionRule.invoke(team, collisionRules[collision.ordinal()]);
@@ -177,10 +183,17 @@ public class TeamPacketData {
      * @return  Register team packet with specified parameters
      */
     @SneakyThrows
-    public Object registerTeam(@NonNull Object team, @NonNull String prefix, @Nullable Object prefixComponent,
-                               @NonNull String suffix, @Nullable Object suffixComponent,
-                               @NonNull Scoreboard.NameVisibility visibility, @NonNull Scoreboard.CollisionRule collision,
-                               @NonNull Collection<String> players, int options, @NonNull EnumChatFormat color) {
+    public Object registerTeam(
+            @NonNull Object team,
+            @NonNull String prefix,
+            @Nullable Object prefixComponent,
+            @NonNull String suffix,
+            @Nullable Object suffixComponent,
+            @NonNull Scoreboard.NameVisibility visibility,
+            @NonNull Scoreboard.CollisionRule collision,
+            @NonNull Collection<String> players,
+            int options,
+            @NonNull EnumChatFormat color) {
         updateTeamData(team, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
         ((Collection<String>) ScoreboardTeam_getPlayerNameSet.invoke(team)).addAll(players);
         if (BukkitReflection.getMinorVersion() >= STATIC_CONSTRUCTOR_VERSION) {
@@ -230,10 +243,16 @@ public class TeamPacketData {
      * @return  Update team packet with specified parameters
      */
     @SneakyThrows
-    public Object updateTeam(@NonNull Object team, @NonNull String prefix, @Nullable Object prefixComponent,
-                             @NonNull String suffix, @Nullable Object suffixComponent,
-                             @NonNull Scoreboard.NameVisibility visibility, @NonNull Scoreboard.CollisionRule collision,
-                             int options, @NonNull EnumChatFormat color) {
+    public Object updateTeam(
+            @NonNull Object team,
+            @NonNull String prefix,
+            @Nullable Object prefixComponent,
+            @NonNull String suffix,
+            @Nullable Object suffixComponent,
+            @NonNull Scoreboard.NameVisibility visibility,
+            @NonNull Scoreboard.CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color) {
         updateTeamData(team, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
         if (BukkitReflection.getMinorVersion() >= STATIC_CONSTRUCTOR_VERSION) {
             return TeamPacketConstructor_ofBoolean.invoke(null, team, false);
@@ -265,10 +284,16 @@ public class TeamPacketData {
      *          Team color for 1.13+
      */
     @SneakyThrows
-    private void updateTeamData(@NonNull Object team, @NonNull String prefix, @Nullable Object prefixComponent,
-                                  @NonNull String suffix, @Nullable Object suffixComponent,
-                                  @NonNull Scoreboard.NameVisibility visibility, @NonNull Scoreboard.CollisionRule collision,
-                                  int options, @NonNull EnumChatFormat color) {
+    private void updateTeamData(
+            @NonNull Object team,
+            @NonNull String prefix,
+            @Nullable Object prefixComponent,
+            @NonNull String suffix,
+            @Nullable Object suffixComponent,
+            @NonNull Scoreboard.NameVisibility visibility,
+            @NonNull Scoreboard.CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color) {
         ScoreboardTeam_setAllowFriendlyFire.invoke(team, (options & 0x1) > 0);
         ScoreboardTeam_setCanSeeFriendlyInvisibles.invoke(team, (options & 0x2) > 0);
         if (BukkitReflection.getMinorVersion() >= MODERN_TEAM_DATA_VERSION) {
@@ -309,7 +334,9 @@ public class TeamPacketData {
         if (!TeamPacketClass.isInstance(packet)) return;
         int action = TeamPacket_ACTION.getInt(packet);
         if (action == TeamAction.UPDATE) return;
-        TeamPacket_PLAYERS.set(packet, player.getScoreboard().onTeamPacket(
-                action, (String) TeamPacket_NAME.get(packet), (Collection<String>) TeamPacket_PLAYERS.get(packet)));
+        TeamPacket_PLAYERS.set(
+                packet,
+                player.getScoreboard().onTeamPacket(action, (String) TeamPacket_NAME.get(packet), (Collection<String>)
+                        TeamPacket_PLAYERS.get(packet)));
     }
 }

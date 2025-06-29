@@ -3,6 +3,9 @@ package me.neznamy.tab.shared.features.redis;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import lombok.Getter;
 import me.neznamy.tab.api.event.EventHandler;
 import me.neznamy.tab.shared.TAB;
@@ -16,36 +19,53 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 /**
  * Feature synchronizing player display data between
  * multiple proxies connected with a redis plugin.
  */
 @SuppressWarnings("UnstableApiUsage")
 @Getter
-public abstract class RedisSupport extends TabFeature implements JoinListener, QuitListener,
-        Loadable, UnLoadable, ServerSwitchListener, LoginPacketListener,
-        VanishListener, TabListClearListener {
+public abstract class RedisSupport extends TabFeature
+        implements JoinListener,
+                QuitListener,
+                Loadable,
+                UnLoadable,
+                ServerSwitchListener,
+                LoginPacketListener,
+                VanishListener,
+                TabListClearListener {
 
     /** Redis players on other proxies by their UUID */
-    @NotNull protected final Map<UUID, RedisPlayer> redisPlayers = new ConcurrentHashMap<>();
+    @NotNull
+    protected final Map<UUID, RedisPlayer> redisPlayers = new ConcurrentHashMap<>();
 
     /** UUID of this proxy to ignore messages coming from the same proxy */
-    @NotNull private final UUID proxy = UUID.randomUUID();
+    @NotNull
+    private final UUID proxy = UUID.randomUUID();
 
     /** Features this one hooks into */
-    @NotNull private final List<RedisFeature> features = new ArrayList<>();
-    @Nullable private RedisBelowName redisBelowName;
-    @Nullable private RedisYellowNumber redisYellowNumber;
-    @Nullable private RedisPlayerList redisPlayerList;
-    @Nullable private RedisTeams redisTeams;
+    @NotNull
+    private final List<RedisFeature> features = new ArrayList<>();
+
+    @Nullable
+    private RedisBelowName redisBelowName;
+
+    @Nullable
+    private RedisYellowNumber redisYellowNumber;
+
+    @Nullable
+    private RedisPlayerList redisPlayerList;
+
+    @Nullable
+    private RedisTeams redisTeams;
 
     private EventHandler<TabPlaceholderRegisterEvent> eventHandler;
-    @NotNull private final Map<String, Supplier<RedisMessage>> messages = new HashMap<>();
-    @NotNull private final Map<Class<? extends RedisMessage>, String> classStringMap = new HashMap<>();
+
+    @NotNull
+    private final Map<String, Supplier<RedisMessage>> messages = new HashMap<>();
+
+    @NotNull
+    private final Map<Class<? extends RedisMessage>, String> classStringMap = new HashMap<>();
 
     protected RedisSupport() {
         registerMessage("load", Load.class, Load::new);
@@ -83,8 +103,12 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
      * @param   nameVisibility
      *          Nametag visibility
      */
-    public void updateTeam(@NotNull TabPlayer p, @NotNull String teamName, @NotNull String tagPrefix,
-                              @NotNull String tagSuffix, @NotNull Scoreboard.NameVisibility nameVisibility) {
+    public void updateTeam(
+            @NotNull TabPlayer p,
+            @NotNull String teamName,
+            @NotNull String tagPrefix,
+            @NotNull String tagSuffix,
+            @NotNull Scoreboard.NameVisibility nameVisibility) {
         if (redisTeams == null) return; // Plugin still loading
         sendMessage(redisTeams.new Update(p.getTablistId(), teamName, tagPrefix, tagSuffix, nameVisibility));
     }
@@ -126,20 +150,23 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
      *          json message to process
      */
     public void processMessage(@NotNull String msg) {
-        TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.REDIS_BUNGEE_MESSAGE, () -> {
-            ByteArrayDataInput in = ByteStreams.newDataInput(Base64.getDecoder().decode(msg));
-            String proxy = in.readUTF();
-            if (proxy.equals(this.proxy.toString())) return; // Message coming from current proxy
-            String action = in.readUTF();
-            Supplier<RedisMessage> supplier = messages.get(action);
-            if (supplier == null) {
-                TAB.getInstance().getErrorManager().unknownRedisMessage(action);
-                return;
-            }
-            RedisMessage redisMessage = supplier.get();
-            redisMessage.read(in);
-            redisMessage.process(this);
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.REDIS_BUNGEE_MESSAGE, () -> {
+                    ByteArrayDataInput in =
+                            ByteStreams.newDataInput(Base64.getDecoder().decode(msg));
+                    String proxy = in.readUTF();
+                    if (proxy.equals(this.proxy.toString())) return; // Message coming from current proxy
+                    String action = in.readUTF();
+                    Supplier<RedisMessage> supplier = messages.get(action);
+                    if (supplier == null) {
+                        TAB.getInstance().getErrorManager().unknownRedisMessage(action);
+                        return;
+                    }
+                    RedisMessage redisMessage = supplier.get();
+                    redisMessage.read(in);
+                    redisMessage.process(this);
+                });
     }
 
     /**
@@ -164,16 +191,18 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
     public void load() {
         register();
         if (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.BELOW_NAME)) {
-            redisBelowName = new RedisBelowName(this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.BELOW_NAME));
+            redisBelowName = new RedisBelowName(
+                    this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.BELOW_NAME));
             features.add(redisBelowName);
         }
         if (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.YELLOW_NUMBER)) {
-            redisYellowNumber = new RedisYellowNumber(this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.YELLOW_NUMBER));
+            redisYellowNumber = new RedisYellowNumber(
+                    this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.YELLOW_NUMBER));
             features.add(redisYellowNumber);
         }
         if (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.PLAYER_LIST)) {
-            redisPlayerList = new RedisPlayerList(this, TAB.getInstance().getFeatureManager().getFeature(
-                    TabConstants.Feature.PLAYER_LIST));
+            redisPlayerList = new RedisPlayerList(
+                    this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PLAYER_LIST));
             features.add(redisPlayerList);
         }
         if (TAB.getInstance().getNameTagManager() != null) {
@@ -181,8 +210,8 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
             features.add(redisTeams);
         }
         if (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.GLOBAL_PLAYER_LIST)) {
-            features.add(new RedisGlobalPlayerList(this, TAB.getInstance().getFeatureManager().getFeature(
-                    TabConstants.Feature.GLOBAL_PLAYER_LIST)));
+            features.add(new RedisGlobalPlayerList(
+                    this, TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.GLOBAL_PLAYER_LIST)));
         }
         overridePlaceholders();
         TAB.getInstance().getEventBus().register(TabPlaceholderRegisterEvent.class, eventHandler);
@@ -194,7 +223,7 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
         eventHandler = event -> {
             String identifier = event.getIdentifier();
             if (identifier.startsWith("%online_")) {
-                String server = identifier.substring(8, identifier.length()-1);
+                String server = identifier.substring(8, identifier.length() - 1);
                 event.setServerPlaceholder(() -> {
                     int count = 0;
                     for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
@@ -207,36 +236,42 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
                 });
             }
         };
-        TAB.getInstance().getPlaceholderManager().registerServerPlaceholder(TabConstants.Placeholder.ONLINE, 1000, () -> {
-            int count = 0;
-            for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
-                if (!player.isVanished()) count++;
-            }
-            for (RedisPlayer player : redisPlayers.values()) {
-                if (!player.isVanished()) count++;
-            }
-            return count;
-        });
-        TAB.getInstance().getPlaceholderManager().registerServerPlaceholder(TabConstants.Placeholder.STAFF_ONLINE, 1000, () -> {
-            int count = 0;
-            for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
-                if (!player.isVanished() && player.hasPermission(TabConstants.Permission.STAFF)) count++;
-            }
-            for (RedisPlayer player : redisPlayers.values()) {
-                if (!player.isVanished() && player.isStaff()) count++;
-            }
-            return count;
-        });
-        TAB.getInstance().getPlaceholderManager().registerPlayerPlaceholder(TabConstants.Placeholder.SERVER_ONLINE, 1000, p -> {
-            int count = 0;
-            for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
-                if (((TabPlayer)p).getServer().equals(player.getServer()) && !player.isVanished()) count++;
-            }
-            for (RedisPlayer player : redisPlayers.values()) {
-                if (((TabPlayer)p).getServer().equals(player.getServer()) && !player.isVanished()) count++;
-            }
-            return count;
-        });
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerServerPlaceholder(TabConstants.Placeholder.ONLINE, 1000, () -> {
+                    int count = 0;
+                    for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
+                        if (!player.isVanished()) count++;
+                    }
+                    for (RedisPlayer player : redisPlayers.values()) {
+                        if (!player.isVanished()) count++;
+                    }
+                    return count;
+                });
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerServerPlaceholder(TabConstants.Placeholder.STAFF_ONLINE, 1000, () -> {
+                    int count = 0;
+                    for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
+                        if (!player.isVanished() && player.hasPermission(TabConstants.Permission.STAFF)) count++;
+                    }
+                    for (RedisPlayer player : redisPlayers.values()) {
+                        if (!player.isVanished() && player.isStaff()) count++;
+                    }
+                    return count;
+                });
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerPlayerPlaceholder(TabConstants.Placeholder.SERVER_ONLINE, 1000, p -> {
+                    int count = 0;
+                    for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
+                        if (((TabPlayer) p).getServer().equals(player.getServer()) && !player.isVanished()) count++;
+                    }
+                    for (RedisPlayer player : redisPlayers.values()) {
+                        if (((TabPlayer) p).getServer().equals(player.getServer()) && !player.isVanished()) count++;
+                    }
+                    return count;
+                });
     }
 
     @Override
@@ -287,7 +322,10 @@ public abstract class RedisSupport extends TabFeature implements JoinListener, Q
      * @param   supplier
      *          Message supplier
      */
-    public void registerMessage(@NotNull String name, @NotNull Class<? extends RedisMessage> clazz, @NotNull Supplier<RedisMessage> supplier) {
+    public void registerMessage(
+            @NotNull String name,
+            @NotNull Class<? extends RedisMessage> clazz,
+            @NotNull Supplier<RedisMessage> supplier) {
         messages.put(name, supplier);
         classStringMap.put(clazz, name);
     }

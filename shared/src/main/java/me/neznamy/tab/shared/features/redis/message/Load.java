@@ -31,7 +31,7 @@ public class Load extends RedisMessage {
     public void read(@NotNull ByteArrayDataInput in) {
         int count = in.readInt();
         decodedPlayers = new PlayerJoin[count];
-        for (int i=0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             PlayerJoin join = new PlayerJoin();
             join.read(in);
             decodedPlayers[i] = join;
@@ -41,7 +41,9 @@ public class Load extends RedisMessage {
     @Override
     public void process(@NotNull RedisSupport redisSupport) {
         for (PlayerJoin join : decodedPlayers) {
-            if (!redisSupport.getRedisPlayers().containsKey(join.getDecodedPlayer().getUniqueId())) {
+            if (!redisSupport
+                    .getRedisPlayers()
+                    .containsKey(join.getDecodedPlayer().getUniqueId())) {
                 join.process(redisSupport);
             }
         }

@@ -2,7 +2,6 @@ package me.neznamy.tab.api.bossbar;
 
 import java.util.List;
 import java.util.Map;
-
 import lombok.NonNull;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
@@ -23,7 +22,7 @@ public interface BossBarManager {
     /**
      * Creates BossBar with specified parameters and registers it to BossBar manager,
      * allowing to retrieve it later.
-     * 
+     *
      * @param   title
      *          Title to display, supports placeholders
      * @param   progress
@@ -34,12 +33,13 @@ public interface BossBarManager {
      *          Style to use
      * @return  The newly created BossBar
      */
-    @NotNull BossBar createBossBar(@NonNull String title, float progress, @NonNull BarColor color, @NonNull BarStyle style);
+    @NotNull
+    BossBar createBossBar(@NonNull String title, float progress, @NonNull BarColor color, @NonNull BarStyle style);
 
     /**
      * Creates BossBar with specified parameters and registers it to BossBar manager,
      * allowing to retrieve it later.
-     * 
+     *
      * @param   title
      *          Title to display, supports placeholders
      * @param   progress
@@ -53,19 +53,22 @@ public interface BossBarManager {
      *          a placeholder that returns one of them
      * @return  The newly created BossBar
      */
-    @NotNull BossBar createBossBar(@NonNull String title, @NonNull String progress, @NonNull String color, @NonNull String style);
+    @NotNull
+    BossBar createBossBar(
+            @NonNull String title, @NonNull String progress, @NonNull String color, @NonNull String style);
 
     /**
      * Returns registered BossBar with given name. For BossBars from config it is the name
      * they were created with, for API BossBars their randomly generated name, which can be
      * retrieved using {@link me.neznamy.tab.api.bossbar.BossBar#getName()}.
      * Returns {@code null} if no such BossBar exists.
-     * 
+     *
      * @param   name
      *          Name of registered BossBar
      * @return  BossBar with specified name
      */
-    @Nullable BossBar getBossBar(@NonNull String name);
+    @Nullable
+    BossBar getBossBar(@NonNull String name);
 
     /**
      * Returns a map of all registered BossBars. This includes both BossBars from config
@@ -76,11 +79,12 @@ public interface BossBarManager {
      *
      * @return  all registered BossBars
      */
-    @NotNull Map<String, BossBar> getRegisteredBossBars();
+    @NotNull
+    Map<String, BossBar> getRegisteredBossBars();
 
     /**
      * Toggles BossBar for this player and sends toggle message if {@code sendToggleMessage} is true.
-     * 
+     *
      * @param   player
      *          Player to toggle BossBar for
      * @param   sendToggleMessage
@@ -92,7 +96,7 @@ public interface BossBarManager {
 
     /**
      * Returns true if player can see BossBars, false if toggled via command or API.
-     * 
+     *
      * @param   player
      *          Player to check toggle status of
      * @return  {@code true} if visible, {@code false} if disabled (toggled)
@@ -104,7 +108,7 @@ public interface BossBarManager {
     /**
      * Sets BossBar visibility of player to set value. If value did not change, nothing happens.
      * If visibility changed, toggle message is sent if {@code sendToggleMessage} is {@code true}.
-     * 
+     *
      * @param   player
      *          Player to set BossBar visibility of
      * @param   visible
@@ -153,5 +157,6 @@ public interface BossBarManager {
      * @see     #sendBossBarTemporarily(TabPlayer, String, int)
      * @see     #announceBossBar(String, int)
      */
-    @NotNull List<BossBar> getAnnouncedBossBars();
+    @NotNull
+    List<BossBar> getAnnouncedBossBars();
 }

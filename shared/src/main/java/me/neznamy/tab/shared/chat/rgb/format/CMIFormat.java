@@ -1,9 +1,8 @@
 package me.neznamy.tab.shared.chat.rgb.format;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Formatter for {#RRGGBB}
@@ -11,7 +10,7 @@ import java.util.regex.Pattern;
 public class CMIFormat implements RGBFormatter {
 
     private final Pattern pattern = Pattern.compile("\\{#[0-9a-fA-F]{6}}");
-    
+
     @Override
     public @NotNull String reformat(@NotNull String text) {
         if (!text.contains("{#")) return text;

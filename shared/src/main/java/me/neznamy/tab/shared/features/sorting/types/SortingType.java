@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.features.sorting.types;
 
 import java.util.LinkedHashMap;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.features.sorting.Sorting;
 import me.neznamy.tab.shared.placeholders.types.TabPlaceholder;
 import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.features.sorting.Sorting;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,7 +25,7 @@ public abstract class SortingType {
 
     /** Number to add to / subtract from to prevent incorrect sorting with negative values */
     protected final int DEFAULT_NUMBER = Integer.MAX_VALUE / 2;
-    
+
     /** Placeholder to sort by, if sorting type uses it */
     protected TabPlaceholder sortingPlaceholder;
 
@@ -46,7 +45,7 @@ public abstract class SortingType {
             this.sortingPlaceholder = TAB.getInstance().getPlaceholderManager().getPlaceholder(sortingPlaceholder);
         }
     }
-    
+
     /**
      * Applies all placeholders for specified player
      *
@@ -119,11 +118,15 @@ public abstract class SortingType {
      *          Player name used in error message
      * @return  parsed double or {@code defaultValue} if input is invalid
      */
-    public double parseDouble(@NotNull String placeholder, @NotNull String output, double defaultValue, TabPlayer player) {
+    public double parseDouble(
+            @NotNull String placeholder, @NotNull String output, double defaultValue, TabPlayer player) {
         try {
             return Double.parseDouble(output.replace(",", "."));
         } catch (NumberFormatException e) {
-            TAB.getInstance().getConfigHelper().runtime().invalidInputForNumericSorting(this, placeholder, output, player);
+            TAB.getInstance()
+                    .getConfigHelper()
+                    .runtime()
+                    .invalidInputForNumericSorting(this, placeholder, output, player);
             return defaultValue;
         }
     }

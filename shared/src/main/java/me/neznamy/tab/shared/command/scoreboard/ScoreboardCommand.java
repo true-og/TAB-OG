@@ -1,11 +1,10 @@
 package me.neznamy.tab.shared.command.scoreboard;
 
+import java.util.Arrays;
 import me.neznamy.tab.shared.command.SubCommand;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 /**
  * Handler for /tab scoreboard

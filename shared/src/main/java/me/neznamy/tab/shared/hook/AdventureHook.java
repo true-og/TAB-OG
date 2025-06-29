@@ -1,8 +1,9 @@
 package me.neznamy.tab.shared.hook;
 
+import java.util.*;
 import me.neznamy.tab.shared.chat.ChatModifier;
-import me.neznamy.tab.shared.chat.StructuredComponent;
 import me.neznamy.tab.shared.chat.SimpleComponent;
+import me.neznamy.tab.shared.chat.StructuredComponent;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.util.ComponentCache;
 import net.kyori.adventure.key.Key;
@@ -13,16 +14,14 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-
 /**
  * Class for Adventure component conversion.
  */
 public class AdventureHook {
 
     /** Component to string cache for better performance */
-    private static final ComponentCache<Component, String> componentToString = new ComponentCache<>(1000,
-            (component, version) -> GsonComponentSerializer.gson().serialize(component));
+    private static final ComponentCache<Component, String> componentToString = new ComponentCache<>(
+            1000, (component, version) -> GsonComponentSerializer.gson().serialize(component));
 
     /** Array of all 32 possible decoration combinations for fast access */
     private static final EnumSet<TextDecoration>[] decorations = loadDecorations();
@@ -35,7 +34,7 @@ public class AdventureHook {
     @SuppressWarnings("unchecked")
     private static EnumSet<TextDecoration>[] loadDecorations() {
         EnumSet<TextDecoration>[] decorations = new EnumSet[32];
-        for (int i=0; i<32; i++) {
+        for (int i = 0; i < 32; i++) {
             EnumSet<TextDecoration> set = EnumSet.noneOf(TextDecoration.class);
             if ((i & 1) > 0) set.add(TextDecoration.BOLD);
             if ((i & 2) > 0) set.add(TextDecoration.ITALIC);
@@ -65,8 +64,7 @@ public class AdventureHook {
         Component adventureComponent = Component.text(
                 iComponent.getText(),
                 convertColor(modifier.getColor(), modern),
-                decorations[modifier.getMagicCodeBitMask()]
-        );
+                decorations[modifier.getMagicCodeBitMask()]);
 
         if (modifier.getFont() != null) {
             adventureComponent = adventureComponent.font(Key.key(modifier.getFont()));

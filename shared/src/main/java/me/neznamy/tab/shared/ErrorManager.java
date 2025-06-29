@@ -1,5 +1,12 @@
 package me.neznamy.tab.shared;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import lombok.Getter;
 import me.neznamy.tab.api.event.TabEvent;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
@@ -8,29 +15,22 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 /**
  * An error assistant to print internal errors into error file
  * and warn user about misconfiguration
  */
-
 public class ErrorManager {
 
     /** Date format used in error messages */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy - HH:mm:ss - ");
 
     /** errors.log file for internal plugin errors */
-    @Getter private final File errorLog;
+    @Getter
+    private final File errorLog;
 
     /** anti-override.log file when some plugin or server itself attempts to override the plugin */
-    @Getter private final File antiOverrideLog;
+    @Getter
+    private final File antiOverrideLog;
 
     /** placeholder-errors.log file for errors thrown by placeholders */
     private final File placeholderErrorLog;
@@ -71,7 +71,8 @@ public class ErrorManager {
      * @param   file
      *          file to print error to
      */
-    public void printError(@Nullable String message, @Nullable Throwable t, boolean intoConsoleToo, @NotNull File file) {
+    public void printError(
+            @Nullable String message, @Nullable Throwable t, boolean intoConsoleToo, @NotNull File file) {
         List<String> lines = t == null ? Collections.emptyList() : throwableToList(t, false);
         printError(message, lines, intoConsoleToo, file);
     }
@@ -110,13 +111,15 @@ public class ErrorManager {
      * @param   file
      *          file to print error to
      */
-    public synchronized void printError(@Nullable String message, @NotNull List<String> error, boolean intoConsoleToo, @NotNull File file) {
+    public synchronized void printError(
+            @Nullable String message, @NotNull List<String> error, boolean intoConsoleToo, @NotNull File file) {
         try {
             if (!file.exists()) Files.createFile(file.toPath());
             try (BufferedWriter buf = new BufferedWriter(new FileWriter(file, true))) {
                 if (message != null) {
                     if (file.length() < TabConstants.MAX_LOG_SIZE)
-                        buf.write(dateFormat.format(new Date()) + "[TAB v" + TabConstants.PLUGIN_VERSION + "] " + EnumChatFormat.decolor(message) + System.lineSeparator());
+                        buf.write(dateFormat.format(new Date()) + "[TAB v" + TabConstants.PLUGIN_VERSION + "] "
+                                + EnumChatFormat.decolor(message) + System.lineSeparator());
                     if (intoConsoleToo || TAB.getInstance().getConfiguration().isDebugMode())
                         TAB.getInstance().getPlatform().logWarn(TabComponent.fromColoredText(message));
                 }
@@ -195,8 +198,11 @@ public class ErrorManager {
      *          Thrown error
      */
     public void groupRetrieveException(@NotNull String pluginName, @NotNull TabPlayer player, Throwable t) {
-        printError("Permission system " + pluginName + " threw an exception when getting group of " + player.getName(),
-                t, false, errorLog);
+        printError(
+                "Permission system " + pluginName + " threw an exception when getting group of " + player.getName(),
+                t,
+                false,
+                errorLog);
     }
 
     /**
@@ -208,8 +214,11 @@ public class ErrorManager {
      *          Player who null group was returned for
      */
     public void nullGroupReturned(@NotNull String pluginName, @NotNull TabPlayer player) {
-        printError("Permission system " + pluginName + " returned null group for player " + player.getName(),
-                Collections.emptyList(), false, errorLog);
+        printError(
+                "Permission system " + pluginName + " returned null group for player " + player.getName(),
+                Collections.emptyList(),
+                false,
+                errorLog);
     }
 
     /**
@@ -223,8 +232,11 @@ public class ErrorManager {
      *          Thrown error
      */
     public void parseCommandError(@NotNull String placeholder, @NotNull TabPlayer target, @NotNull Throwable t) {
-        printError("Placeholder " + placeholder + " threw an exception when parsing for player " + target.getName(),
-                t, true, errorLog);
+        printError(
+                "Placeholder " + placeholder + " threw an exception when parsing for player " + target.getName(),
+                t,
+                true,
+                errorLog);
     }
 
     /**
@@ -234,9 +246,12 @@ public class ErrorManager {
      *          Message action
      */
     public void unknownRedisMessage(@NotNull String action) {
-        printError("RedisSupport received unknown action: \"" + action +
-                "\". Does it come from a feature enabled on another proxy, but not here?",
-                Collections.emptyList(), false, errorLog);
+        printError(
+                "RedisSupport received unknown action: \"" + action
+                        + "\". Does it come from a feature enabled on another proxy, but not here?",
+                Collections.emptyList(),
+                false,
+                errorLog);
     }
 
     /**
@@ -248,8 +263,7 @@ public class ErrorManager {
      *          Thrown error
      */
     public void mineSkinDownloadError(@NotNull String id, @NotNull Throwable t) {
-        printError("Failed to download skin \"" + id + "\" from MineSkin: " + t.getMessage(),
-                t, true, errorLog);
+        printError("Failed to download skin \"" + id + "\" from MineSkin: " + t.getMessage(), t, true, errorLog);
     }
 
     /**
@@ -261,8 +275,7 @@ public class ErrorManager {
      *          Thrown error
      */
     public void playerSkinDownloadError(@NotNull String name, @NotNull Throwable t) {
-        printError("Failed to download skin of player \"" + name + "\": " + t.getMessage(),
-                t, true, errorLog);
+        printError("Failed to download skin of player \"" + name + "\": " + t.getMessage(), t, true, errorLog);
     }
 
     /**
@@ -274,8 +287,7 @@ public class ErrorManager {
      *          Thrown error
      */
     public void textureSkinDownloadError(@NotNull String texture, @NotNull Throwable t) {
-        printError("Failed to download skin from texture \"" + texture + "\": " + t.getMessage(),
-                t, true, errorLog);
+        printError("Failed to download skin from texture \"" + texture + "\": " + t.getMessage(), t, true, errorLog);
     }
 
     /**
@@ -287,9 +299,12 @@ public class ErrorManager {
      *          Action during which armor stand manager was null
      */
     public void armorStandNull(@NotNull TabPlayer player, @NotNull String action) {
-        printError("ArmorStandManager of player " + player.getName() +
-                " is null when trying to process " + action + ", which is unexpected. Loaded = " + player.isLoaded(),
-                Collections.emptyList(), false, errorLog);
+        printError(
+                "ArmorStandManager of player " + player.getName() + " is null when trying to process " + action
+                        + ", which is unexpected. Loaded = " + player.isLoaded(),
+                Collections.emptyList(),
+                false,
+                errorLog);
     }
 
     /**
@@ -310,7 +325,11 @@ public class ErrorManager {
      */
     public void mysqlConnectionFailed(@NotNull Throwable t) {
         Throwable root = getRootCause(t);
-        printError("Failed to connect to MySQL: " + root.getClass().getName() + ": " + root.getMessage(), Collections.emptyList(), true, errorLog);
+        printError(
+                "Failed to connect to MySQL: " + root.getClass().getName() + ": " + root.getMessage(),
+                Collections.emptyList(),
+                true,
+                errorLog);
     }
 
     /**
@@ -321,7 +340,11 @@ public class ErrorManager {
      */
     public void mysqlQueryFailed(@NotNull Throwable t) {
         Throwable root = getRootCause(t);
-        printError("Failed to execute MySQL query due to error: " + root.getClass().getName() + ": " + root.getMessage(), Collections.emptyList(), false, errorLog);
+        printError(
+                "Failed to execute MySQL query due to error: " + root.getClass().getName() + ": " + root.getMessage(),
+                Collections.emptyList(),
+                false,
+                errorLog);
     }
 
     /**
@@ -333,7 +356,8 @@ public class ErrorManager {
      *          Errors thrown
      */
     public void errorFiringEvent(@NotNull TabEvent event, @NotNull Collection<Throwable> exceptions) {
-        printError("Some errors occurred whilst trying to fire event " + event, Collections.emptyList(), false, errorLog);
+        printError(
+                "Some errors occurred whilst trying to fire event " + event, Collections.emptyList(), false, errorLog);
         int i = 0;
         for (Throwable exception : exceptions) {
             printError("#" + i++ + ": \n", exception, false, errorLog);

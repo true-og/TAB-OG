@@ -1,10 +1,9 @@
 package me.neznamy.tab.shared.platform;
 
+import java.util.UUID;
 import me.neznamy.tab.api.bossbar.BarColor;
 import me.neznamy.tab.api.bossbar.BarStyle;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Interface for sending BossBars to players.
@@ -25,7 +24,8 @@ public interface BossBar {
      * @param   style
      *          BossBar style
      */
-    void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style);
+    void create(
+            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style);
 
     /**
      * Updates title
@@ -74,7 +74,6 @@ public interface BossBar {
      *          Unique identifier to match the bossbar with other functions
      */
     void remove(@NotNull UUID id);
-
 
     /**
      * Freezes the class, not letting any packets through.

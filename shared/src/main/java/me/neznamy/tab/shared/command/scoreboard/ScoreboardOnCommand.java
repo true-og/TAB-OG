@@ -1,5 +1,7 @@
 package me.neznamy.tab.shared.command.scoreboard;
 
+import java.util.Collections;
+import java.util.List;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.command.SubCommand;
@@ -7,9 +9,6 @@ import me.neznamy.tab.shared.features.scoreboard.ScoreboardManagerImpl;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Handler for "/tab scoreboard on [player] [options]" subcommand
@@ -25,7 +24,8 @@ public class ScoreboardOnCommand extends SubCommand {
 
     @Override
     public void execute(@Nullable TabPlayer sender, @NotNull String[] args) {
-        ScoreboardManagerImpl scoreboard = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
+        ScoreboardManagerImpl scoreboard =
+                TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
         if (scoreboard == null) {
             sendMessage(sender, getMessages().getScoreboardFeatureNotEnabled());
             return;
@@ -47,7 +47,7 @@ public class ScoreboardOnCommand extends SubCommand {
             return;
         }
         boolean silent = args.length == 2 && args[1].equals("-s");
-        if (target.scoreboardData.otherPluginScoreboard != null) return; //not overriding other plugins
+        if (target.scoreboardData.otherPluginScoreboard != null) return; // not overriding other plugins
         scoreboard.setScoreboardVisible(target, true, !silent);
     }
 

@@ -2,16 +2,15 @@ package me.neznamy.tab.shared.command;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.neznamy.tab.shared.chat.SimpleComponent;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.SimpleComponent;
+import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.config.MessageFile;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,19 +20,32 @@ import org.jetbrains.annotations.Nullable;
 @RequiredArgsConstructor
 public abstract class SubCommand {
 
-    //all properties assignable with a command
-    @Getter @Setter private static List<String> allProperties = Arrays.asList(TabConstants.Property.TABPREFIX, TabConstants.Property.TABSUFFIX, TabConstants.Property.TAGPREFIX, TabConstants.Property.TAGSUFFIX, TabConstants.Property.CUSTOMTABNAME, TabConstants.Property.ABOVENAME, TabConstants.Property.BELOWNAME, TabConstants.Property.CUSTOMTAGNAME);
+    // all properties assignable with a command
+    @Getter
+    @Setter
+    private static List<String> allProperties = Arrays.asList(
+            TabConstants.Property.TABPREFIX,
+            TabConstants.Property.TABSUFFIX,
+            TabConstants.Property.TAGPREFIX,
+            TabConstants.Property.TAGSUFFIX,
+            TabConstants.Property.CUSTOMTABNAME,
+            TabConstants.Property.ABOVENAME,
+            TabConstants.Property.BELOWNAME,
+            TabConstants.Property.CUSTOMTAGNAME);
 
-    //properties that require unlimited NameTag mode
-    protected final List<String> extraProperties = Arrays.asList(TabConstants.Property.ABOVENAME, TabConstants.Property.BELOWNAME, TabConstants.Property.CUSTOMTAGNAME);
+    // properties that require unlimited NameTag mode
+    protected final List<String> extraProperties = Arrays.asList(
+            TabConstants.Property.ABOVENAME, TabConstants.Property.BELOWNAME, TabConstants.Property.CUSTOMTAGNAME);
 
-    //subcommands of this command
-    @Getter private final Map<String, SubCommand> subcommands = new HashMap<>();
+    // subcommands of this command
+    @Getter
+    private final Map<String, SubCommand> subcommands = new HashMap<>();
 
-    //name of this subcommand
-    @Getter private final String name;
+    // name of this subcommand
+    @Getter
+    private final String name;
 
-    //permission required to run this command
+    // permission required to run this command
     private final String permission;
 
     /**
@@ -67,8 +79,8 @@ public abstract class SubCommand {
      * @return  true if sender has permission or is console, false otherwise
      */
     public boolean hasPermission(@Nullable TabPlayer sender, @Nullable String permission) {
-        if (permission == null) return true; //no permission required
-        if (sender == null) return true; //console
+        if (permission == null) return true; // no permission required
+        if (sender == null) return true; // console
         if (sender.hasPermission(TabConstants.Permission.COMMAND_ALL)) return true;
         return sender.hasPermission(permission);
     }
@@ -135,7 +147,9 @@ public abstract class SubCommand {
     }
 
     public @NotNull List<String> getStartingArgument(@NotNull Collection<String> values, @NotNull String argument) {
-        return values.stream().filter(value -> value.toLowerCase().startsWith(argument.toLowerCase())).collect(Collectors.toList());
+        return values.stream()
+                .filter(value -> value.toLowerCase().startsWith(argument.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     /**

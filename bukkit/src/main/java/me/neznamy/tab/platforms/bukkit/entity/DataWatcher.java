@@ -1,8 +1,11 @@
 package me.neznamy.tab.platforms.bukkit.entity;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
 import lombok.*;
-import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.shared.Limitations;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.backend.EntityData;
@@ -10,10 +13,6 @@ import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * A class representing the n.m.s.DataWatcher class to make work with it much easier
@@ -27,13 +26,15 @@ public class DataWatcher implements EntityData {
     private static Object DataWatcherSerializer_OPTIONAL_COMPONENT;
     private static Object DataWatcherSerializer_BOOLEAN;
 
-    private static final int armorStandFlagsPosition = EntityData.getArmorStandFlagsPosition(BukkitReflection.getMinorVersion());
+    private static final int armorStandFlagsPosition =
+            EntityData.getArmorStandFlagsPosition(BukkitReflection.getMinorVersion());
 
     /** 1.19.3+ */
     private static Constructor<?> newDataWatcher$Item;
 
     /** 1.19.2- */
     public static Class<?> DataWatcher;
+
     private static Constructor<?> newDataWatcher;
     private static Method DataWatcher_register;
     private static Constructor<?> newDataWatcherObject;
@@ -53,12 +54,18 @@ public class DataWatcher implements EntityData {
             loadSerializers();
         }
         if (BukkitReflection.is1_19_3Plus()) {
-            Class<?> dataWatcher$Item = BukkitReflection.getClass("network.syncher.SynchedEntityData$DataValue", "network.syncher.DataWatcher$c", "network.syncher.DataWatcher$b");
-            Class<?> dataWatcherSerializer = BukkitReflection.getClass("network.syncher.EntityDataSerializer",
-                    "network.syncher.DataWatcherSerializer", "DataWatcherSerializer");
+            Class<?> dataWatcher$Item = BukkitReflection.getClass(
+                    "network.syncher.SynchedEntityData$DataValue",
+                    "network.syncher.DataWatcher$c",
+                    "network.syncher.DataWatcher$b");
+            Class<?> dataWatcherSerializer = BukkitReflection.getClass(
+                    "network.syncher.EntityDataSerializer",
+                    "network.syncher.DataWatcherSerializer",
+                    "DataWatcherSerializer");
             newDataWatcher$Item = dataWatcher$Item.getConstructor(int.class, dataWatcherSerializer, Object.class);
         } else {
-            DataWatcher = BukkitReflection.getClass("network.syncher.SynchedEntityData", "network.syncher.DataWatcher", "DataWatcher");
+            DataWatcher = BukkitReflection.getClass(
+                    "network.syncher.SynchedEntityData", "network.syncher.DataWatcher", "DataWatcher");
             if (minorVersion >= 7) {
                 ComponentConverter.ensureAvailable();
                 newDataWatcher = DataWatcher.getConstructor(BukkitReflection.getClass("world.entity.Entity", "Entity"));
@@ -66,47 +73,60 @@ public class DataWatcher implements EntityData {
                 newDataWatcher = DataWatcher.getConstructor();
             }
             if (minorVersion >= 9) {
-                Class<?> dataWatcherObject = BukkitReflection.getClass("network.syncher.EntityDataAccessor",
-                        "network.syncher.DataWatcherObject", "DataWatcherObject");
-                Class<?> dataWatcherSerializer = BukkitReflection.getClass("network.syncher.EntityDataSerializer",
-                        "network.syncher.DataWatcherSerializer", "DataWatcherSerializer");
+                Class<?> dataWatcherObject = BukkitReflection.getClass(
+                        "network.syncher.EntityDataAccessor", "network.syncher.DataWatcherObject", "DataWatcherObject");
+                Class<?> dataWatcherSerializer = BukkitReflection.getClass(
+                        "network.syncher.EntityDataSerializer",
+                        "network.syncher.DataWatcherSerializer",
+                        "DataWatcherSerializer");
                 DataWatcher_register = ReflectionUtils.getMethod(
                         DataWatcher,
-                        new String[]{"define", "register", "a", "m_135372_"}, // {Mojang, Bukkit, Bukkit 1.18+, Mohist 1.18.2}
-                        dataWatcherObject, Object.class
-                );
+                        new String[] {"define", "register", "a", "m_135372_"
+                        }, // {Mojang, Bukkit, Bukkit 1.18+, Mohist 1.18.2}
+                        dataWatcherObject,
+                        Object.class);
                 newDataWatcherObject = dataWatcherObject.getConstructor(int.class, dataWatcherSerializer);
             } else {
                 DataWatcher_register = ReflectionUtils.getMethod(
                         DataWatcher,
-                        new String[]{"func_75682_a", "a"}, int.class, // {Thermos 1.7.10, Bukkit}
-                        Object.class
-                );
+                        new String[] {"func_75682_a", "a"},
+                        int.class, // {Thermos 1.7.10, Bukkit}
+                        Object.class);
             }
         }
     }
 
     private static void loadSerializers() throws ReflectiveOperationException {
-        Class<?> dataWatcherRegistry = BukkitReflection.getClass("network.syncher.EntityDataSerializers",
-                "network.syncher.DataWatcherRegistry", "DataWatcherRegistry");
-        DataWatcherSerializer_BYTE = ReflectionUtils.getField(dataWatcherRegistry, "BYTE", "a", "f_135027_").get(null); // Mohist 1.18.2
-        DataWatcherSerializer_FLOAT = ReflectionUtils.getField(dataWatcherRegistry, "FLOAT", "c", "f_135029_").get(null); // Mohist 1.18.2
-        DataWatcherSerializer_STRING = ReflectionUtils.getField(dataWatcherRegistry, "STRING", "d", "f_135030_").get(null); // Mohist 1.18.2
+        Class<?> dataWatcherRegistry = BukkitReflection.getClass(
+                "network.syncher.EntityDataSerializers", "network.syncher.DataWatcherRegistry", "DataWatcherRegistry");
+        DataWatcherSerializer_BYTE = ReflectionUtils.getField(dataWatcherRegistry, "BYTE", "a", "f_135027_")
+                .get(null); // Mohist 1.18.2
+        DataWatcherSerializer_FLOAT = ReflectionUtils.getField(dataWatcherRegistry, "FLOAT", "c", "f_135029_")
+                .get(null); // Mohist 1.18.2
+        DataWatcherSerializer_STRING = ReflectionUtils.getField(dataWatcherRegistry, "STRING", "d", "f_135030_")
+                .get(null); // Mohist 1.18.2
         if (BukkitReflection.is1_19_3Plus()) {
-            DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(dataWatcherRegistry, "OPTIONAL_COMPONENT", "g").get(null);
+            DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(
+                            dataWatcherRegistry, "OPTIONAL_COMPONENT", "g")
+                    .get(null);
             if (BukkitReflection.is1_19_4Plus()) {
-                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "k").get(null);
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "k")
+                        .get(null);
             } else {
-                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "j").get(null);
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "j")
+                        .get(null);
             }
         } else {
             if (BukkitReflection.getMinorVersion() >= 13) {
-                DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(dataWatcherRegistry,
-                        "OPTIONAL_COMPONENT", "f", "f_135032_").get(null); // Mohist 1.18.2
-                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry,
-                        "BOOLEAN", "i", "f_135035_").get(null); // Mohist 1.18.2
+                DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(
+                                dataWatcherRegistry, "OPTIONAL_COMPONENT", "f", "f_135032_")
+                        .get(null); // Mohist 1.18.2
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(
+                                dataWatcherRegistry, "BOOLEAN", "i", "f_135035_")
+                        .get(null); // Mohist 1.18.2
             } else {
-                DataWatcherSerializer_BOOLEAN = dataWatcherRegistry.getDeclaredField("h").get(null);
+                DataWatcherSerializer_BOOLEAN =
+                        dataWatcherRegistry.getDeclaredField("h").get(null);
             }
         }
     }
@@ -145,13 +165,17 @@ public class DataWatcher implements EntityData {
      */
     public void setCustomName(@NotNull String customName, @NotNull ProtocolVersion clientVersion) {
         if (BukkitReflection.getMinorVersion() >= 13) {
-            setValue(2, DataWatcherSerializer_OPTIONAL_COMPONENT, Optional.of(TabComponent.optimized(customName).convert(clientVersion)));
+            setValue(
+                    2,
+                    DataWatcherSerializer_OPTIONAL_COMPONENT,
+                    Optional.of(TabComponent.optimized(customName).convert(clientVersion)));
         } else if (BukkitReflection.getMinorVersion() >= 8) {
             setValue(2, DataWatcherSerializer_STRING, customName);
         } else {
-            //name length is limited to 64 characters on <1.8
-            String cutName = (customName.length() > Limitations.BOSSBAR_NAME_LENGTH_1_7 ?
-                    customName.substring(0, Limitations.BOSSBAR_NAME_LENGTH_1_7) : customName);
+            // name length is limited to 64 characters on <1.8
+            String cutName = (customName.length() > Limitations.BOSSBAR_NAME_LENGTH_1_7
+                    ? customName.substring(0, Limitations.BOSSBAR_NAME_LENGTH_1_7)
+                    : customName);
             if (BukkitReflection.getMinorVersion() >= 6) {
                 setValue(10, null, cutName);
             } else {
@@ -170,7 +194,7 @@ public class DataWatcher implements EntityData {
         if (BukkitReflection.getMinorVersion() >= 9) {
             setValue(3, DataWatcherSerializer_BOOLEAN, visible);
         } else {
-            setValue(3, null, (byte)(visible?1:0));
+            setValue(3, null, (byte) (visible ? 1 : 0));
         }
     }
 
@@ -184,7 +208,7 @@ public class DataWatcher implements EntityData {
         if (BukkitReflection.getMinorVersion() >= 6) {
             setValue(6, DataWatcherSerializer_FLOAT, health);
         } else {
-            setValue(16, null, (int)health);
+            setValue(16, null, (int) health);
         }
     }
 
@@ -204,8 +228,7 @@ public class DataWatcher implements EntityData {
      *          Time, apparently
      */
     public void setWitherInvulnerableTime(int time) {
-        if (BukkitReflection.getMinorVersion() > 8)
-            throw new UnsupportedOperationException("Not supported on 1.9+");
+        if (BukkitReflection.getMinorVersion() > 8) throw new UnsupportedOperationException("Not supported on 1.9+");
         setValue(20, null, time);
     }
 
@@ -225,7 +248,7 @@ public class DataWatcher implements EntityData {
             return items;
         } else {
             Object nmsWatcher;
-            if (newDataWatcher.getParameterCount() == 1) { //1.7+
+            if (newDataWatcher.getParameterCount() == 1) { // 1.7+
                 nmsWatcher = newDataWatcher.newInstance(new Object[] {null});
             } else {
                 nmsWatcher = newDataWatcher.newInstance();

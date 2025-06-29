@@ -3,44 +3,56 @@ package me.neznamy.tab.shared.features.layout;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.api.tablist.layout.Layout;
 import me.neznamy.tab.api.tablist.layout.LayoutManager;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.config.file.ConfigurationFile;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.PlayerList;
 import me.neznamy.tab.shared.features.layout.skin.SkinManager;
 import me.neznamy.tab.shared.features.types.*;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class LayoutManagerImpl extends TabFeature implements LayoutManager, JoinListener, QuitListener, VanishListener, Loadable,
-        UnLoadable, Refreshable, TabListClearListener {
+public class LayoutManagerImpl extends TabFeature
+        implements LayoutManager,
+                JoinListener,
+                QuitListener,
+                VanishListener,
+                Loadable,
+                UnLoadable,
+                Refreshable,
+                TabListClearListener {
 
     /** Config options */
     private final Direction direction = parseDirection(config().getString("layout.direction", "COLUMNS"));
+
     private final String defaultSkin = config().getString("layout.default-skin", "mineskin:1753261242");
     private final Map<Integer, String> defaultSkinHashMap = loadDefaultSkins();
-    private final boolean remainingPlayersTextEnabled = config().getBoolean("layout.enable-remaining-players-text", true);
-    private final String remainingPlayersText = EnumChatFormat.color(config().getString("layout.remaining-players-text", "... and %s more"));
+    private final boolean remainingPlayersTextEnabled =
+            config().getBoolean("layout.enable-remaining-players-text", true);
+    private final String remainingPlayersText =
+            EnumChatFormat.color(config().getString("layout.remaining-players-text", "... and %s more"));
     private final int emptySlotPing = config().getInt("layout.empty-slot-ping-value", 1000);
 
     private final SkinManager skinManager = new SkinManager(defaultSkin, defaultSkinHashMap);
-    private final Map<Integer, UUID> uuids = new HashMap<Integer, UUID>() {{
-        for (int slot=1; slot<=80; slot++) {
-            put(slot, new UUID(0, direction.translateSlot(slot)));
+    private final Map<Integer, UUID> uuids = new HashMap<Integer, UUID>() {
+        {
+            for (int slot = 1; slot <= 80; slot++) {
+                put(slot, new UUID(0, direction.translateSlot(slot)));
+            }
         }
-    }};
+    };
     private final Map<String, LayoutPattern> layouts = loadLayouts();
-    private final Map<TabPlayer, String> sortedPlayers = Collections.synchronizedMap(new TreeMap<>(Comparator.comparing(p -> p.layoutData.sortingString)));
+    private final Map<TabPlayer, String> sortedPlayers =
+            Collections.synchronizedMap(new TreeMap<>(Comparator.comparing(p -> p.layoutData.sortingString)));
     private PlayerList playerList;
 
     private static boolean teamsEnabled;
@@ -61,7 +73,7 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
                 String[] arr = line.split("-");
                 int from = Integer.parseInt(arr[0]);
                 int to = arr.length == 1 ? from : Integer.parseInt(arr[1]);
-                for (int i = from; i<= to; i++) {
+                for (int i = from; i <= to; i++) {
                     defaultSkins.put(i, skin);
                 }
             }
@@ -73,7 +85,9 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
     public void load() {
         playerList = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PLAYER_LIST);
         teamsEnabled = TAB.getInstance().getNameTagManager() != null;
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.LAYOUT_LATENCY, new LayoutLatencyRefresher(this));
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.LAYOUT_LATENCY, new LayoutLatencyRefresher(this));
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
             onJoin(p);
         }
@@ -90,10 +104,14 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
 
     private @NotNull Map<String, LayoutPattern> loadLayouts() {
         Map<String, LayoutPattern> layoutMap = new LinkedHashMap<>();
-        for (Entry<Object, Map<String, Object>> layout : config().<Object, Map<String, Object>>getConfigurationSection("layout.layouts").entrySet()) {
+        for (Entry<Object, Map<String, Object>> layout : config().<Object, Map<String, Object>>getConfigurationSection(
+                        "layout.layouts")
+                .entrySet()) {
             LayoutPattern pattern = new LayoutPattern(this, layout.getKey().toString(), layout.getValue());
             layoutMap.put(pattern.getName(), pattern);
-            TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.layout(layout.getKey().toString()), pattern);
+            TAB.getInstance()
+                    .getFeatureManager()
+                    .registerFeature(TabConstants.Feature.layout(layout.getKey().toString()), pattern);
         }
         return layoutMap;
     }
@@ -110,7 +128,8 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
         }
         tickAllLayouts();
 
-        // Unformat original entries for players who can see a layout to avoid spaces due to unparsed placeholders and such
+        // Unformat original entries for players who can see a layout to avoid spaces due to unparsed placeholders and
+        // such
         if (highest == null) return;
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             p.getTabList().updateDisplayName(all.getTablistId(), null);
@@ -231,11 +250,11 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
 
     @RequiredArgsConstructor
     public enum Direction {
-
         COLUMNS(slot -> slot),
-        ROWS(slot -> (slot-1)%4*20+(slot-((slot-1)%4))/4+1);
+        ROWS(slot -> (slot - 1) % 4 * 20 + (slot - ((slot - 1) % 4)) / 4 + 1);
 
-        @NotNull private final Function<Integer, Integer> slotTranslator;
+        @NotNull
+        private final Function<Integer, Integer> slotTranslator;
 
         public int translateSlot(int slot) {
             return slotTranslator.apply(slot);
@@ -244,9 +263,9 @@ public class LayoutManagerImpl extends TabFeature implements LayoutManager, Join
         public String getEntryName(TabPlayer viewer, int slot) {
             if (viewer.getVersion().getNetworkId() >= ProtocolVersion.V1_19_3.getNetworkId()) {
                 if (teamsEnabled) {
-                    return "|slot_" + (10+slotTranslator.apply(slot));
+                    return "|slot_" + (10 + slotTranslator.apply(slot));
                 } else {
-                    return " slot_" + (10+slotTranslator.apply(slot));
+                    return " slot_" + (10 + slotTranslator.apply(slot));
                 }
             } else {
                 return "";

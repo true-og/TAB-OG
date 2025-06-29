@@ -2,6 +2,7 @@ package me.neznamy.tab.shared.features.redis.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,10 @@ import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.redis.RedisPlayer;
 import me.neznamy.tab.shared.features.redis.RedisSupport;
 import me.neznamy.tab.shared.features.redis.message.RedisMessage;
-import me.neznamy.tab.shared.platform.Scoreboard.NameVisibility;
 import me.neznamy.tab.shared.platform.Scoreboard.CollisionRule;
+import me.neznamy.tab.shared.platform.Scoreboard.NameVisibility;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 @Getter
 public class RedisTeams extends RedisFeature {
@@ -34,18 +33,32 @@ public class RedisTeams extends RedisFeature {
     @Override
     public void onJoin(@NotNull TabPlayer player) {
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getScoreboard().registerTeam(redis.getTeamName(), redis.getTagPrefix(), redis.getTagSuffix(),
-                        redis.getNameVisibility(), CollisionRule.ALWAYS,
-                        Collections.singletonList(redis.getNickname()), 2, EnumChatFormat.lastColorsOf(redis.getTagPrefix()));
+            player.getScoreboard()
+                    .registerTeam(
+                            redis.getTeamName(),
+                            redis.getTagPrefix(),
+                            redis.getTagSuffix(),
+                            redis.getNameVisibility(),
+                            CollisionRule.ALWAYS,
+                            Collections.singletonList(redis.getNickname()),
+                            2,
+                            EnumChatFormat.lastColorsOf(redis.getTagPrefix()));
         }
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            viewer.getScoreboard().registerTeam(player.getTeamName(), player.getTagPrefix(), player.getTagSuffix(),
-                    player.getNameVisibility(), CollisionRule.ALWAYS,
-                    Collections.singletonList(player.getNickname()), 2, EnumChatFormat.lastColorsOf(player.getTagPrefix()));
+            viewer.getScoreboard()
+                    .registerTeam(
+                            player.getTeamName(),
+                            player.getTagPrefix(),
+                            player.getTagSuffix(),
+                            player.getNameVisibility(),
+                            CollisionRule.ALWAYS,
+                            Collections.singletonList(player.getNickname()),
+                            2,
+                            EnumChatFormat.lastColorsOf(player.getTagPrefix()));
         }
     }
 
@@ -61,13 +74,14 @@ public class RedisTeams extends RedisFeature {
         out.writeUTF(player.sortingData.getShortTeamName());
         out.writeUTF(player.getProperty(TabConstants.Property.TAGPREFIX).get());
         out.writeUTF(player.getProperty(TabConstants.Property.TAGSUFFIX).get());
-        out.writeUTF((nameTags.getTeamVisibility(player, player) ? NameVisibility.ALWAYS : NameVisibility.NEVER).toString());
+        out.writeUTF(
+                (nameTags.getTeamVisibility(player, player) ? NameVisibility.ALWAYS : NameVisibility.NEVER).toString());
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
         String teamName = in.readUTF();
-        teamName = checkTeamName(player, teamName.substring(0, teamName.length()-1), 65);
+        teamName = checkTeamName(player, teamName.substring(0, teamName.length() - 1), 65);
         player.setTeamName(teamName);
         player.setTagPrefix(in.readUTF());
         player.setTagSuffix(in.readUTF());
@@ -80,16 +94,16 @@ public class RedisTeams extends RedisFeature {
     }
 
     private @NotNull String checkTeamName(@NotNull RedisPlayer player, @NotNull String currentName15, int id) {
-        String potentialTeamName = currentName15 + (char)id;
+        String potentialTeamName = currentName15 + (char) id;
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             if (all.sortingData.getShortTeamName().equals(potentialTeamName)) {
-                return checkTeamName(player, currentName15, id+1);
+                return checkTeamName(player, currentName15, id + 1);
             }
         }
         for (RedisPlayer all : redisSupport.getRedisPlayers().values()) {
             if (all == player) continue;
             if (potentialTeamName.equals(all.getTeamName())) {
-                return checkTeamName(player, currentName15, id+1);
+                return checkTeamName(player, currentName15, id + 1);
             }
         }
         return potentialTeamName;
@@ -128,20 +142,35 @@ public class RedisTeams extends RedisFeature {
             RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
             if (target == null) return; // Print warn?
             String oldTeamName = target.getTeamName();
-            String newTeamName = checkTeamName(target, teamName.substring(0, teamName.length()-1), 65);
+            String newTeamName = checkTeamName(target, teamName.substring(0, teamName.length() - 1), 65);
             target.setTeamName(newTeamName);
             target.setTagPrefix(prefix);
             target.setTagSuffix(suffix);
             if (!oldTeamName.equals(newTeamName)) {
                 for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
                     viewer.getScoreboard().unregisterTeam(oldTeamName);
-                    viewer.getScoreboard().registerTeam(newTeamName, prefix, suffix, nameVisibility,
-                            CollisionRule.ALWAYS, Collections.singletonList(target.getNickname()), 2, EnumChatFormat.lastColorsOf(prefix));
+                    viewer.getScoreboard()
+                            .registerTeam(
+                                    newTeamName,
+                                    prefix,
+                                    suffix,
+                                    nameVisibility,
+                                    CollisionRule.ALWAYS,
+                                    Collections.singletonList(target.getNickname()),
+                                    2,
+                                    EnumChatFormat.lastColorsOf(prefix));
                 }
             } else {
                 for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-                    viewer.getScoreboard().updateTeam(oldTeamName, prefix, suffix, nameVisibility,
-                            CollisionRule.ALWAYS, 2, EnumChatFormat.lastColorsOf(prefix));
+                    viewer.getScoreboard()
+                            .updateTeam(
+                                    oldTeamName,
+                                    prefix,
+                                    suffix,
+                                    nameVisibility,
+                                    CollisionRule.ALWAYS,
+                                    2,
+                                    EnumChatFormat.lastColorsOf(prefix));
                 }
             }
         }

@@ -1,18 +1,17 @@
 package me.neznamy.tab.shared.config.file;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import me.neznamy.tab.shared.TAB;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import me.neznamy.tab.shared.TAB;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract class for configuration file
@@ -24,10 +23,13 @@ public abstract class ConfigurationFile {
     protected List<String> header;
 
     /** Configuration file content */
-    @Getter @Setter protected Map<String, Object> values;
+    @Getter
+    @Setter
+    protected Map<String, Object> values;
 
     /** File to use */
-    @Getter protected final File file;
+    @Getter
+    protected final File file;
 
     /**
      * Constructs new instance and attempts to load specified configuration file.
@@ -46,7 +48,8 @@ public abstract class ConfigurationFile {
      */
     protected ConfigurationFile(@Nullable InputStream source, @NonNull File destination) throws IOException {
         file = destination;
-        if (file.getParentFile() != null && !file.getParentFile().exists()) Files.createDirectories(file.getParentFile().toPath());
+        if (file.getParentFile() != null && !file.getParentFile().exists())
+            Files.createDirectories(file.getParentFile().toPath());
         if (!file.exists()) {
             if (source == null) throw new IllegalStateException("File does not exist and source is null");
             Files.copy(source, file.toPath());
@@ -80,7 +83,9 @@ public abstract class ConfigurationFile {
             value = getIgnoreCase((Map<Object, Object>) value, section);
         }
         if (value == null && defaultValue != null) {
-            TAB.getInstance().debug("Inserting missing config option \"" + path + "\" with value \"" + defaultValue + "\" into " + file.getName());
+            TAB.getInstance()
+                    .debug("Inserting missing config option \"" + path + "\" with value \"" + defaultValue + "\" into "
+                            + file.getName());
             set(path, defaultValue);
             return defaultValue;
         }
@@ -191,7 +196,7 @@ public abstract class ConfigurationFile {
             return Collections.emptyList();
         }
         List<String> fixedList = new ArrayList<>();
-        for (Object key : (List<Object>)value) {
+        for (Object key : (List<Object>) value) {
             fixedList.add(String.valueOf(key));
         }
         return fixedList;
@@ -223,7 +228,7 @@ public abstract class ConfigurationFile {
     public Integer getInt(@NonNull String path, @Nullable Integer defaultValue) {
         Object value = getObject(path, defaultValue);
         if (value == null) return defaultValue;
-        try{
+        try {
             return Integer.parseInt(value.toString());
         } catch (NumberFormatException e) {
             return defaultValue;
@@ -330,7 +335,7 @@ public abstract class ConfigurationFile {
             if (!(subMap instanceof Map)) {
                 subMap = new LinkedHashMap<>();
             }
-            map.put(keyWord, set((Map<String, Object>) subMap, path.substring(keyWord.length()+1), value));
+            map.put(keyWord, set((Map<String, Object>) subMap, path.substring(keyWord.length() + 1), value));
         } else {
             if (value == null) {
                 map.remove(getRealKey(map, path));

@@ -1,12 +1,11 @@
 package me.neznamy.tab.shared.hook;
 
 import com.viaversion.viaversion.api.Via;
+import java.util.UUID;
 import lombok.Getter;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Class for hooking into ViaVersion to get protocol version of players

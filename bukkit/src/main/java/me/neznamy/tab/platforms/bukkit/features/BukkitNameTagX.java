@@ -1,8 +1,12 @@
 package me.neznamy.tab.platforms.bukkit.features;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
-import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.entity.DataWatcher;
+import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.backend.EntityData;
@@ -23,11 +27,6 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 /**
  * The core class for unlimited NameTag mode on Bukkit
@@ -73,7 +72,7 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
     public double getDistance(@NotNull TabPlayer player1, @NotNull TabPlayer player2) {
         Location loc1 = ((Player) player1.getPlayer()).getLocation();
         Location loc2 = ((Player) player2.getPlayer()).getLocation();
-        return Math.sqrt(Math.pow(loc1.getX()-loc2.getX(), 2) + Math.pow(loc1.getZ()-loc2.getZ(), 2));
+        return Math.sqrt(Math.pow(loc1.getX() - loc2.getX(), 2) + Math.pow(loc1.getZ() - loc2.getZ(), 2));
     }
 
     @Override
@@ -83,7 +82,7 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
 
     @Override
     public boolean canSee(@NotNull TabPlayer viewer, @NotNull TabPlayer target) {
-        return ((Player)viewer.getPlayer()).canSee((Player) target.getPlayer());
+        return ((Player) viewer.getPlayer()).canSee((Player) target.getPlayer());
     }
 
     @Override
@@ -110,12 +109,12 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
     @Override
     @Nullable
     public Object getVehicle(@NotNull TabPlayer player) {
-        return ((Player)player.getPlayer()).getVehicle();
+        return ((Player) player.getPlayer()).getVehicle();
     }
 
     @Override
     public int getEntityId(@NotNull Object entity) {
-        return ((Entity)entity).getEntityId();
+        return ((Entity) entity).getEntityId();
     }
 
     @Override
@@ -126,7 +125,7 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
 
     @Override
     public boolean isSneaking(@NotNull TabPlayer player) {
-        return ((Player)player.getPlayer()).isSneaking();
+        return ((Player) player.getPlayer()).isSneaking();
     }
 
     @Override
@@ -138,12 +137,12 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
 
     @Override
     public boolean isGliding(@NotNull TabPlayer player) {
-        return BukkitReflection.getMinorVersion() >= 9 && ((Player)player.getPlayer()).isGliding();
+        return BukkitReflection.getMinorVersion() >= 9 && ((Player) player.getPlayer()).isGliding();
     }
 
     @Override
     public boolean isSleeping(@NotNull TabPlayer player) {
-        return ((Player)player.getPlayer()).isSleeping();
+        return ((Player) player.getPlayer()).isSleeping();
     }
 
     @Override
@@ -154,22 +153,23 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
 
     @Override
     public double getX(@NotNull TabPlayer player) {
-        return ((Player)player.getPlayer()).getLocation().getX();
+        return ((Player) player.getPlayer()).getLocation().getX();
     }
 
     @Override
     public double getY(@NotNull Object entity) {
-        return ((Entity)entity).getLocation().getY();
+        return ((Entity) entity).getLocation().getY();
     }
 
     @Override
     public double getZ(@NotNull TabPlayer player) {
-        return ((Player)player.getPlayer()).getLocation().getZ();
+        return ((Player) player.getPlayer()).getLocation().getZ();
     }
 
     @Override
     @NotNull
-    public EntityData createDataWatcher(@NotNull TabPlayer viewer, byte flags, @NotNull String displayName, boolean nameVisible) {
+    public EntityData createDataWatcher(
+            @NotNull TabPlayer viewer, byte flags, @NotNull String displayName, boolean nameVisible) {
         DataWatcher datawatcher = new DataWatcher();
         datawatcher.setEntityFlags(flags);
         datawatcher.setCustomName(displayName, viewer.getVersion());
@@ -180,16 +180,16 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
 
     @Override
     public void runInEntityScheduler(@NotNull Object entity, @NotNull Runnable task) {
-        ((BukkitPlatform)TAB.getInstance().getPlatform()).runEntityTask((Entity) entity, task);
+        ((BukkitPlatform) TAB.getInstance().getPlatform()).runEntityTask((Entity) entity, task);
     }
 
     @Override
     public boolean isDead(@NotNull TabPlayer player) {
-        return ((BukkitTabPlayer)player).getPlayer().isDead();
+        return ((BukkitTabPlayer) player).getPlayer().isDead();
     }
 
     @Override
     public boolean isFlying(@NotNull TabPlayer player) {
-        return ((BukkitTabPlayer)player).getPlayer().isFlying();
+        return ((BukkitTabPlayer) player).getPlayer().isFlying();
     }
 }

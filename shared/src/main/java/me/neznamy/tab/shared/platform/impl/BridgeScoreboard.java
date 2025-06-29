@@ -1,5 +1,6 @@
 package me.neznamy.tab.shared.platform.impl;
 
+import java.util.Collection;
 import lombok.NonNull;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.hook.AdventureHook;
@@ -11,8 +12,6 @@ import me.neznamy.tab.shared.proxy.message.outgoing.SetScore;
 import me.neznamy.tab.shared.proxy.message.outgoing.SetScoreboardTeam;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 /**
  * Scoreboard handler using bridge to encode the packets.
@@ -35,9 +34,13 @@ public class BridgeScoreboard extends Scoreboard<ProxyTabPlayer, Component> {
     }
 
     @Override
-    public void registerObjective0(@NonNull String objectiveName, @NonNull String title, int display,
-                                   @Nullable Component numberFormat) {
-        player.sendPluginMessage(new SetObjective(objectiveName, ObjectiveAction.REGISTER, title, display,
+    public void registerObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable Component numberFormat) {
+        player.sendPluginMessage(new SetObjective(
+                objectiveName,
+                ObjectiveAction.REGISTER,
+                title,
+                display,
                 numberFormat == null ? null : AdventureHook.serialize(numberFormat)));
     }
 
@@ -47,18 +50,36 @@ public class BridgeScoreboard extends Scoreboard<ProxyTabPlayer, Component> {
     }
 
     @Override
-    public void updateObjective0(@NonNull String objectiveName, @NonNull String title, int display,
-                                 @Nullable Component numberFormat) {
-        player.sendPluginMessage(new SetObjective(objectiveName, ObjectiveAction.UPDATE, title, display,
+    public void updateObjective0(
+            @NonNull String objectiveName, @NonNull String title, int display, @Nullable Component numberFormat) {
+        player.sendPluginMessage(new SetObjective(
+                objectiveName,
+                ObjectiveAction.UPDATE,
+                title,
+                display,
                 numberFormat == null ? null : AdventureHook.serialize(numberFormat)));
     }
 
     @Override
-    public void registerTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                              @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                              @NonNull Collection<String> players, int options, @NonNull EnumChatFormat color) {
-        player.sendPluginMessage(new SetScoreboardTeam(name, TeamAction.CREATE, prefix, suffix, options,
-                visibility.toString(), collision.toString(), color.ordinal(), players));
+    public void registerTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            @NonNull Collection<String> players,
+            int options,
+            @NonNull EnumChatFormat color) {
+        player.sendPluginMessage(new SetScoreboardTeam(
+                name,
+                TeamAction.CREATE,
+                prefix,
+                suffix,
+                options,
+                visibility.toString(),
+                collision.toString(),
+                color.ordinal(),
+                players));
     }
 
     @Override
@@ -67,21 +88,40 @@ public class BridgeScoreboard extends Scoreboard<ProxyTabPlayer, Component> {
     }
 
     @Override
-    public void updateTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
-                            @NonNull NameVisibility visibility, @NonNull CollisionRule collision,
-                            int options, @NonNull EnumChatFormat color) {
-        player.sendPluginMessage(new SetScoreboardTeam(name, TeamAction.UPDATE, prefix, suffix, options,
-                visibility.toString(), collision.toString(), color.ordinal(), null));
+    public void updateTeam0(
+            @NonNull String name,
+            @NonNull String prefix,
+            @NonNull String suffix,
+            @NonNull NameVisibility visibility,
+            @NonNull CollisionRule collision,
+            int options,
+            @NonNull EnumChatFormat color) {
+        player.sendPluginMessage(new SetScoreboardTeam(
+                name,
+                TeamAction.UPDATE,
+                prefix,
+                suffix,
+                options,
+                visibility.toString(),
+                collision.toString(),
+                color.ordinal(),
+                null));
     }
 
     @Override
-    public void setScore0(@NonNull String objective, @NonNull String scoreHolder, int score,
-                          @Nullable Component displayName, @Nullable Component numberFormat) {
+    public void setScore0(
+            @NonNull String objective,
+            @NonNull String scoreHolder,
+            int score,
+            @Nullable Component displayName,
+            @Nullable Component numberFormat) {
         player.sendPluginMessage(new SetScore(
-                objective, ScoreAction.CHANGE, scoreHolder, score,
+                objective,
+                ScoreAction.CHANGE,
+                scoreHolder,
+                score,
                 displayName == null ? null : AdventureHook.serialize(displayName),
-                numberFormat == null ? null : AdventureHook.serialize(numberFormat)
-        ));
+                numberFormat == null ? null : AdventureHook.serialize(numberFormat)));
     }
 
     @Override

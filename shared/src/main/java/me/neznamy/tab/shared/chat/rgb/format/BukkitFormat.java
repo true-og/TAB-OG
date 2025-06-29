@@ -2,7 +2,6 @@ package me.neznamy.tab.shared.chat.rgb.format;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,8 +10,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BukkitFormat implements RGBFormatter {
 
-    private final Pattern pattern = Pattern.compile("[" + EnumChatFormat.COLOR_CHAR + "&]x[" + EnumChatFormat.COLOR_CHAR + "&\\p{XDigit}]{12}");
-    
+    private final Pattern pattern =
+            Pattern.compile("[" + EnumChatFormat.COLOR_CHAR + "&]x[" + EnumChatFormat.COLOR_CHAR + "&\\p{XDigit}]{12}");
+
     @Override
     public @NotNull String reformat(@NotNull String text) {
         if (!text.contains("&x") && !text.contains(EnumChatFormat.COLOR_CHAR + "x")) return text;
@@ -20,7 +20,15 @@ public class BukkitFormat implements RGBFormatter {
         Matcher m = pattern.matcher(replaced);
         while (m.find()) {
             String hexCode = m.group();
-            String fixed = new String(new char[] {'#', hexCode.charAt(3), hexCode.charAt(5), hexCode.charAt(7), hexCode.charAt(9), hexCode.charAt(11), hexCode.charAt(13)});
+            String fixed = new String(new char[] {
+                '#',
+                hexCode.charAt(3),
+                hexCode.charAt(5),
+                hexCode.charAt(7),
+                hexCode.charAt(9),
+                hexCode.charAt(11),
+                hexCode.charAt(13)
+            });
             replaced = replaced.replace(hexCode, fixed);
         }
         return replaced;

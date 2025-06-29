@@ -2,10 +2,9 @@ package me.neznamy.tab.shared.features.redis.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.UUID;
 import me.neznamy.tab.shared.features.redis.RedisSupport;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public abstract class RedisMessage {
 

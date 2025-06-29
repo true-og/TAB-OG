@@ -1,10 +1,10 @@
 package me.neznamy.tab.shared.features;
 
 import lombok.Getter;
-import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.types.*;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,8 +13,14 @@ import org.jetbrains.annotations.NotNull;
  * in players not being able to clip through walls.
  */
 @Getter
-public class SpectatorFix extends TabFeature implements JoinListener, GameModeListener, Loadable, UnLoadable,
-        ServerSwitchListener, WorldSwitchListener, VanishListener {
+public class SpectatorFix extends TabFeature
+        implements JoinListener,
+                GameModeListener,
+                Loadable,
+                UnLoadable,
+                ServerSwitchListener,
+                WorldSwitchListener,
+                VanishListener {
 
     /**
      * Sends GameMode update of all players to either their real GameMode if
@@ -33,7 +39,9 @@ public class SpectatorFix extends TabFeature implements JoinListener, GameModeLi
             if (target.getGamemode() == 3 && !viewer.hasPermission(TabConstants.Permission.SPECTATOR_BYPASS)) {
                 viewer.getTabList().updateGameMode(target.getTablistId(), realGameMode ? target.getGamemode() : 0);
             }
-            if (mutually && viewer.getGamemode() == 3 && !target.hasPermission(TabConstants.Permission.SPECTATOR_BYPASS)) {
+            if (mutually
+                    && viewer.getGamemode() == 3
+                    && !target.hasPermission(TabConstants.Permission.SPECTATOR_BYPASS)) {
                 target.getTabList().updateGameMode(viewer.getTablistId(), realGameMode ? viewer.getGamemode() : 0);
             }
         }
@@ -52,8 +60,13 @@ public class SpectatorFix extends TabFeature implements JoinListener, GameModeLi
 
     @Override
     public void onJoin(@NotNull TabPlayer p) {
-        TAB.getInstance().getCPUManager().runTaskLater(100, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN,
-                () -> updatePlayer(p, false, true));
+        TAB.getInstance()
+                .getCPUManager()
+                .runTaskLater(
+                        100,
+                        getFeatureName(),
+                        TabConstants.CpuUsageCategory.PLAYER_JOIN,
+                        () -> updatePlayer(p, false, true));
     }
 
     @Override
@@ -73,11 +86,13 @@ public class SpectatorFix extends TabFeature implements JoinListener, GameModeLi
     @Override
     public void onServerChange(@NotNull TabPlayer changed, @NotNull String from, @NotNull String to) {
         // 200ms delay for global playerlist, taking extra time
-        TAB.getInstance().getCPUManager().runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
-            for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-                updatePlayer(all, false, true);
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .runTaskLater(300, getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
+                    for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
+                        updatePlayer(all, false, true);
+                    }
+                });
     }
 
     @Override

@@ -14,8 +14,10 @@ public class VisibilityRefresher extends TabFeature implements Refreshable {
 
     public VisibilityRefresher(@NotNull NameTag nameTags) {
         this.nameTags = nameTags;
-        TAB.getInstance().getPlaceholderManager().registerPlayerPlaceholder(TabConstants.Placeholder.INVISIBLE, 500,
-                p -> ((TabPlayer)p).hasInvisibilityPotion());
+        TAB.getInstance()
+                .getPlaceholderManager()
+                .registerPlayerPlaceholder(
+                        TabConstants.Placeholder.INVISIBLE, 500, p -> ((TabPlayer) p).hasInvisibilityPotion());
         addUsedPlaceholder(TabConstants.Placeholder.INVISIBLE);
     }
 

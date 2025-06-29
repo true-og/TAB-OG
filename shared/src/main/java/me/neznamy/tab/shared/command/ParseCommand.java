@@ -4,14 +4,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.api.placeholder.Placeholder;
 import me.neznamy.tab.shared.Property;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,9 +37,11 @@ public class ParseCommand extends SubCommand {
             if (sender != null) {
                 target = sender;
             } else {
-                sendMessage(null, "&cThe \"me\" argument instead of player name is only available in-game " +
-                        "and parses the placeholder for player who ran the command. If you wish to use the parse command " +
-                        "from the console, use name of an online player instead of \"me\".");
+                sendMessage(
+                        null,
+                        "&cThe \"me\" argument instead of player name is only available in-game "
+                                + "and parses the placeholder for player who ran the command. If you wish to use the parse command "
+                                + "from the console, use name of an online player instead of \"me\".");
                 return;
             }
         } else {
@@ -52,10 +53,15 @@ public class ParseCommand extends SubCommand {
         }
         String replaced = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         if (!replaced.contains("%")) {
-            sendMessage(sender, "&cThe provided input (" + replaced + ") does not contain any placeholders, therefore there's nothing to test.");
+            sendMessage(
+                    sender,
+                    "&cThe provided input (" + replaced
+                            + ") does not contain any placeholders, therefore there's nothing to test.");
             return;
         }
-        String message = EnumChatFormat.color("&6Replacing placeholder &e%placeholder% &6for player &e" + target.getName()).replace("%placeholder%", replaced);
+        String message = EnumChatFormat.color(
+                        "&6Replacing placeholder &e%placeholder% &6for player &e" + target.getName())
+                .replace("%placeholder%", replaced);
         sendRawMessage(sender, message);
         try {
             replaced = new Property(null, null, target, replaced, null).get();
@@ -64,13 +70,18 @@ public class ParseCommand extends SubCommand {
             TAB.getInstance().getErrorManager().parseCommandError(replaced, target, e);
             return;
         }
-        TabComponent colored = TabComponent.optimized(EnumChatFormat.color("&3Colored output: &e\"&r" + replaced + "&e\""));
+        TabComponent colored =
+                TabComponent.optimized(EnumChatFormat.color("&3Colored output: &e\"&r" + replaced + "&e\""));
         if (sender != null) {
             sender.sendMessage(colored);
         } else {
             TAB.getInstance().getPlatform().logInfo(colored);
         }
-        sendRawMessage(sender, EnumChatFormat.color("&3Raw colors: &e\"&r") + EnumChatFormat.decolor(replaced) + EnumChatFormat.color("&e\""));
+        sendRawMessage(
+                sender,
+                EnumChatFormat.color("&3Raw colors: &e\"&r")
+                        + EnumChatFormat.decolor(replaced)
+                        + EnumChatFormat.color("&e\""));
         sendMessage(sender, "&3Output length: &e" + replaced.length() + " &3characters");
     }
 
@@ -83,8 +94,10 @@ public class ParseCommand extends SubCommand {
             return suggestions;
         }
         if (arguments.length == 2) {
-            return TAB.getInstance().getPlaceholderManager().getAllPlaceholders().stream().map(Placeholder::getIdentifier)
-                    .filter(placeholder -> placeholder.toLowerCase().startsWith(arguments[1].toLowerCase())).collect(Collectors.toList());
+            return TAB.getInstance().getPlaceholderManager().getAllPlaceholders().stream()
+                    .map(Placeholder::getIdentifier)
+                    .filter(placeholder -> placeholder.toLowerCase().startsWith(arguments[1].toLowerCase()))
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }

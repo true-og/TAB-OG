@@ -1,11 +1,10 @@
 package me.neznamy.tab.shared.platform;
 
+import java.util.UUID;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.proxy.ProxyPlatform;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Class for methods called by platform's event listener.
@@ -23,8 +22,9 @@ public interface EventListener<T> {
      */
     default void join(@NotNull T player) {
         if (TAB.getInstance().isPluginDisabled()) return;
-        TAB.getInstance().getCPUManager().runTask(() ->
-                TAB.getInstance().getFeatureManager().onJoin(createPlayer(player)));
+        TAB.getInstance()
+                .getCPUManager()
+                .runTask(() -> TAB.getInstance().getFeatureManager().onJoin(createPlayer(player)));
     }
 
     /**
@@ -35,8 +35,9 @@ public interface EventListener<T> {
      */
     default void quit(@NotNull UUID player) {
         if (TAB.getInstance().isPluginDisabled()) return;
-        TAB.getInstance().getCPUManager().runTask(() ->
-                TAB.getInstance().getFeatureManager().onQuit(TAB.getInstance().getPlayer(player)));
+        TAB.getInstance().getCPUManager().runTask(() -> TAB.getInstance()
+                .getFeatureManager()
+                .onQuit(TAB.getInstance().getPlayer(player)));
     }
 
     /**
@@ -49,8 +50,9 @@ public interface EventListener<T> {
      */
     default void worldChange(@NotNull UUID player, @NotNull String world) {
         if (TAB.getInstance().isPluginDisabled()) return;
-        TAB.getInstance().getCPUManager().runTask(() ->
-                TAB.getInstance().getFeatureManager().onWorldChange(player, world));
+        TAB.getInstance()
+                .getCPUManager()
+                .runTask(() -> TAB.getInstance().getFeatureManager().onWorldChange(player, world));
     }
 
     /**
@@ -62,9 +64,12 @@ public interface EventListener<T> {
      *          The message
      */
     default void pluginMessage(@NotNull UUID player, byte[] message) {
-        TAB.getInstance().getCPUManager().runMeasuredTask("Plugin message handling",
-                TabConstants.CpuUsageCategory.PLUGIN_MESSAGE, () ->
-                    ((ProxyPlatform)TAB.getInstance().getPlatform()).onPluginMessage(player, message));
+        TAB.getInstance()
+                .getCPUManager()
+                .runMeasuredTask(
+                        "Plugin message handling",
+                        TabConstants.CpuUsageCategory.PLUGIN_MESSAGE,
+                        () -> ((ProxyPlatform) TAB.getInstance().getPlatform()).onPluginMessage(player, message));
     }
 
     /**

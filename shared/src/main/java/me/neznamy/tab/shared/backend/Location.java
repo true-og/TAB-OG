@@ -6,7 +6,8 @@ import lombok.Data;
 /**
  * Class representing a 3D location.
  */
-@Data @AllArgsConstructor
+@Data
+@AllArgsConstructor
 public class Location {
 
     /** X position */

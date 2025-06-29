@@ -1,5 +1,7 @@
 package me.neznamy.tab.platforms.bukkit.tablist;
 
+import java.util.UUID;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
@@ -8,9 +10,6 @@ import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.shared.platform.TabList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
-import java.util.function.Function;
 
 /**
  * Base TabList class for all implementations.
@@ -56,7 +55,10 @@ public abstract class TabListBase<C> extends TabList<BukkitTabPlayer, C> {
                 instance = PacketTabList17::new;
             }
         } catch (Exception e) {
-            BukkitUtils.compatibilityError(e, "tablist entry management", "Bukkit API",
+            BukkitUtils.compatibilityError(
+                    e,
+                    "tablist entry management",
+                    "Bukkit API",
                     "Layout feature will not work",
                     "Prevent-spectator-effect feature will not work",
                     "Ping spoof feature will not work",
@@ -70,8 +72,7 @@ public abstract class TabListBase<C> extends TabList<BukkitTabPlayer, C> {
                 headerFooter = new PacketHeaderFooter();
             }
         } catch (Exception e) {
-            BukkitUtils.compatibilityError(e, "sending header/footer", null,
-                    "Header/footer will not work");
+            BukkitUtils.compatibilityError(e, "sending header/footer", null, "Header/footer will not work");
         }
     }
 

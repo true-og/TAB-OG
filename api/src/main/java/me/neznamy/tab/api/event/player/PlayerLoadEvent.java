@@ -14,7 +14,8 @@ public interface PlayerLoadEvent extends TabEvent {
      *
      * @return  the player that was loaded
      */
-    @NotNull TabPlayer getPlayer();
+    @NotNull
+    TabPlayer getPlayer();
 
     /**
      * Returns {@code true} if player was loaded because they joined,

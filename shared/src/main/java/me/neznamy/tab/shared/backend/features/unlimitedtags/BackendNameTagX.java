@@ -1,19 +1,18 @@
 package me.neznamy.tab.shared.backend.features.unlimitedtags;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
-import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.features.types.GameModeListener;
-import me.neznamy.tab.shared.features.types.PacketSendListener;
-import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.backend.BackendTabPlayer;
 import me.neznamy.tab.shared.backend.EntityData;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.features.types.GameModeListener;
+import me.neznamy.tab.shared.features.types.PacketSendListener;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.UUID;
 
 public abstract class BackendNameTagX extends NameTagX implements GameModeListener, PacketSendListener {
 
@@ -21,28 +20,38 @@ public abstract class BackendNameTagX extends NameTagX implements GameModeListen
     private static final int ENTITY_TRACKING_RANGE = 48;
 
     /** Vehicle manager reference */
-    @Getter private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
+    @Getter
+    private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
 
     /** Packet Listener reference */
     protected final PacketListener packetListener = new PacketListener(this);
 
     protected BackendNameTagX() {
         super(BackendArmorStandManager::new);
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS_VEHICLE_REFRESHER, vehicleManager);
-        TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS_PACKET_LISTENER, packetListener);
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS_VEHICLE_REFRESHER, vehicleManager);
+        TAB.getInstance()
+                .getFeatureManager()
+                .registerFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS_PACKET_LISTENER, packetListener);
     }
 
     /**
      * Starts task checking for player visibility to hide armor stands of invisible players.
      */
     private void startVisibilityRefreshTask() {
-        TAB.getInstance().getCPUManager().startRepeatingMeasuredTask(500, getExtraFeatureName(), TabConstants.CpuUsageCategory.REFRESHING_NAME_TAG_VISIBILITY, () -> {
-
-            for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-                if (isPlayerDisabled(p)) continue;
-                getArmorStandManager(p).updateVisibility(false);
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .startRepeatingMeasuredTask(
+                        500,
+                        getExtraFeatureName(),
+                        TabConstants.CpuUsageCategory.REFRESHING_NAME_TAG_VISIBILITY,
+                        () -> {
+                            for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
+                                if (isPlayerDisabled(p)) continue;
+                                getArmorStandManager(p).updateVisibility(false);
+                            }
+                        });
     }
 
     public BackendArmorStandManager getArmorStandManager(@NotNull TabPlayer player) {
@@ -145,7 +154,7 @@ public abstract class BackendNameTagX extends NameTagX implements GameModeListen
         if (p.unlimitedNametagData.previewing) {
             asm.spawn((BackendTabPlayer) p);
         }
-        //for some reason this is needed for some users
+        // for some reason this is needed for some users
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getWorld().equals(from)) {
                 asm.destroy((BackendTabPlayer) viewer);
@@ -172,21 +181,27 @@ public abstract class BackendNameTagX extends NameTagX implements GameModeListen
     public void sneak(UUID playerUUID, boolean sneaking) {
         TabPlayer p = TAB.getInstance().getPlayer(playerUUID);
         if (p == null || isPlayerDisabled(p)) return;
-        TAB.getInstance().getCPUManager().runMeasuredTask(getExtraFeatureName(), TabConstants.CpuUsageCategory.PLAYER_SNEAK, () -> {
-            BackendArmorStandManager asm = getArmorStandManager(p);
-            if (asm != null) {
-                asm.sneak(sneaking);
-            } else {
-                TAB.getInstance().getErrorManager().armorStandNull(p, "sneaking");
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .runMeasuredTask(getExtraFeatureName(), TabConstants.CpuUsageCategory.PLAYER_SNEAK, () -> {
+                    BackendArmorStandManager asm = getArmorStandManager(p);
+                    if (asm != null) {
+                        asm.sneak(sneaking);
+                    } else {
+                        TAB.getInstance().getErrorManager().armorStandNull(p, "sneaking");
+                    }
+                });
     }
 
     public void respawn(UUID playerUUID) {
         TabPlayer respawned = TAB.getInstance().getPlayer(playerUUID);
         if (respawned == null || isPlayerDisabled(respawned)) return;
-        TAB.getInstance().getCPUManager().runMeasuredTask(getExtraFeatureName(), TabConstants.CpuUsageCategory.PLAYER_RESPAWN,
-                () -> getArmorStandManager(respawned).teleport());
+        TAB.getInstance()
+                .getCPUManager()
+                .runMeasuredTask(
+                        getExtraFeatureName(),
+                        TabConstants.CpuUsageCategory.PLAYER_RESPAWN,
+                        () -> getArmorStandManager(respawned).teleport());
     }
 
     public int getEntityId(@NotNull TabPlayer player) {
@@ -234,7 +249,8 @@ public abstract class BackendNameTagX extends NameTagX implements GameModeListen
 
     public abstract double getZ(@NotNull TabPlayer player);
 
-    public abstract EntityData createDataWatcher(@NotNull TabPlayer viewer, byte flags, @NotNull String displayName, boolean nameVisible);
+    public abstract EntityData createDataWatcher(
+            @NotNull TabPlayer viewer, byte flags, @NotNull String displayName, boolean nameVisible);
 
     public abstract void runInEntityScheduler(@NotNull Object entity, @NotNull Runnable task);
 

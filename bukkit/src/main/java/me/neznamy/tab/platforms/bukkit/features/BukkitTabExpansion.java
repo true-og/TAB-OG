@@ -1,18 +1,17 @@
 package me.neznamy.tab.platforms.bukkit.features;
 
+import java.util.*;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
 
 /**
  * TAB's expansion for PlaceholderAPI
@@ -45,8 +44,7 @@ public class BukkitTabExpansion extends PlaceholderExpansion implements TabExpan
             "%tab_nametag_preview%",
             "%tab_nametag_visibility%",
             "%tab_replace_<placeholder>%",
-            "%tab_placeholder_<placeholder>%"
-    ));
+            "%tab_placeholder_<placeholder>%"));
 
     @Override
     public boolean persist() {
@@ -85,15 +83,23 @@ public class BukkitTabExpansion extends PlaceholderExpansion implements TabExpan
             String textBefore;
             do {
                 textBefore = text;
-                for (String placeholder : TAB.getInstance().getPlaceholderManager().detectPlaceholders(text)) {
-                    text = text.replace(placeholder, TAB.getInstance().getPlaceholderManager().findReplacement(placeholder,
-                            PlaceholderAPI.setPlaceholders(player, placeholder)));
+                for (String placeholder :
+                        TAB.getInstance().getPlaceholderManager().detectPlaceholders(text)) {
+                    text = text.replace(
+                            placeholder,
+                            TAB.getInstance()
+                                    .getPlaceholderManager()
+                                    .findReplacement(placeholder, PlaceholderAPI.setPlaceholders(player, placeholder)));
                 }
             } while (!textBefore.equals(text));
             return text;
         }
         if (identifier.startsWith("placeholder_")) {
-            TAB.getInstance().getPlaceholderManager().addUsedPlaceholder("%" + identifier.substring("placeholder_".length()) + "%", TAB.getInstance().getPlaceholderManager());
+            TAB.getInstance()
+                    .getPlaceholderManager()
+                    .addUsedPlaceholder(
+                            "%" + identifier.substring("placeholder_".length()) + "%",
+                            TAB.getInstance().getPlaceholderManager());
         }
         if (player == null) return "<Player cannot be null>";
         TabPlayer p = TAB.getInstance().getPlayer(player.getUniqueId());

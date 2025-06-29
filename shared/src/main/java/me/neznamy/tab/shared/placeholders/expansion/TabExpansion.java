@@ -79,7 +79,7 @@ public interface TabExpansion {
      *          Placeholder value
      */
     default void setPlaceholderValue(@NotNull TabPlayer player, @NotNull String placeholder, @NotNull String value) {
-        setValue(player, "placeholder_" + placeholder.substring(1, placeholder.length()-1), value);
+        setValue(player, "placeholder_" + placeholder.substring(1, placeholder.length() - 1), value);
     }
 
     /**

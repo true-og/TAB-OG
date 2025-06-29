@@ -2,6 +2,7 @@ package me.neznamy.tab.shared.features.redis.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +16,12 @@ import me.neznamy.tab.shared.features.redis.message.RedisMessage;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-
 public class RedisPlayerList extends RedisFeature {
 
     private final RedisSupport redisSupport;
-    @Getter private final PlayerList playerList;
+
+    @Getter
+    private final PlayerList playerList;
 
     public RedisPlayerList(@NotNull RedisSupport redisSupport, @NotNull PlayerList playerList) {
         this.redisSupport = redisSupport;
@@ -51,9 +52,9 @@ public class RedisPlayerList extends RedisFeature {
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out, @NotNull TabPlayer player) {
-        out.writeUTF(player.getProperty(TabConstants.Property.TABPREFIX).get() +
-                player.getProperty(TabConstants.Property.CUSTOMTABNAME).get() +
-                player.getProperty(TabConstants.Property.TABSUFFIX).get());
+        out.writeUTF(player.getProperty(TabConstants.Property.TABPREFIX).get()
+                + player.getProperty(TabConstants.Property.CUSTOMTABNAME).get()
+                + player.getProperty(TabConstants.Property.TABSUFFIX).get());
     }
 
     @Override

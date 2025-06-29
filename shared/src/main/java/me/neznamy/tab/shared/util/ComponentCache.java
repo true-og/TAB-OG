@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.util;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import me.neznamy.tab.shared.ProtocolVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
 
 /**
  * Component cache to save resources when converting the same

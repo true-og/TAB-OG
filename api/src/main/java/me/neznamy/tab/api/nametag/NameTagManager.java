@@ -121,7 +121,8 @@ public interface NameTagManager {
      *          player to get forced collision of
      * @return  forced value or null if not forced
      */
-    @Nullable Boolean getCollisionRule(@NonNull TabPlayer player);
+    @Nullable
+    Boolean getCollisionRule(@NonNull TabPlayer player);
 
     /**
      * Changes player's prefix to provided value. Supports placeholders,

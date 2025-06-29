@@ -8,8 +8,8 @@ import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.GlobalPlayerList;
 import me.neznamy.tab.shared.features.redis.RedisPlayer;
 import me.neznamy.tab.shared.features.redis.RedisSupport;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.platform.TabList;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
@@ -38,16 +38,18 @@ public class RedisGlobalPlayerList extends RedisFeature {
 
     @Override
     public void onServerSwitch(@NotNull RedisPlayer player) {
-        TAB.getInstance().getCPUManager().runTaskLater(200, redisSupport.getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
-            for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-                if (viewer.getServer().equals(player.getServer())) continue;
-                if (shouldSee(viewer, player)) {
-                    viewer.getTabList().addEntry(getEntry(player));
-                } else {
-                    viewer.getTabList().removeEntry(player.getUniqueId());
-                }
-            }
-        });
+        TAB.getInstance()
+                .getCPUManager()
+                .runTaskLater(200, redisSupport.getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
+                    for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+                        if (viewer.getServer().equals(player.getServer())) continue;
+                        if (shouldSee(viewer, player)) {
+                            viewer.getTabList().addEntry(getEntry(player));
+                        } else {
+                            viewer.getTabList().removeEntry(player.getUniqueId());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -91,12 +93,15 @@ public class RedisGlobalPlayerList extends RedisFeature {
     private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull RedisPlayer target) {
         if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED)) return false;
         if (globalPlayerList.isSpyServer(viewer.getServer())) return true;
-        return globalPlayerList.getServerGroup(viewer.getServer()).equals(globalPlayerList.getServerGroup(target.getServer()));
+        return globalPlayerList
+                .getServerGroup(viewer.getServer())
+                .equals(globalPlayerList.getServerGroup(target.getServer()));
     }
 
     @NotNull
     private TabList.Entry getEntry(@NotNull RedisPlayer player) {
-        return new TabList.Entry(player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0, player.getTabFormat());
+        return new TabList.Entry(
+                player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0, player.getTabFormat());
     }
 
     @Override

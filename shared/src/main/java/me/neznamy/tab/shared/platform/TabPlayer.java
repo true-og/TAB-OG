@@ -1,11 +1,16 @@
 package me.neznamy.tab.shared.platform;
 
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import me.neznamy.tab.api.placeholder.PlayerPlaceholder;
+import me.neznamy.tab.shared.*;
 import me.neznamy.tab.shared.chat.SimpleComponent;
 import me.neznamy.tab.shared.chat.TabComponent;
+import me.neznamy.tab.shared.event.impl.PlayerLoadEventImpl;
 import me.neznamy.tab.shared.features.NickCompatibility;
 import me.neznamy.tab.shared.features.bossbar.BossBarManagerImpl;
 import me.neznamy.tab.shared.features.layout.LayoutManagerImpl;
@@ -13,16 +18,10 @@ import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
 import me.neznamy.tab.shared.features.scoreboard.ScoreboardManagerImpl;
 import me.neznamy.tab.shared.features.sorting.Sorting;
-import me.neznamy.tab.shared.*;
 import me.neznamy.tab.shared.features.types.Refreshable;
-import me.neznamy.tab.shared.event.impl.PlayerLoadEventImpl;
 import me.neznamy.tab.shared.placeholders.expansion.PlayerExpansionValues;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract class storing common variables and functions for player,
@@ -34,28 +33,38 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     protected final Platform platform;
 
     /** Platform-specific player object instance */
-    @Setter protected Object player;
+    @Setter
+    protected Object player;
 
     /** Player's real name */
-    @Getter private final String name;
+    @Getter
+    private final String name;
 
     /** Player's name as seen in GameProfile */
-    @Getter @Setter private String nickname;
+    @Getter
+    @Setter
+    private String nickname;
 
     /** Player's unique ID */
-    @Getter private final UUID uniqueId;
+    @Getter
+    private final UUID uniqueId;
 
     /** Player's tablist UUID */
-    @Getter private final UUID tablistId;
+    @Getter
+    private final UUID tablistId;
 
     /**
      * World the player is currently in, {@code "N/A"} if TAB is
      * installed on proxy and bukkit bridge is not installed
      */
-    @Getter @Setter private String world;
+    @Getter
+    @Setter
+    private String world;
 
     /** Server the player is currently in, {@code "N/A"} if TAB is installed on Bukkit */
-    @Getter @Setter private String server;
+    @Getter
+    @Setter
+    private String server;
 
     /** Player's permission group defined in permission plugin or with permission nodes */
     private String permissionGroup = TabConstants.NO_GROUP;
@@ -67,16 +76,19 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     private final Map<String, Property> properties = new HashMap<>();
 
     /** Player's game version */
-    @Getter protected final ProtocolVersion version;
+    @Getter
+    protected final ProtocolVersion version;
 
     /**
      * Player's load status, {@code true} when player is fully loaded,
      * {@code false} if not yet
      */
-    @Getter private boolean loaded;
+    @Getter
+    private boolean loaded;
 
     /** Flag tracking whether the player is online or not */
-    @Getter private boolean online = true;
+    @Getter
+    private boolean online = true;
 
     /** Data for sorting */
     public final Sorting.PlayerData sortingData = new Sorting.PlayerData();
@@ -135,8 +147,15 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
      * @param   useRealId
      *          Whether tablist uses real uuid or offline
      */
-    protected TabPlayer(@NotNull Platform platform, @NotNull Object player, @NotNull UUID uniqueId, @NotNull String name,
-                        @NotNull String server, @NotNull String world, int protocolVersion, boolean useRealId) {
+    protected TabPlayer(
+            @NotNull Platform platform,
+            @NotNull Object player,
+            @NotNull UUID uniqueId,
+            @NotNull String name,
+            @NotNull String server,
+            @NotNull String world,
+            int protocolVersion,
+            boolean useRealId) {
         this.platform = platform;
         this.player = player;
         this.uniqueId = uniqueId;
@@ -146,7 +165,9 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
         nickname = name;
         version = ProtocolVersion.fromNetworkId(protocolVersion);
         permissionGroup = TAB.getInstance().getGroupManager().detectPermissionGroup(this);
-        tablistId = useRealId ? uniqueId : UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
+        tablistId = useRealId
+                ? uniqueId
+                : UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -164,11 +185,16 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
      * @return  {@code true} if property did not exist or existed with different raw value,
      *          {@code false} if property existed with the same raw value already.
      */
-    private boolean setProperty(@Nullable Refreshable feature, @NotNull String identifier, @NotNull String rawValue,
-                                @Nullable String source, boolean exposeInExpansion) {
+    private boolean setProperty(
+            @Nullable Refreshable feature,
+            @NotNull String identifier,
+            @NotNull String rawValue,
+            @Nullable String source,
+            boolean exposeInExpansion) {
         Property p = getProperty(identifier);
         if (p == null) {
-            properties.put(identifier, new Property(exposeInExpansion ? identifier : null, feature, this, rawValue, source));
+            properties.put(
+                    identifier, new Property(exposeInExpansion ? identifier : null, feature, this, rawValue, source));
             return true;
         } else {
             if (!p.getOriginalRawValue().equals(rawValue)) {
@@ -204,7 +230,8 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
      */
     public void markAsLoaded(boolean join) {
         loaded = true;
-        if (TAB.getInstance().getEventBus() != null) TAB.getInstance().getEventBus().fire(new PlayerLoadEventImpl(this, join));
+        if (TAB.getInstance().getEventBus() != null)
+            TAB.getInstance().getEventBus().fire(new PlayerLoadEventImpl(this, join));
     }
 
     /**
@@ -216,7 +243,8 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     public void setGroup(@NotNull String permissionGroup) {
         if (this.permissionGroup.equals(permissionGroup)) return;
         this.permissionGroup = permissionGroup;
-        ((PlayerPlaceholder)TAB.getInstance().getPlaceholderManager().getPlaceholder(TabConstants.Placeholder.GROUP)).updateValue(this, permissionGroup);
+        ((PlayerPlaceholder) TAB.getInstance().getPlaceholderManager().getPlaceholder(TabConstants.Placeholder.GROUP))
+                .updateValue(this, permissionGroup);
         forceRefresh();
     }
 
@@ -224,7 +252,8 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     public void setTemporaryGroup(@Nullable String group) {
         if (Objects.equals(group, temporaryGroup)) return;
         temporaryGroup = group;
-        ((PlayerPlaceholder)TAB.getInstance().getPlaceholderManager().getPlaceholder(TabConstants.Placeholder.GROUP)).updateValue(this, group);
+        ((PlayerPlaceholder) TAB.getInstance().getPlaceholderManager().getPlaceholder(TabConstants.Placeholder.GROUP))
+                .updateValue(this, group);
         forceRefresh();
     }
 
@@ -236,7 +265,8 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
     @Override
     public void setExpectedProfileName(@NonNull String profileName) {
         nickname = profileName;
-        NickCompatibility nick = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.NICK_COMPATIBILITY);
+        NickCompatibility nick =
+                TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.NICK_COMPATIBILITY);
         nick.processNameChange(this);
     }
 
@@ -309,10 +339,14 @@ public abstract class TabPlayer implements me.neznamy.tab.api.TabPlayer {
      *          value to use if property is not defined in config
      * @return  {@code true} if value did not exist or changed, {@code false} otherwise
      */
-    public boolean loadPropertyFromConfig(@Nullable Refreshable feature, @NotNull String property, @NotNull String ifNotSet) {
+    public boolean loadPropertyFromConfig(
+            @Nullable Refreshable feature, @NotNull String property, @NotNull String ifNotSet) {
         String[] value = TAB.getInstance().getConfiguration().getUsers().getProperty(name, property, server, world);
         if (value.length == 0) {
-            value = TAB.getInstance().getConfiguration().getUsers().getProperty(uniqueId.toString(), property, server, world);
+            value = TAB.getInstance()
+                    .getConfiguration()
+                    .getUsers()
+                    .getProperty(uniqueId.toString(), property, server, world);
         }
         if (value.length == 0) {
             value = TAB.getInstance().getConfiguration().getGroups().getProperty(getGroup(), property, server, world);

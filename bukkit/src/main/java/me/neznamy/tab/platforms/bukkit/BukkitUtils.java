@@ -1,5 +1,6 @@
 package me.neznamy.tab.platforms.bukkit;
 
+import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -9,8 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 /**
  * Class containing static util methods used on Bukkit.
@@ -35,11 +34,11 @@ public class BukkitUtils {
     public static Player[] getOnlinePlayers() {
         Object players = Bukkit.class.getMethod("getOnlinePlayers").invoke(null);
         if (players instanceof Player[]) {
-            //1.7-
+            // 1.7-
             return (Player[]) players;
         } else {
-            //1.8+
-            return ((Collection<Player>)players).toArray(new Player[0]);
+            // 1.8+
+            return ((Collection<Player>) players).toArray(new Player[0]);
         }
     }
 
@@ -55,8 +54,11 @@ public class BukkitUtils {
      * @param   missingFeatures
      *          Features that will be broken because of the incompatibility
      */
-    public static void compatibilityError(@NotNull Exception exception, @NotNull String failedCheck,
-                                          @Nullable String fallback, @NotNull String... missingFeatures) {
+    public static void compatibilityError(
+            @NotNull Exception exception,
+            @NotNull String failedCheck,
+            @Nullable String fallback,
+            @NotNull String... missingFeatures) {
         StringBuilder sb = new StringBuilder();
         sb.append(EnumChatFormat.RED);
         sb.append("[TAB] Failed to initialize minecraft fields for ");
@@ -68,7 +70,7 @@ public class BukkitUtils {
             sb.append("No fallback solution was found. ");
         }
         if (missingFeatures.length > 0) sb.append("This will result in: ");
-        for (int i=0; i<missingFeatures.length; i++) {
+        for (int i = 0; i < missingFeatures.length; i++) {
             sb.append("\n").append("#").append(i + 1).append(": ").append(missingFeatures[i]);
         }
         Bukkit.getConsoleSender().sendMessage(sb.toString());
@@ -81,8 +83,11 @@ public class BukkitUtils {
      */
     public static void sendCompatibilityMessage() {
         if (!compatibilityIssue) return;
-        Bukkit.getConsoleSender().sendMessage(EnumChatFormat.RED + "[TAB] Please update the plugin to " +
-                "a version with native support for your server version for optimal experience. This plugin version " +
-                "was made for " + ProtocolVersion.V1_5.getFriendlyName() + " - " + ProtocolVersion.LATEST_KNOWN_VERSION.getFriendlyName() + ".");
+        Bukkit.getConsoleSender()
+                .sendMessage(EnumChatFormat.RED + "[TAB] Please update the plugin to "
+                        + "a version with native support for your server version for optimal experience. This plugin version "
+                        + "was made for "
+                        + ProtocolVersion.V1_5.getFriendlyName() + " - "
+                        + ProtocolVersion.LATEST_KNOWN_VERSION.getFriendlyName() + ".");
     }
 }

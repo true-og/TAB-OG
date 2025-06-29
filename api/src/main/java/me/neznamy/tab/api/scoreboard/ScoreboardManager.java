@@ -2,7 +2,6 @@ package me.neznamy.tab.api.scoreboard;
 
 import java.util.List;
 import java.util.Map;
-
 import lombok.NonNull;
 import me.neznamy.tab.api.TabPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -25,14 +24,14 @@ public interface ScoreboardManager {
      * with and further work where scoreboard name is used allowed.
      * <p>
      * Scoreboard {@code title} is limited to 32 characters on &lt;1.13. If needed,
-     * it will be cut to 32 character for those players (after replacing 
+     * it will be cut to 32 character for those players (after replacing
      * placeholders). RGB is supported using any of the supported formats.
      * Placeholders are supported.
      * <p>
      * {@code lines} will display in the same order as contained in the list.
      * Client can only see up to 15 lines at a time, however you can define
      * more, if some of them only consist of placeholder that might be empty.
-     * 
+     *
      * @param   name
      *          Internal name of the scoreboard
      * @param   title
@@ -43,24 +42,26 @@ public interface ScoreboardManager {
      * @throws  NullPointerException
      *          if {@code name} or {@code lines} is {@code null}
      */
-    @NotNull Scoreboard createScoreboard(@NonNull String name, @NonNull String title, @NonNull List<String> lines);
-    
+    @NotNull
+    Scoreboard createScoreboard(@NonNull String name, @NonNull String title, @NonNull List<String> lines);
+
     /**
      * Returns map of registered scoreboards via config and API.
      * Map key is name of scoreboard, which is defined either in config
      * or using {@link #createScoreboard(String, String, List)}.
      * Map value is reference to the actual scoreboard.
-     * 
+     *
      * @return  map of registered scoreboards
      */
-    @NotNull Map<String, Scoreboard> getRegisteredScoreboards();
-    
+    @NotNull
+    Map<String, Scoreboard> getRegisteredScoreboards();
+
     /**
      * Displays scoreboard to defined player. This will disable all display
-     * condition checks until the scoreboard is unregistered using 
+     * condition checks until the scoreboard is unregistered using
      * {@link #resetScoreboard(TabPlayer)}. If the player already sees
      * this scoreboard, nothing will happen.
-     * 
+     *
      * @param   player
      *          Player to send scoreboard to
      * @param   scoreboard
@@ -71,11 +72,11 @@ public interface ScoreboardManager {
      * @see     #resetScoreboard(TabPlayer)
      */
     void showScoreboard(@NonNull TabPlayer player, @NonNull Scoreboard scoreboard);
-    
+
     /**
      * Returns {@code true} if player has custom scoreboard set using
      * {@link #showScoreboard(TabPlayer, Scoreboard)}, {@code false} if not.
-     * 
+     *
      * @param   player
      *          Player to check
      * @return  {@code true} if player has custom scoreboard set using API,
@@ -84,25 +85,25 @@ public interface ScoreboardManager {
      * @see     #resetScoreboard(TabPlayer)
      */
     boolean hasCustomScoreboard(@NonNull TabPlayer player);
-    
+
     /**
      * Hides custom scoreboard sent using {@link #showScoreboard(TabPlayer, Scoreboard)}
      * and re-enables internal display logic with conditions. If player does not
      * have any forced scoreboard, nothing happens.
-     * 
+     *
      * @param   player
      *          Player to hide custom scoreboard from
      * @see     #showScoreboard(TabPlayer, Scoreboard)
      * @see     #hasCustomScoreboard(TabPlayer)
      */
     void resetScoreboard(@NonNull TabPlayer player);
-    
+
     /**
-     * Returns {@code true} if player has scoreboard enabled, {@code false} 
-     * if disabled (toggled) using either toggle command, 
+     * Returns {@code true} if player has scoreboard enabled, {@code false}
+     * if disabled (toggled) using either toggle command,
      * {@link #toggleScoreboard(TabPlayer, boolean)} or
      * {@link #setScoreboardVisible(TabPlayer, boolean, boolean)}.
-     * 
+     *
      * @param   player
      *          Player to get visibility status of
      * @return  {@code true} if visible, {@code false} if disabled
@@ -110,13 +111,13 @@ public interface ScoreboardManager {
      * @see     #toggleScoreboard(TabPlayer, boolean)
      */
     boolean hasScoreboardVisible(@NonNull TabPlayer player);
-    
+
     /**
      * Sets scoreboard visibility of player to defined value. If visibility status
      * is same as player had before, nothing happens. If this call changes
      * visibility, scoreboard is toggled. If {@code sendToggleMessage} is {@code true},
      * toggle message defined in configuration is sent.
-     * 
+     *
      * @param   player
      *          Player to set visibility for
      * @param   visible
@@ -127,12 +128,12 @@ public interface ScoreboardManager {
      * @see     #hasScoreboardVisible(TabPlayer)
      */
     void setScoreboardVisible(@NonNull TabPlayer player, boolean visible, boolean sendToggleMessage);
-    
+
     /**
      * Toggles scoreboard for specified player. If player had scoreboard visible,
      * hides it. If hidden, shows it. If {@code sendToggleMessage} is {@code true},
      * toggle message defined in configuration is sent.
-     * 
+     *
      * @param   player
      *          Player to toggle scoreboard for
      * @param   sendToggleMessage
@@ -141,12 +142,12 @@ public interface ScoreboardManager {
      * @see     #setScoreboardVisible(TabPlayer, boolean, boolean)
      */
     void toggleScoreboard(@NonNull TabPlayer player, boolean sendToggleMessage);
-    
+
     /**
-     * Temporarily displays scoreboard to all players for specified amount of 
-     * time (in milliseconds). Scoreboard name is either defined in config, or 
+     * Temporarily displays scoreboard to all players for specified amount of
+     * time (in milliseconds). Scoreboard name is either defined in config, or
      * through API in {@link #createScoreboard(String, String, List)}.
-     * 
+     *
      * @param   scoreboard
      *          Scoreboard from config or registered via API
      * @param   duration
@@ -166,5 +167,6 @@ public interface ScoreboardManager {
      *          player to get active scoreboard of
      * @return  player's active scoreboard or {@code null} if player has no scoreboard
      */
-    @Nullable Scoreboard getActiveScoreboard(@NonNull TabPlayer player);
+    @Nullable
+    Scoreboard getActiveScoreboard(@NonNull TabPlayer player);
 }

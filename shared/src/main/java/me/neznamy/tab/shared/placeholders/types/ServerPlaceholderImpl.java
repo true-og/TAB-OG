@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.placeholders.types;
 
 import java.util.function.Supplier;
-
 import lombok.Getter;
 import lombok.NonNull;
-import me.neznamy.tab.shared.features.types.Refreshable;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.api.placeholder.ServerPlaceholder;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.features.types.Refreshable;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +37,8 @@ public class ServerPlaceholderImpl extends TabPlaceholder implements ServerPlace
      */
     public ServerPlaceholderImpl(@NonNull String identifier, int refresh, @NonNull Supplier<Object> supplier) {
         super(identifier, refresh);
-        if (identifier.startsWith("%rel_")) throw new IllegalArgumentException("\"rel_\" is reserved for relational placeholder identifiers");
+        if (identifier.startsWith("%rel_"))
+            throw new IllegalArgumentException("\"rel_\" is reserved for relational placeholder identifiers");
         this.supplier = supplier;
         hasValueChanged(request());
     }
@@ -56,7 +56,9 @@ public class ServerPlaceholderImpl extends TabPlaceholder implements ServerPlace
                     if (!all.isLoaded()) return; // Updated on join
                     long startTime = System.nanoTime();
                     r.refresh(all, false);
-                    TAB.getInstance().getCPUManager().addTime(r.getFeatureName(), r.getRefreshDisplayName(), System.nanoTime() - startTime);
+                    TAB.getInstance()
+                            .getCPUManager()
+                            .addTime(r.getFeatureName(), r.getRefreshDisplayName(), System.nanoTime() - startTime);
                 }
             }
         }
@@ -69,7 +71,10 @@ public class ServerPlaceholderImpl extends TabPlaceholder implements ServerPlace
             lastValue = newValue;
             for (TabPlayer player : TAB.getInstance().getOnlinePlayers()) {
                 updateParents(player);
-                TAB.getInstance().getPlaceholderManager().getTabExpansion().setPlaceholderValue(player, identifier, newValue);
+                TAB.getInstance()
+                        .getPlaceholderManager()
+                        .getTabExpansion()
+                        .setPlaceholderValue(player, identifier, newValue);
             }
             return true;
         }
@@ -106,7 +111,9 @@ public class ServerPlaceholderImpl extends TabPlaceholder implements ServerPlace
         try {
             return supplier.get();
         } catch (Throwable t) {
-            TAB.getInstance().getErrorManager().placeholderError("Server placeholder " + identifier + " generated an error", t);
+            TAB.getInstance()
+                    .getErrorManager()
+                    .placeholderError("Server placeholder " + identifier + " generated an error", t);
             return ERROR_VALUE;
         } finally {
             long timeDiff = System.currentTimeMillis() - time;

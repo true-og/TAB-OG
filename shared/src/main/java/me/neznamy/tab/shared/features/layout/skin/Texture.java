@@ -9,14 +9,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import me.neznamy.tab.shared.config.file.ConfigurationFile;
-import me.neznamy.tab.shared.TAB;
 
 /**
  * Skin source using raw texture.
@@ -52,7 +50,9 @@ public class Texture extends SkinSource {
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestMethod("POST");
         con.setDoOutput(true);
-        String jsonInputString = "{\"variant\":\"classic\",\"name\":\"string\",\"visibility\":0,\"url\":\"https://textures.minecraft.net/texture/" + texture + "\"}";
+        String jsonInputString =
+                "{\"variant\":\"classic\",\"name\":\"string\",\"visibility\":0,\"url\":\"https://textures.minecraft.net/texture/"
+                        + texture + "\"}";
         try (OutputStream os = con.getOutputStream()) {
             byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);

@@ -1,5 +1,6 @@
 package me.neznamy.tab.platforms.bukkit.nms;
 
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -8,26 +9,27 @@ import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 /**
  * Class containing main NMS-related information and methods.
  */
 public class BukkitReflection {
 
     /** CraftBukkit package */
-    private static final String CRAFTBUKKIT_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
+    private static final String CRAFTBUKKIT_PACKAGE =
+            Bukkit.getServer().getClass().getPackage().getName();
 
     /** Server version data */
     private static final ServerVersion serverVersion = detectServerVersion();
 
     /** Flag determining whether the server version is at least 1.19.3 or not */
     @Getter
-    private static final boolean is1_19_3Plus = ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
+    private static final boolean is1_19_3Plus =
+            ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
 
     /** Flag determining whether the server version is at least 1.19.4 or not */
     @Getter
-    private static final boolean is1_19_4Plus = ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundBundlePacket");
+    private static final boolean is1_19_4Plus =
+            ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundBundlePacket");
 
     /** Flag determining whether the server version is at least 1.20.2 or not */
     @Getter
@@ -35,7 +37,8 @@ public class BukkitReflection {
 
     /** Flag determining whether the server version is at least 1.20.3 or not */
     @Getter
-    private static final boolean is1_20_3Plus = ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundResetScorePacket");
+    private static final boolean is1_20_3Plus =
+            ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundResetScorePacket");
 
     private static ServerVersion detectServerVersion() {
         FunctionWithException<String, Class<?>> classFunction = name -> Class.forName("net.minecraft." + name);
@@ -51,7 +54,8 @@ public class BukkitReflection {
             }
         } else {
             // Paper without CB relocation
-            minorVersion = Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
+            minorVersion =
+                    Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
         }
         return new ServerVersion(classFunction, minorVersion);
     }

@@ -1,9 +1,8 @@
 package me.neznamy.tab.shared.chat.rgb.format;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Formatter for &lt;#RRGGBB&gt;

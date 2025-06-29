@@ -3,11 +3,10 @@ package me.neznamy.tab.shared.command;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.nametags.NameTag;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +38,7 @@ public class SetCollisionCommand extends SubCommand {
             sendMessage(sender, getMessages().getCollisionCommandUsage());
         }
     }
-    
+
     @Override
     public @NotNull List<String> complete(@Nullable TabPlayer sender, @NotNull String[] arguments) {
         if (arguments.length == 1) return getOnlinePlayers(arguments[0]);

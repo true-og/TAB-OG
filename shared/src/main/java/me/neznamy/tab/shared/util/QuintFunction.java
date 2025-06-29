@@ -17,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
  *          Fifth argument type
  * @param   <R>
  *          Return type
-
+ *
  */
 @FunctionalInterface
 public interface QuintFunction<T, U, V, W, X, R> {

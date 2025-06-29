@@ -1,16 +1,15 @@
 package me.neznamy.tab.shared.chat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.chat.rgb.RGBUtils;
 import me.neznamy.tab.shared.util.ComponentCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Base class for managing minecraft components.
@@ -24,11 +23,16 @@ public abstract class TabComponent {
      * Component cache maps to avoid large memory allocations as well as
      * higher CPU usage when using animations which send the same text on repeat.
      */
-    private static final ComponentCache<String, TabComponent> stringCache = new ComponentCache<>(1000, (text, clientVersion) -> {
-        return text.contains("#") || text.contains("&x") || text.contains(EnumChatFormat.COLOR_CHAR + "x") || text.contains("<") ?
-                fromColoredText(text) : //contains RGB colors or font
-                new SimpleComponent(text); //no RGB
-    });
+    private static final ComponentCache<String, TabComponent> stringCache =
+            new ComponentCache<>(1000, (text, clientVersion) -> {
+                return text.contains("#")
+                                || text.contains("&x")
+                                || text.contains(EnumChatFormat.COLOR_CHAR + "x")
+                                || text.contains("<")
+                        ? fromColoredText(text)
+                        : // contains RGB colors or font
+                        new SimpleComponent(text); // no RGB
+            });
 
     @Nullable
     protected Object convertedModern;
@@ -49,10 +53,12 @@ public abstract class TabComponent {
     @SuppressWarnings("unchecked")
     public <T> T convert(@NotNull ProtocolVersion clientVersion) {
         if (clientVersion.supportsRGB()) {
-            if (convertedModern == null) convertedModern = TAB.getInstance().getPlatform().convertComponent(this, true);
+            if (convertedModern == null)
+                convertedModern = TAB.getInstance().getPlatform().convertComponent(this, true);
             return (T) convertedModern;
         } else {
-            if (convertedLegacy == null) convertedLegacy = TAB.getInstance().getPlatform().convertComponent(this, false);
+            if (convertedLegacy == null)
+                convertedLegacy = TAB.getInstance().getPlatform().convertComponent(this, false);
             return (T) convertedLegacy;
         }
     }
@@ -71,7 +77,6 @@ public abstract class TabComponent {
      */
     @NotNull
     public abstract String toRawText();
-
 
     /**
      * Returns the most optimized component based on text. Returns null if text is null,
@@ -108,9 +113,8 @@ public abstract class TabComponent {
                 // Process text with font
                 String match = m.group();
                 components.addAll(toComponentArray(
-                        match.substring(match.indexOf('>')+1, match.length()-7),
-                        match.substring(6, match.indexOf('>'))
-                ));
+                        match.substring(match.indexOf('>') + 1, match.length() - 7),
+                        match.substring(6, match.indexOf('>'))));
                 // Prepare the rest for next loop
                 remainingText = remainingText.substring(m.start() + match.length());
             } else {
@@ -141,7 +145,7 @@ public abstract class TabComponent {
                 }
                 c = text.charAt(i);
                 if ((c >= 'A') && (c <= 'Z')) {
-                    c = (char)(c + ' ');
+                    c = (char) (c + ' ');
                 }
                 EnumChatFormat format = EnumChatFormat.getByChar(c);
                 if (format != null) {
@@ -181,12 +185,12 @@ public abstract class TabComponent {
                             break;
                     }
                 }
-            } else if (c == '#' && text.length() > i+6) {
-                String hex = text.substring(i+1, i+7);
+            } else if (c == '#' && text.length() > i + 6) {
+                String hex = text.substring(i + 1, i + 7);
                 if (isHexCode(hex)) {
                     TextColor color;
-                    EnumChatFormat code = text.length() - i >= 9 ? EnumChatFormat.getByChar(text.charAt(i+8)) : null;
-                    if (code != null && text.charAt(i+7) == '|') {
+                    EnumChatFormat code = text.length() - i >= 9 ? EnumChatFormat.getByChar(text.charAt(i + 8)) : null;
+                    if (code != null && text.charAt(i + 7) == '|') {
                         color = new TextColor(hex, code);
                         i += 8;
                     } else {
@@ -222,7 +226,7 @@ public abstract class TabComponent {
      * @return  {@code true} if valid, {@code false} if not
      */
     private static boolean isHexCode(@NotNull String string) {
-        for (int i=0; i<string.length(); i++) {
+        for (int i = 0; i < string.length(); i++) {
             if ("0123456789AaBbCcDdEeFf".indexOf(string.charAt(i)) == -1) return false;
         }
         return true;

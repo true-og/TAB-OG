@@ -1,8 +1,7 @@
 package me.neznamy.tab.shared.features.types;
 
-import me.neznamy.tab.shared.platform.TabPlayer;
-
 import java.util.UUID;
+import me.neznamy.tab.shared.platform.TabPlayer;
 
 /**
  * An interface for features listening to ping change packet

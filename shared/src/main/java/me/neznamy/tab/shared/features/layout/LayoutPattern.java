@@ -1,5 +1,6 @@
 package me.neznamy.tab.shared.features.layout;
 
+import java.util.*;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.tablist.layout.Layout;
@@ -12,14 +13,18 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-
 @Getter
 public class LayoutPattern extends TabFeature implements Refreshable, Layout {
 
-    @NotNull private final LayoutManagerImpl manager;
-    @NotNull private final String name;
-    @Nullable private final Condition condition;
+    @NotNull
+    private final LayoutManagerImpl manager;
+
+    @NotNull
+    private final String name;
+
+    @Nullable
+    private final Condition condition;
+
     private final Map<Integer, FixedSlot> fixedSlots = new HashMap<>();
     private final List<GroupPattern> groups = new ArrayList<>();
 
@@ -30,10 +35,11 @@ public class LayoutPattern extends TabFeature implements Refreshable, Layout {
         TAB.getInstance().getConfigHelper().startup().checkLayoutMap(name, map);
         condition = Condition.getCondition((String) map.get("condition"));
         if (condition != null) manager.addUsedPlaceholder(TabConstants.Placeholder.condition(condition.getName()));
-        for (String fixedSlot : (List<String>)map.getOrDefault("fixed-slots", Collections.emptyList())) {
+        for (String fixedSlot : (List<String>) map.getOrDefault("fixed-slots", Collections.emptyList())) {
             addFixedSlot(fixedSlot);
         }
-        Map<String, Map<String, Object>> groups = (Map<String, Map<String, Object>>) map.getOrDefault("groups", Collections.emptyMap());
+        Map<String, Map<String, Object>> groups =
+                (Map<String, Map<String, Object>>) map.getOrDefault("groups", Collections.emptyMap());
         if (groups != null) {
             for (Map.Entry<String, Map<String, Object>> group : groups.entrySet()) {
                 String groupName = group.getKey();
@@ -44,11 +50,14 @@ public class LayoutPattern extends TabFeature implements Refreshable, Layout {
                     String[] arr = line.split("-");
                     int from = Integer.parseInt(arr[0]);
                     int to = arr.length == 1 ? from : Integer.parseInt(arr[1]);
-                    for (int i = from; i<= to; i++) {
+                    for (int i = from; i <= to; i++) {
                         positions.add(i);
                     }
                 }
-                addGroup(groupName, Condition.getCondition((String) groupData.get("condition")), positions.stream().mapToInt(i->i).toArray());
+                addGroup(
+                        groupName,
+                        Condition.getCondition((String) groupData.get("condition")),
+                        positions.stream().mapToInt(i -> i).toArray());
             }
         }
         TAB.getInstance().getConfigHelper().startup().checkLayoutGroups(name, this.groups);
@@ -60,7 +69,12 @@ public class LayoutPattern extends TabFeature implements Refreshable, Layout {
     }
 
     public void addGroup(@NotNull String name, @Nullable Condition condition, int[] slots) {
-        groups.add(new GroupPattern(name, condition, Arrays.stream(slots).filter(slot -> !fixedSlots.containsKey(slot)).toArray()));
+        groups.add(new GroupPattern(
+                name,
+                condition,
+                Arrays.stream(slots)
+                        .filter(slot -> !fixedSlots.containsKey(slot))
+                        .toArray()));
         if (condition != null) addUsedPlaceholder(TabConstants.Placeholder.condition(condition.getName()));
     }
 
@@ -110,8 +124,18 @@ public class LayoutPattern extends TabFeature implements Refreshable, Layout {
     @Override
     public void addFixedSlot(int slot, @NonNull String text, @NonNull String skin, int ping) {
         ensureActive();
-        fixedSlots.put(slot, new FixedSlot(manager, slot, this, manager.getUUID(slot), text,
-                "Layout-" + text + "-SLOT-" + slot, skin, "Layout-" + text + "-SLOT-" + slot+ "-skin", ping));
+        fixedSlots.put(
+                slot,
+                new FixedSlot(
+                        manager,
+                        slot,
+                        this,
+                        manager.getUUID(slot),
+                        text,
+                        "Layout-" + text + "-SLOT-" + slot,
+                        skin,
+                        "Layout-" + text + "-SLOT-" + slot + "-skin",
+                        ping));
     }
 
     @Override

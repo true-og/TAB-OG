@@ -23,7 +23,9 @@ public abstract class TabFeature {
      * Throws {@link IllegalStateException} if this instance is no longer active.
      */
     public void ensureActive() {
-        if (!active) throw new IllegalStateException("This instance got discarded because plugin was reloaded. Obtain a new instance.");
+        if (!active)
+            throw new IllegalStateException(
+                    "This instance got discarded because plugin was reloaded. Obtain a new instance.");
     }
 
     /**

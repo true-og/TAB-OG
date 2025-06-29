@@ -2,7 +2,6 @@ package me.neznamy.tab.api.bossbar;
 
 import java.util.List;
 import java.util.UUID;
-
 import lombok.NonNull;
 import me.neznamy.tab.api.TabPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -10,12 +9,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * An interface representing a BossBar line.
  * <p>
- * For clients 1.8 and lower it uses wither, which only allows 1 bar 
+ * For clients 1.8 and lower it uses wither, which only allows 1 bar
  * to be displayed at a time. Entity packets are not available on BungeeCord,
  * where nothing will be displayed for these players.
  * <p>
  * For 1.9+ it uses the new BossBar feature, allowing configurable styles
- * and colors, as well as display several bars at once. Limit of maximum 
+ * and colors, as well as display several bars at once. Limit of maximum
  * displayed BossBars depends on client resolution and GUI scale, up to
  * 9 concurrent BossBars displayed at once.
  */
@@ -28,7 +27,8 @@ public interface BossBar {
      *
      * @return  name of BossBar
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Returns randomly generated uuid of this BossBar used internally to match
@@ -36,7 +36,8 @@ public interface BossBar {
      *
      * @return  uuid of this BossBar
      */
-    @NotNull UUID getUniqueId();
+    @NotNull
+    UUID getUniqueId();
 
     /**
      * Changes BossBar title to specified string, supporting placeholders.
@@ -136,7 +137,8 @@ public interface BossBar {
      *
      * @return  title of the BossBar
      */
-    @NotNull String getTitle();
+    @NotNull
+    String getTitle();
 
     /**
      * Returns progress of the BossBar as a string, which is either entered string
@@ -144,7 +146,8 @@ public interface BossBar {
      *
      * @return  entered progress as a string
      */
-    @NotNull String getProgress();
+    @NotNull
+    String getProgress();
 
     /**
      * Returns color of the BossBar as a string, which is either entered string
@@ -152,7 +155,8 @@ public interface BossBar {
      *
      * @return  entered color as a string
      */
-    @NotNull String getColor();
+    @NotNull
+    String getColor();
 
     /**
      * Returns style of the BossBar as a string, which is either entered string
@@ -160,7 +164,8 @@ public interface BossBar {
      *
      * @return  entered style as a string
      */
-    @NotNull String getStyle();
+    @NotNull
+    String getStyle();
 
     /**
      * Registers this BossBar to specified player.
@@ -191,7 +196,8 @@ public interface BossBar {
      *
      * @return  List of players seeing this BossBar
      */
-    @NotNull List<TabPlayer> getPlayers();
+    @NotNull
+    List<TabPlayer> getPlayers();
 
     /**
      * Returns {@code true} if this bossbar is visible to specified player based on

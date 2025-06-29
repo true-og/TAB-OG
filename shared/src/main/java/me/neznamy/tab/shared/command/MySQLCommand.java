@@ -1,17 +1,5 @@
 package me.neznamy.tab.shared.command;
 
-import me.neznamy.tab.shared.config.PropertyConfiguration;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.config.Configs;
-import me.neznamy.tab.shared.config.mysql.MySQL;
-import me.neznamy.tab.shared.config.file.YamlPropertyConfigurationFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.yaml.snakeyaml.error.YAMLException;
-
-import javax.sql.rowset.CachedRowSet;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -19,6 +7,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.sql.rowset.CachedRowSet;
+import me.neznamy.tab.shared.TAB;
+import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.config.Configs;
+import me.neznamy.tab.shared.config.PropertyConfiguration;
+import me.neznamy.tab.shared.config.file.YamlPropertyConfigurationFile;
+import me.neznamy.tab.shared.config.mysql.MySQL;
+import me.neznamy.tab.shared.platform.TabPlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public class MySQLCommand extends SubCommand {
 
@@ -62,17 +61,29 @@ public class MySQLCommand extends SubCommand {
         }
         TAB.getInstance().getCPUManager().runTask(() -> {
             try {
-                YamlPropertyConfigurationFile groupFile = new YamlPropertyConfigurationFile(Configs.class.getClassLoader().getResourceAsStream("config/groups.yml"), new File(TAB.getInstance().getDataFolder(), "groups.yml"));
-                YamlPropertyConfigurationFile userFile = new YamlPropertyConfigurationFile(Configs.class.getClassLoader().getResourceAsStream("config/users.yml"), new File(TAB.getInstance().getDataFolder(), "users.yml"));
+                YamlPropertyConfigurationFile groupFile = new YamlPropertyConfigurationFile(
+                        Configs.class.getClassLoader().getResourceAsStream("config/groups.yml"),
+                        new File(TAB.getInstance().getDataFolder(), "groups.yml"));
+                YamlPropertyConfigurationFile userFile = new YamlPropertyConfigurationFile(
+                        Configs.class.getClassLoader().getResourceAsStream("config/users.yml"),
+                        new File(TAB.getInstance().getDataFolder(), "users.yml"));
                 CachedRowSet crs = mysql.getCRS("select * from tab_groups");
                 while (crs.next()) {
-                    groupFile.setProperty(crs.getString("group"), crs.getString("property"),
-                            crs.getString("server"), crs.getString("world"), crs.getString("value"));
+                    groupFile.setProperty(
+                            crs.getString("group"),
+                            crs.getString("property"),
+                            crs.getString("server"),
+                            crs.getString("world"),
+                            crs.getString("value"));
                 }
                 crs = mysql.getCRS("select * from tab_users");
                 while (crs.next()) {
-                    userFile.setProperty(crs.getString("user"), crs.getString("property"),
-                            crs.getString("server"), crs.getString("world"), crs.getString("value"));
+                    userFile.setProperty(
+                            crs.getString("user"),
+                            crs.getString("property"),
+                            crs.getString("server"),
+                            crs.getString("world"),
+                            crs.getString("value"));
                 }
                 sendMessage(sender, getMessages().getMySQLDownloadSuccess());
             } catch (YAMLException | IOException | SQLException e) {
@@ -90,8 +101,12 @@ public class MySQLCommand extends SubCommand {
         }
         TAB.getInstance().getCPUManager().runTask(() -> {
             try {
-                YamlPropertyConfigurationFile groupFile = new YamlPropertyConfigurationFile(Configs.class.getClassLoader().getResourceAsStream("config/groups.yml"), new File(TAB.getInstance().getDataFolder(), "config/groups.yml"));
-                YamlPropertyConfigurationFile userFile = new YamlPropertyConfigurationFile(Configs.class.getClassLoader().getResourceAsStream("config/users.yml"), new File(TAB.getInstance().getDataFolder(), "config/users.yml"));
+                YamlPropertyConfigurationFile groupFile = new YamlPropertyConfigurationFile(
+                        Configs.class.getClassLoader().getResourceAsStream("config/groups.yml"),
+                        new File(TAB.getInstance().getDataFolder(), "config/groups.yml"));
+                YamlPropertyConfigurationFile userFile = new YamlPropertyConfigurationFile(
+                        Configs.class.getClassLoader().getResourceAsStream("config/users.yml"),
+                        new File(TAB.getInstance().getDataFolder(), "config/users.yml"));
                 upload(groupFile, TAB.getInstance().getConfiguration().getGroups());
                 upload(userFile, TAB.getInstance().getConfiguration().getUsers());
                 sendMessage(sender, getMessages().getMySQLUploadSuccess());
@@ -104,19 +119,24 @@ public class MySQLCommand extends SubCommand {
 
     private void upload(@NotNull YamlPropertyConfigurationFile file, @NotNull PropertyConfiguration mysqlTable) {
         for (String name : file.getAllEntries()) {
-            for (Map.Entry<String, Object> property : file.getGlobalSettings(name).entrySet()) {
+            for (Map.Entry<String, Object> property :
+                    file.getGlobalSettings(name).entrySet()) {
                 mysqlTable.setProperty(name, property.getKey(), null, null, toString(property.getValue()));
             }
-            for (Map.Entry<String, Map<String, Object>> world : file.getPerWorldSettings(name).entrySet()) {
+            for (Map.Entry<String, Map<String, Object>> world :
+                    file.getPerWorldSettings(name).entrySet()) {
                 if (world.getValue() == null) continue;
                 for (Map.Entry<String, Object> property : world.getValue().entrySet()) {
-                    mysqlTable.setProperty(name, property.getKey(), null, world.getKey(), toString(property.getValue()));
+                    mysqlTable.setProperty(
+                            name, property.getKey(), null, world.getKey(), toString(property.getValue()));
                 }
             }
-            for (Map.Entry<String, Map<String, Object>> server : file.getPerServerSettings(name).entrySet()) {
+            for (Map.Entry<String, Map<String, Object>> server :
+                    file.getPerServerSettings(name).entrySet()) {
                 if (server.getValue() == null) continue;
                 for (Map.Entry<String, Object> property : server.getValue().entrySet()) {
-                    mysqlTable.setProperty(name, property.getKey(), server.getKey(), null, toString(property.getValue()));
+                    mysqlTable.setProperty(
+                            name, property.getKey(), server.getKey(), null, toString(property.getValue()));
                 }
             }
         }
@@ -125,7 +145,7 @@ public class MySQLCommand extends SubCommand {
     @SuppressWarnings("unchecked")
     private String toString(@NotNull Object obj) {
         if (obj instanceof List) {
-            return ((List<Object>)obj).stream().map(Object::toString).collect(Collectors.joining("\n"));
+            return ((List<Object>) obj).stream().map(Object::toString).collect(Collectors.joining("\n"));
         }
         return obj.toString();
     }

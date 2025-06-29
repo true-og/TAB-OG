@@ -1,5 +1,7 @@
 package me.neznamy.tab.shared.command.scoreboard;
 
+import java.util.Collections;
+import java.util.List;
 import me.neznamy.tab.api.scoreboard.Scoreboard;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 import me.neznamy.tab.shared.TAB;
@@ -8,9 +10,6 @@ import me.neznamy.tab.shared.command.SubCommand;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Handler for "/tab scoreboard show &lt;name&gt; [player]" subcommand
@@ -26,7 +25,8 @@ public class ScoreboardShowCommand extends SubCommand {
 
     @Override
     public void execute(@Nullable TabPlayer sender, @NotNull String[] args) {
-        ScoreboardManager scoreboard = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
+        ScoreboardManager scoreboard =
+                TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
         if (scoreboard == null) {
             sendMessage(sender, getMessages().getScoreboardFeatureNotEnabled());
             return;
@@ -42,7 +42,7 @@ public class ScoreboardShowCommand extends SubCommand {
         }
         TabPlayer target;
         if (args.length == 1) {
-            if (!hasPermission(sender,TabConstants.Permission.COMMAND_SCOREBOARD_SHOW)) {
+            if (!hasPermission(sender, TabConstants.Permission.COMMAND_SCOREBOARD_SHOW)) {
                 sendMessage(sender, getMessages().getNoPermission());
                 return;
             }
@@ -52,7 +52,7 @@ public class ScoreboardShowCommand extends SubCommand {
             }
             target = sender;
         } else {
-            if (!hasPermission(sender,TabConstants.Permission.COMMAND_SCOREBOARD_SHOW_OTHER)) {
+            if (!hasPermission(sender, TabConstants.Permission.COMMAND_SCOREBOARD_SHOW_OTHER)) {
                 sendMessage(sender, getMessages().getNoPermission());
                 return;
             }
@@ -67,9 +67,11 @@ public class ScoreboardShowCommand extends SubCommand {
 
     @Override
     public @NotNull List<String> complete(@Nullable TabPlayer sender, @NotNull String[] arguments) {
-        ScoreboardManager scoreboard = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
+        ScoreboardManager scoreboard =
+                TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.SCOREBOARD);
         if (scoreboard == null) return Collections.emptyList();
-        if (arguments.length == 1) return getStartingArgument(scoreboard.getRegisteredScoreboards().keySet(), arguments[0]);
+        if (arguments.length == 1)
+            return getStartingArgument(scoreboard.getRegisteredScoreboards().keySet(), arguments[0]);
         if (arguments.length == 2) return getOnlinePlayers(arguments[1]);
         return Collections.emptyList();
     }

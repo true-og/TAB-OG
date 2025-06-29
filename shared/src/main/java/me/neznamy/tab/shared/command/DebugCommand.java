@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
-import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
-import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import me.neznamy.tab.shared.Property;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.config.file.ConfigurationFile;
+import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
 import me.neznamy.tab.shared.features.sorting.Sorting;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.proxy.ProxyTabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,23 +59,36 @@ public class DebugCommand extends SubCommand {
         sendMessage(sender, separator);
         sendMessage(sender, "&6Server version: &b" + tab.getPlatform().getServerVersionInfo());
         sendMessage(sender, "&6Plugin version: &b" + TabConstants.PLUGIN_VERSION);
-        sendMessage(sender, "&6Permission plugin: &b" + TAB.getInstance().getGroupManager().getPermissionPlugin());
+        sendMessage(
+                sender,
+                "&6Permission plugin: &b" + TAB.getInstance().getGroupManager().getPermissionPlugin());
         sendMessage(sender, "&6Permission group choice logic: &b" + getGroupChoiceLogic());
         sendMessage(sender, "&6Sorting system: &b" + getSortingType());
-        sendMessage(sender, "&6Storage type: &b" + (tab.getConfiguration().getGroups() instanceof ConfigurationFile ? "File" : "MySQL"));
+        sendMessage(
+                sender,
+                "&6Storage type: &b"
+                        + (tab.getConfiguration().getGroups() instanceof ConfigurationFile ? "File" : "MySQL"));
         sendMessage(sender, separator);
         if (analyzed == null) return;
         if (!analyzed.isLoaded()) {
-            sendMessage(sender, "&cThe specified player is not loaded. This is either because player failed to load" +
-                    " due to an error (see TAB's folder for errors.log file) or the plugin is overloaded (see /tab cpu).");
+            sendMessage(
+                    sender,
+                    "&cThe specified player is not loaded. This is either because player failed to load"
+                            + " due to an error (see TAB's folder for errors.log file) or the plugin is overloaded (see /tab cpu).");
             return;
         }
         sendMessage(sender, "&ePlayer: &a" + analyzed.getName());
         sendMessage(sender, "&ePlayer version: &a" + analyzed.getVersion().getFriendlyName());
         if (analyzed instanceof ProxyTabPlayer) {
-            char versionRequired = TabConstants.PLUGIN_MESSAGE_CHANNEL_NAME.charAt(TabConstants.PLUGIN_MESSAGE_CHANNEL_NAME.length()-1);
-            sendMessage(sender, "&eBridge connection: " + (((ProxyTabPlayer)analyzed).isBridgeConnected() ?
-                    "&aConnected" : "&cNot connected (requires Bridge version " + versionRequired + ".x.x installed)"));
+            char versionRequired = TabConstants.PLUGIN_MESSAGE_CHANNEL_NAME.charAt(
+                    TabConstants.PLUGIN_MESSAGE_CHANNEL_NAME.length() - 1);
+            sendMessage(
+                    sender,
+                    "&eBridge connection: "
+                            + (((ProxyTabPlayer) analyzed).isBridgeConnected()
+                                    ? "&aConnected"
+                                    : "&cNot connected (requires Bridge version " + versionRequired
+                                            + ".x.x installed)"));
         }
         sendMessage(sender, getGroup(analyzed));
         sendMessage(sender, getTeamName(analyzed));
@@ -93,7 +105,8 @@ public class DebugCommand extends SubCommand {
         if (tab.getNameTagManager() != null) {
             showProperty(sender, analyzed, TabConstants.Property.TAGPREFIX, analyzed.disabledNametags.get());
             showProperty(sender, analyzed, TabConstants.Property.TAGSUFFIX, analyzed.disabledNametags.get());
-            NameTagX nameTagX = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS);
+            NameTagX nameTagX =
+                    TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.UNLIMITED_NAME_TAGS);
             if (nameTagX != null) {
                 boolean disabledUnlimited = nameTagX.isPlayerDisabled(analyzed);
                 for (String line : getExtraLines()) {
@@ -117,7 +130,6 @@ public class DebugCommand extends SubCommand {
             return "Permissions";
         }
         return "Primary group";
-
     }
 
     /**
@@ -161,8 +173,10 @@ public class DebugCommand extends SubCommand {
         if (TAB.getInstance().getNameTagManager() != null && analyzed.disabledNametags.get()) {
             return "&eTeam name: &cSorting is disabled in player's world/server";
         }
-        return "&eTeam name: &a" + (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.LAYOUT)
-                ? analyzed.sortingData.fullTeamName : analyzed.sortingData.getShortTeamName());
+        return "&eTeam name: &a"
+                + (TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.LAYOUT)
+                        ? analyzed.sortingData.fullTeamName
+                        : analyzed.sortingData.getShortTeamName());
     }
 
     /**
@@ -186,9 +200,16 @@ public class DebugCommand extends SubCommand {
      * @return  list of extra properties
      */
     public @NotNull List<String> getExtraLines() {
-        if (!TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.UNLIMITED_NAME_TAGS)) return Collections.emptyList();
-        List<String> lines = new ArrayList<>(TAB.getInstance().getConfiguration().getConfig().getStringList("scoreboard-teams.unlimited-nametag-mode.dynamic-lines"));
-        Map<String, Number> staticLines = TAB.getInstance().getConfiguration().getConfig().getConfigurationSection("scoreboard-teams.unlimited-nametag-mode.static-lines");
+        if (!TAB.getInstance().getFeatureManager().isFeatureEnabled(TabConstants.Feature.UNLIMITED_NAME_TAGS))
+            return Collections.emptyList();
+        List<String> lines = new ArrayList<>(TAB.getInstance()
+                .getConfiguration()
+                .getConfig()
+                .getStringList("scoreboard-teams.unlimited-nametag-mode.dynamic-lines"));
+        Map<String, Number> staticLines = TAB.getInstance()
+                .getConfiguration()
+                .getConfig()
+                .getConfigurationSection("scoreboard-teams.unlimited-nametag-mode.static-lines");
         lines.addAll(staticLines.keySet());
         lines.remove(TabConstants.Property.NAMETAG);
         lines.add(TabConstants.Property.CUSTOMTAGNAME);
@@ -207,13 +228,15 @@ public class DebugCommand extends SubCommand {
      * @param   disabled
      *          if feature the property belongs to is disabled or not
      */
-    private void showProperty(@Nullable TabPlayer sender, @NotNull TabPlayer analyzed, @NotNull String property, boolean disabled) {
+    private void showProperty(
+            @Nullable TabPlayer sender, @NotNull TabPlayer analyzed, @NotNull String property, boolean disabled) {
         if (disabled) {
             sendMessage(sender, "&a" + property + ": &cDisabled in player's world/server");
         } else {
             Property pr = analyzed.getProperty(property);
             String rawValue = EnumChatFormat.decolor(pr.getCurrentRawValue());
-            String value = String.format((EnumChatFormat.color("&a%s: &e\"&r%s&r&e\" &7(Source: %s)")), property, rawValue, pr.getSource());
+            String value = String.format(
+                    (EnumChatFormat.color("&a%s: &e\"&r%s&r&e\" &7(Source: %s)")), property, rawValue, pr.getSource());
             sendRawMessage(sender, value);
         }
     }

@@ -2,6 +2,7 @@ package me.neznamy.tab.shared.features.redis.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,12 +15,12 @@ import me.neznamy.tab.shared.features.redis.message.RedisMessage;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class RedisBelowName extends RedisFeature {
 
     private final RedisSupport redisSupport;
-    @Getter private final BelowName belowName;
+
+    @Getter
+    private final BelowName belowName;
 
     public RedisBelowName(@NotNull RedisSupport redisSupport, @NotNull BelowName belowName) {
         this.redisSupport = redisSupport;
@@ -30,26 +31,26 @@ public class RedisBelowName extends RedisFeature {
     @Override
     public void onJoin(@NotNull TabPlayer player) {
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getScoreboard().setScore(
-                    BelowName.OBJECTIVE_NAME,
-                    redis.getNickname(),
-                    redis.getBelowNameNumber(),
-                    null, // Unused by this objective slot
-                    redis.getBelowNameFancy()
-            );
+            player.getScoreboard()
+                    .setScore(
+                            BelowName.OBJECTIVE_NAME,
+                            redis.getNickname(),
+                            redis.getBelowNameNumber(),
+                            null, // Unused by this objective slot
+                            redis.getBelowNameFancy());
         }
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            viewer.getScoreboard().setScore(
-                    BelowName.OBJECTIVE_NAME,
-                    player.getNickname(),
-                    player.getBelowNameNumber(),
-                    null, // Unused by this objective slot
-                   player.getBelowNameFancy()
-            );
+            viewer.getScoreboard()
+                    .setScore(
+                            BelowName.OBJECTIVE_NAME,
+                            player.getNickname(),
+                            player.getBelowNameNumber(),
+                            null, // Unused by this objective slot
+                            player.getBelowNameFancy());
         }
     }
 

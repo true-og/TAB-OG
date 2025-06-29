@@ -8,5 +8,6 @@ import me.neznamy.tab.api.event.plugin.TabLoadEvent;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TabLoadEventImpl implements TabLoadEvent {
 
-    @Getter private static final TabLoadEvent instance = new TabLoadEventImpl();
+    @Getter
+    private static final TabLoadEvent instance = new TabLoadEventImpl();
 }

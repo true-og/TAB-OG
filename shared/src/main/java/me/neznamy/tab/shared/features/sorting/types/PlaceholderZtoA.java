@@ -1,7 +1,7 @@
 package me.neznamy.tab.shared.features.sorting.types;
 
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.features.sorting.Sorting;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,8 +24,9 @@ public class PlaceholderZtoA extends SortingType {
     @Override
     public String getChars(@NotNull TabPlayer p) {
         char[] chars = setPlaceholders(p).toCharArray();
-        p.sortingData.teamNameNote += "\n-> " + sortingPlaceholder.getIdentifier() + " returned \"&e" + new String(chars) + "&r\". &r";
-        for (int i=0; i<chars.length; i++) {
+        p.sortingData.teamNameNote +=
+                "\n-> " + sortingPlaceholder.getIdentifier() + " returned \"&e" + new String(chars) + "&r\". &r";
+        for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
             if (c >= 65 && c <= 90) {
                 chars[i] = (char) (155 - c);

@@ -1,16 +1,15 @@
 package me.neznamy.tab.platforms.bukkit.bossbar;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import me.neznamy.tab.shared.platform.BossBar;
 import me.neznamy.tab.api.bossbar.BarColor;
 import me.neznamy.tab.api.bossbar.BarStyle;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.entity.DataWatcher;
 import me.neznamy.tab.shared.backend.Location;
+import me.neznamy.tab.shared.platform.BossBar;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * BossBar using wither entity for <1.9 players on <1.9 servers.
@@ -34,9 +33,10 @@ public class EntityBossBar implements BossBar {
     private final BukkitTabPlayer player;
 
     @Override
-    public void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
+    public void create(
+            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
         DataWatcher w = new DataWatcher();
-        float health = WITHER_MAX_HEALTH*progress;
+        float health = WITHER_MAX_HEALTH * progress;
         if (health == 0) health = 1;
         w.setHealth(health);
         w.setCustomName(title, player.getVersion());
@@ -55,17 +55,21 @@ public class EntityBossBar implements BossBar {
     @Override
     public void update(@NotNull UUID id, float progress) {
         DataWatcher w = new DataWatcher();
-        float health = WITHER_MAX_HEALTH*progress;
+        float health = WITHER_MAX_HEALTH * progress;
         if (health == 0) health = 1;
         w.setHealth(health);
         player.getEntityView().updateEntityMetadata(id.hashCode(), w);
     }
 
     @Override
-    public void update(@NotNull UUID id, @NotNull BarStyle style) {/*Added in 1.9*/}
+    public void update(@NotNull UUID id, @NotNull BarStyle style) {
+        /*Added in 1.9*/
+    }
 
     @Override
-    public void update(@NotNull UUID id, @NotNull BarColor color) {/*Added in 1.9*/}
+    public void update(@NotNull UUID id, @NotNull BarColor color) {
+        /*Added in 1.9*/
+    }
 
     @Override
     public void remove(@NotNull UUID id) {

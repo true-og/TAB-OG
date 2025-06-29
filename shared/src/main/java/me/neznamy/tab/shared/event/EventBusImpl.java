@@ -1,7 +1,6 @@
 package me.neznamy.tab.shared.event;
 
 import java.lang.reflect.Method;
-
 import lombok.AllArgsConstructor;
 import me.neznamy.tab.api.event.EventBus;
 import me.neznamy.tab.api.event.EventHandler;
@@ -31,14 +30,17 @@ public class EventBusImpl implements EventBus {
                 return true;
             }
         };
-        methodAdapter = new SimpleMethodSubscriptionAdapter<>(bus, new MethodHandleEventExecutorFactory<>(), new TabMethodScanner());
+        methodAdapter = new SimpleMethodSubscriptionAdapter<>(
+                bus, new MethodHandleEventExecutorFactory<>(), new TabMethodScanner());
     }
 
     public <E extends TabEvent> void fire(E event) {
         if (!bus.hasSubscribers(event.getClass())) return;
         PostResult result = bus.post(event);
         if (result.exceptions().isEmpty()) return;
-        TAB.getInstance().getErrorManager().errorFiringEvent(event, result.exceptions().values());
+        TAB.getInstance()
+                .getErrorManager()
+                .errorFiringEvent(event, result.exceptions().values());
     }
 
     @Override
@@ -58,7 +60,8 @@ public class EventBusImpl implements EventBus {
 
     @Override
     public <E extends TabEvent> void unregister(@lombok.NonNull EventHandler<E> handler) {
-        bus.unregister(subscriber -> subscriber instanceof HandlerWrapper && ((HandlerWrapper<?>) subscriber).handler == handler);
+        bus.unregister(subscriber ->
+                subscriber instanceof HandlerWrapper && ((HandlerWrapper<?>) subscriber).handler == handler);
     }
 
     private static class TabMethodScanner implements MethodScanner<Object> {

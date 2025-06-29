@@ -1,11 +1,10 @@
 package me.neznamy.tab.shared.config.helper;
 
+import java.util.Map;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.chat.TabComponent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 /**
  * Class for printing hints for a cleaner configuration
@@ -29,12 +28,12 @@ public class HintPrinter {
             for (Map.Entry<String, Map<String, Object>> entry : map.entrySet()) {
                 String world = entry.getKey();
                 if (String.valueOf(entry.getValue().getOrDefault("header", "-")).equals(defaultHeader)) {
-                    hint("Per-world header for world \"" + world + "\" is identical to default header. " +
-                            "This is redundant and can be removed for cleaner config.");
+                    hint("Per-world header for world \"" + world + "\" is identical to default header. "
+                            + "This is redundant and can be removed for cleaner config.");
                 }
                 if (String.valueOf(entry.getValue().getOrDefault("footer", "-")).equals(defaultFooter)) {
-                    hint("Per-world footer for world \"" + world + "\" is identical to default footer. " +
-                            "This is redundant and can be removed for cleaner config.");
+                    hint("Per-world footer for world \"" + world + "\" is identical to default footer. "
+                            + "This is redundant and can be removed for cleaner config.");
                 }
             }
         }
@@ -43,12 +42,12 @@ public class HintPrinter {
             for (Map.Entry<String, Map<String, Object>> entry : map.entrySet()) {
                 String server = entry.getKey();
                 if (String.valueOf(entry.getValue().getOrDefault("header", "-")).equals(defaultHeader)) {
-                    hint("Per-server header for server \"" + server + "\" is identical to default header. " +
-                            "This is redundant and can be removed for cleaner config.");
+                    hint("Per-server header for server \"" + server + "\" is identical to default header. "
+                            + "This is redundant and can be removed for cleaner config.");
                 }
                 if (String.valueOf(entry.getValue().getOrDefault("footer", "-")).equals(defaultFooter)) {
-                    hint("Per-server footer for server \"" + server + "\" is identical to default footer. " +
-                            "This is redundant and can be removed for cleaner config.");
+                    hint("Per-server footer for server \"" + server + "\" is identical to default footer. "
+                            + "This is redundant and can be removed for cleaner config.");
                 }
             }
         }
@@ -58,8 +57,9 @@ public class HintPrinter {
      * Prints a hint saying layout already includes prevent-spectator-effect feature.
      */
     public void layoutIncludesPreventSpectatorEffect() {
-        hint("Layout feature automatically includes prevent-spectator-effect, therefore the feature can be disabled " +
-                "for better performance, as it is not needed at all (assuming it is configured to always display some layout).");
+        hint(
+                "Layout feature automatically includes prevent-spectator-effect, therefore the feature can be disabled "
+                        + "for better performance, as it is not needed at all (assuming it is configured to always display some layout).");
     }
 
     /**
@@ -70,7 +70,8 @@ public class HintPrinter {
      *          Defined placeholder with same refresh as default
      */
     public void redundantRefreshInterval(@NotNull String placeholder) {
-        hint("Refresh interval of " + placeholder + " is same as default interval, therefore there is no need to override it.");
+        hint("Refresh interval of " + placeholder
+                + " is same as default interval, therefore there is no need to override it.");
     }
 
     /**
@@ -86,8 +87,10 @@ public class HintPrinter {
             if (!(entry.getValue() instanceof Map)) continue;
             for (Map.Entry<?, ?> pattern : ((Map<?, ?>) entry.getValue()).entrySet()) {
                 if (pattern.getKey().equals("else") && pattern.getValue().equals(placeholder)) {
-                    hint(String.format("Placeholder %s has configured \"else -> %s\" replacement pattern, but this is already the default behavior " +
-                            "and therefore this pattern can be removed.", placeholder, placeholder));
+                    hint(String.format(
+                            "Placeholder %s has configured \"else -> %s\" replacement pattern, but this is already the default behavior "
+                                    + "and therefore this pattern can be removed.",
+                            placeholder, placeholder));
                 }
             }
         }
@@ -100,6 +103,8 @@ public class HintPrinter {
      *          Message to log
      */
     private void hint(@NotNull String message) {
-        TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.GOLD + "[Hint] " + message));
+        TAB.getInstance()
+                .getPlatform()
+                .logInfo(TabComponent.fromColoredText(EnumChatFormat.GOLD + "[Hint] " + message));
     }
 }

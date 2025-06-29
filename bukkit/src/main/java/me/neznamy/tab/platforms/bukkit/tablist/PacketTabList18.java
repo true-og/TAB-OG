@@ -2,22 +2,21 @@ package me.neznamy.tab.platforms.bukkit.tablist;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.*;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
-import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.platforms.bukkit.nms.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.PacketSender;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabList;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.*;
 
 /**
  * TabList handler for 1.8 - 1.19.2 servers using packets.
@@ -59,23 +58,25 @@ public class PacketTabList18 extends TabListBase<Object> {
      *          If something goes wrong
      */
     public static void load() throws ReflectiveOperationException {
-        Class<Enum> EnumGamemodeClass = (Class<Enum>) BukkitReflection.getClass("world.level.GameType",
-                "world.level.EnumGamemode", "EnumGamemode", "WorldSettings$EnumGamemode");
+        Class<Enum> EnumGamemodeClass = (Class<Enum>) BukkitReflection.getClass(
+                "world.level.GameType", "world.level.EnumGamemode", "EnumGamemode", "WorldSettings$EnumGamemode");
         ActionClass = (Class<Enum>) BukkitReflection.getClass(
                 "network.protocol.game.ClientboundPlayerInfoPacket$Action", // Mojang 1.17 - 1.19.2
                 "network.protocol.game.PacketPlayOutPlayerInfo$EnumPlayerInfoAction", // Bukkit 1.17 - 1.19.2
                 "PacketPlayOutPlayerInfo$EnumPlayerInfoAction", // Bukkit 1.8.1 - 1.16.5
                 "EnumPlayerInfoAction" // Bukkit 1.8.0
-        );
-        PlayerInfoClass = BukkitReflection.getClass("network.protocol.game.ClientboundPlayerInfoUpdatePacket",
+                );
+        PlayerInfoClass = BukkitReflection.getClass(
+                "network.protocol.game.ClientboundPlayerInfoUpdatePacket",
                 "network.protocol.game.ClientboundPlayerInfoPacket",
-                "network.protocol.game.PacketPlayOutPlayerInfo", "PacketPlayOutPlayerInfo");
+                "network.protocol.game.PacketPlayOutPlayerInfo",
+                "PacketPlayOutPlayerInfo");
         Class<?> playerInfoDataClass = BukkitReflection.getClass(
                 "network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate", // Mojang 1.17 - 1.19.2
                 "network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData", // Bukkit 1.17 - 1.19.2
                 "PacketPlayOutPlayerInfo$PlayerInfoData", // Bukkit 1.8.1 - 1.16.5
                 "PlayerInfoData" // Bukkit 1.8.0
-        );
+                );
 
         Class<?> classType = BukkitReflection.getMinorVersion() >= 17 ? Collection.class : Iterable.class;
         newPlayerInfo = PlayerInfoClass.getConstructor(ActionClass, classType);
@@ -86,50 +87,53 @@ public class PacketTabList18 extends TabListBase<Object> {
         newPlayerInfoData = playerInfoDataClass.getConstructors()[0]; // #1105, a specific 1.8.8 fork has 2 constructors
     }
 
-    protected static void loadSharedContent(Class<?> infoData, Class<Enum> gameMode) throws ReflectiveOperationException {
-        Class<?> IChatBaseComponent = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
+    protected static void loadSharedContent(Class<?> infoData, Class<Enum> gameMode)
+            throws ReflectiveOperationException {
+        Class<?> IChatBaseComponent = BukkitReflection.getClass(
+                "network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
         PLAYERS = ReflectionUtils.getOnlyField(PlayerInfoClass, List.class);
         PlayerInfoData_Profile = ReflectionUtils.getOnlyField(infoData, GameProfile.class);
         PlayerInfoData_Latency = ReflectionUtils.getOnlyField(infoData, int.class);
         PlayerInfoData_DisplayName = ReflectionUtils.getOnlyField(infoData, IChatBaseComponent);
         gameModes = new Object[] {
-                Enum.valueOf(gameMode, "SURVIVAL"),
-                Enum.valueOf(gameMode, "CREATIVE"),
-                Enum.valueOf(gameMode, "ADVENTURE"),
-                Enum.valueOf(gameMode, "SPECTATOR")
+            Enum.valueOf(gameMode, "SURVIVAL"),
+            Enum.valueOf(gameMode, "CREATIVE"),
+            Enum.valueOf(gameMode, "ADVENTURE"),
+            Enum.valueOf(gameMode, "SPECTATOR")
         };
         packetSender = new PacketSender();
         ComponentConverter.ensureAvailable();
         try {
             skinData = new SkinData();
         } catch (Exception e) {
-            BukkitUtils.compatibilityError(e, "getting player's game profile", null,
-                    "Player skins not working in layout feature");
+            BukkitUtils.compatibilityError(
+                    e, "getting player's game profile", null, "Player skins not working in layout feature");
         }
     }
 
     @Override
     public void removeEntry(@NonNull UUID entry) {
-        packetSender.sendPacket(player.getPlayer(),
-                createPacket(Action.REMOVE_PLAYER, entry, "", null, false, 0, 0, null));
+        packetSender.sendPacket(
+                player.getPlayer(), createPacket(Action.REMOVE_PLAYER, entry, "", null, false, 0, 0, null));
     }
 
     @Override
     public void updateDisplayName0(@NonNull UUID entry, @Nullable Object displayName) {
-        packetSender.sendPacket(player.getPlayer(),
+        packetSender.sendPacket(
+                player.getPlayer(),
                 createPacket(Action.UPDATE_DISPLAY_NAME, entry, "", null, false, 0, 0, displayName));
     }
 
     @Override
     public void updateLatency(@NonNull UUID entry, int latency) {
-        packetSender.sendPacket(player.getPlayer(),
-                createPacket(Action.UPDATE_LATENCY, entry, "", null, false, latency, 0, null));
+        packetSender.sendPacket(
+                player.getPlayer(), createPacket(Action.UPDATE_LATENCY, entry, "", null, false, latency, 0, null));
     }
 
     @Override
     public void updateGameMode(@NonNull UUID entry, int gameMode) {
-        packetSender.sendPacket(player.getPlayer(),
-                createPacket(Action.UPDATE_GAME_MODE, entry, "", null, false, 0, gameMode, null));
+        packetSender.sendPacket(
+                player.getPlayer(), createPacket(Action.UPDATE_GAME_MODE, entry, "", null, false, 0, gameMode, null));
     }
 
     @Override
@@ -138,8 +142,16 @@ public class PacketTabList18 extends TabListBase<Object> {
     }
 
     @Override
-    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable Object displayName) {
-        packetSender.sendPacket(player.getPlayer(),
+    public void addEntry0(
+            @NonNull UUID id,
+            @NonNull String name,
+            @Nullable Skin skin,
+            boolean listed,
+            int latency,
+            int gameMode,
+            @Nullable Object displayName) {
+        packetSender.sendPacket(
+                player.getPlayer(),
                 createPacket(Action.ADD_PLAYER, id, name, skin, listed, latency, gameMode, displayName));
     }
 
@@ -166,8 +178,15 @@ public class PacketTabList18 extends TabListBase<Object> {
      */
     @SneakyThrows
     @NonNull
-    public Object createPacket(@NonNull Action action, @NonNull UUID id, @NonNull String name, @Nullable Skin skin,
-                               boolean listed, int latency, int gameMode, @Nullable Object displayName) {
+    public Object createPacket(
+            @NonNull Action action,
+            @NonNull UUID id,
+            @NonNull String name,
+            @Nullable Skin skin,
+            boolean listed,
+            int latency,
+            int gameMode,
+            @Nullable Object displayName) {
         Object packet = newPlayerInfo.newInstance(Enum.valueOf(ActionClass, action.name()), Collections.emptyList());
         List<Object> parameters = new ArrayList<>();
         if (newPlayerInfoData.getParameterTypes()[0] == PlayerInfoClass) {
@@ -197,8 +216,10 @@ public class PacketTabList18 extends TabListBase<Object> {
     public GameProfile createProfile(@NonNull UUID id, @NonNull String name, @Nullable Skin skin) {
         GameProfile profile = new GameProfile(id, name);
         if (skin != null) {
-            profile.getProperties().put(TabList.TEXTURES_PROPERTY,
-                    new Property(TabList.TEXTURES_PROPERTY, skin.getValue(), skin.getSignature()));
+            profile.getProperties()
+                    .put(
+                            TabList.TEXTURES_PROPERTY,
+                            new Property(TabList.TEXTURES_PROPERTY, skin.getValue(), skin.getSignature()));
         }
         return profile;
     }
@@ -216,7 +237,9 @@ public class PacketTabList18 extends TabListBase<Object> {
                 if (expectedName != null) PlayerInfoData_DisplayName.set(nmsData, expectedName);
             }
             if (action.equals(Action.UPDATE_LATENCY.name()) || action.equals(Action.ADD_PLAYER.name())) {
-                int latency = TAB.getInstance().getFeatureManager().onLatencyChange(player, id, PlayerInfoData_Latency.getInt(nmsData));
+                int latency = TAB.getInstance()
+                        .getFeatureManager()
+                        .onLatencyChange(player, id, PlayerInfoData_Latency.getInt(nmsData));
                 PlayerInfoData_Latency.set(nmsData, latency);
             }
             if (action.equals(Action.ADD_PLAYER.name())) {

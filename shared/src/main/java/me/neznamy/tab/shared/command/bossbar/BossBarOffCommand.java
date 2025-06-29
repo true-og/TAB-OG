@@ -1,5 +1,7 @@
 package me.neznamy.tab.shared.command.bossbar;
 
+import java.util.Collections;
+import java.util.List;
 import me.neznamy.tab.api.bossbar.BossBarManager;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
@@ -7,9 +9,6 @@ import me.neznamy.tab.shared.command.SubCommand;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Handler for "/tab bossbar off [player] [options]" subcommand

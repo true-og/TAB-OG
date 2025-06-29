@@ -1,5 +1,9 @@
 package me.neznamy.tab.shared.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import lombok.Getter;
 import me.neznamy.tab.shared.FeatureManager;
 import me.neznamy.tab.shared.TAB;
@@ -15,36 +19,34 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-
 /**
  * Core of loading configuration files
  */
 @Getter
 public class Configs {
 
-    //config.yml file
-    private final ConfigurationFile config = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/config.yml"),
+    // config.yml file
+    private final ConfigurationFile config = new YamlConfigurationFile(
+            getClass().getClassLoader().getResourceAsStream("config/config.yml"),
             new File(TAB.getInstance().getDataFolder(), "config.yml"));
 
-    private final boolean bukkitPermissions = TAB.getInstance().getPlatform().isProxy() && config.getBoolean("use-bukkit-permissions-manager", false);
+    private final boolean bukkitPermissions =
+            TAB.getInstance().getPlatform().isProxy() && config.getBoolean("use-bukkit-permissions-manager", false);
     private final boolean debugMode = config.getBoolean("debug", false);
     private final boolean onlineUuidInTabList = config.getBoolean("use-online-uuid-in-tablist", true);
     private final boolean pipelineInjection = getSecretOption("pipeline-injection", true);
     private final String serverName = getSecretOption("server-name", "N/A");
     private final int permissionRefreshInterval = config.getInt("permission-refresh-interval", 1000);
 
-    //animations.yml file
-    private final ConfigurationFile animationFile = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/animations.yml"),
+    // animations.yml file
+    private final ConfigurationFile animationFile = new YamlConfigurationFile(
+            getClass().getClassLoader().getResourceAsStream("config/animations.yml"),
             new File(TAB.getInstance().getDataFolder(), "animations.yml"));
 
-    //messages.yml file
+    // messages.yml file
     private final MessageFile messages = new MessageFile();
 
-    //playerdata.yml, used for bossbar & scoreboard toggle saving
+    // playerdata.yml, used for bossbar & scoreboard toggle saving
     private ConfigurationFile playerdata;
 
     private PropertyConfiguration groups;
@@ -85,8 +87,7 @@ public class Configs {
                         config.getString("mysql.database", "tab"),
                         config.getString("mysql.username", "user"),
                         config.getString("mysql.password", "password"),
-                        config.getBoolean("mysql.useSSL", true)
-                );
+                        config.getBoolean("mysql.useSSL", true));
                 mysql.openConnection();
                 groups = new MySQLGroupConfiguration(mysql);
                 users = new MySQLUserConfiguration(mysql);
@@ -95,9 +96,16 @@ public class Configs {
                 TAB.getInstance().getErrorManager().mysqlConnectionFailed(e);
             }
         }
-        groups = new YamlPropertyConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/groups.yml"), new File(TAB.getInstance().getDataFolder(), "groups.yml"));
-        users = new YamlPropertyConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/users.yml"), new File(TAB.getInstance().getDataFolder(), "users.yml"));
-        TAB.getInstance().getConfigHelper().hint().checkForRedundantElseReplacement(config.getConfigurationSection("placeholder-output-replacements"));
+        groups = new YamlPropertyConfigurationFile(
+                getClass().getClassLoader().getResourceAsStream("config/groups.yml"),
+                new File(TAB.getInstance().getDataFolder(), "groups.yml"));
+        users = new YamlPropertyConfigurationFile(
+                getClass().getClassLoader().getResourceAsStream("config/users.yml"),
+                new File(TAB.getInstance().getDataFolder(), "users.yml"));
+        TAB.getInstance()
+                .getConfigHelper()
+                .hint()
+                .checkForRedundantElseReplacement(config.getConfigurationSection("placeholder-output-replacements"));
     }
 
     /**
@@ -134,10 +142,14 @@ public class Configs {
         for (Object worldGroup : serverGroups) {
             for (String definedWorld : worldGroup.toString().split(";")) {
                 if (definedWorld.endsWith("*")) {
-                    if (element.toLowerCase().startsWith(definedWorld.substring(0, definedWorld.length()-1).toLowerCase())) return worldGroup.toString();
+                    if (element.toLowerCase()
+                            .startsWith(definedWorld
+                                    .substring(0, definedWorld.length() - 1)
+                                    .toLowerCase())) return worldGroup.toString();
                 } else if (definedWorld.startsWith("*")) {
-                    if (element.toLowerCase().endsWith(definedWorld.substring(1).toLowerCase())) return worldGroup.toString();
-                }  else {
+                    if (element.toLowerCase().endsWith(definedWorld.substring(1).toLowerCase()))
+                        return worldGroup.toString();
+                } else {
                     if (element.equalsIgnoreCase(definedWorld)) return worldGroup.toString();
                 }
             }

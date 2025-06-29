@@ -1,7 +1,7 @@
 package me.neznamy.tab.shared.platform;
 
+import java.io.File;
 import me.neznamy.tab.shared.GroupManager;
-import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.features.bossbar.BossBarManagerImpl;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
@@ -11,8 +11,6 @@ import me.neznamy.tab.shared.features.types.TabFeature;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 /**
  * An interface with methods that are called in universal code,
@@ -25,7 +23,8 @@ public interface Platform {
      *
      * @return  the interface representing the permission hook
      */
-    @NotNull GroupManager detectPermissionPlugin();
+    @NotNull
+    GroupManager detectPermissionPlugin();
 
     /**
      * Returns bossbar feature.
@@ -60,7 +59,8 @@ public interface Platform {
      *
      * @return  new pipeline injection or null if not available
      */
-    @Nullable PipelineInjector createPipelineInjector();
+    @Nullable
+    PipelineInjector createPipelineInjector();
 
     /**
      * Returns nametag handler when unlimited nametag mode is enabled
@@ -68,28 +68,32 @@ public interface Platform {
      *
      * @return  Nametag feature handler for unlimited name tags
      */
-    @NotNull NameTag getUnlimitedNameTags();
+    @NotNull
+    NameTag getUnlimitedNameTags();
 
     /**
      * Creates tab expansion instance and returns it
      *
      * @return  Created expansion
      */
-    @NotNull TabExpansion createTabExpansion();
+    @NotNull
+    TabExpansion createTabExpansion();
 
     /**
      * Creates RedisSupport feature, registers listeners and returns it
      *
      * @return  Created instance
      */
-    @Nullable RedisSupport getRedisSupport();
+    @Nullable
+    RedisSupport getRedisSupport();
 
     /**
      * Returns per world player list feature handler.
      *
      * @return  Created feature or null if not available on platform
      */
-    @Nullable TabFeature getPerWorldPlayerList();
+    @Nullable
+    TabFeature getPerWorldPlayerList();
 
     /**
      * Sends a console message with TAB's prefix using logger if available,

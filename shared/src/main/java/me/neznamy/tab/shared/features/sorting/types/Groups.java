@@ -1,11 +1,10 @@
 package me.neznamy.tab.shared.features.sorting.types;
 
 import java.util.LinkedHashMap;
-
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.sorting.Sorting;
+import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -39,7 +38,8 @@ public class Groups extends SortingType {
             p.sortingData.teamNameNote += "\n-> &cPrimary group (&e" + p.getGroup() + "&c) is not in sorting list. &r";
         } else {
             position = sortedGroups.get(group);
-            p.sortingData.teamNameNote += "\n-> Primary group (&e" + p.getGroup() + "&r) is &a#" + position + "&r in sorting list.";
+            p.sortingData.teamNameNote +=
+                    "\n-> Primary group (&e" + p.getGroup() + "&r) is &a#" + position + "&r in sorting list.";
         }
         return String.valueOf((char) (position + 47));
     }

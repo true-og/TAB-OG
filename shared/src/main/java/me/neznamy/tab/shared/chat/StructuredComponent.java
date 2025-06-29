@@ -1,14 +1,13 @@
 package me.neznamy.tab.shared.chat;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A component with structure (style, color, extra).
@@ -39,7 +38,9 @@ public class StructuredComponent extends TabComponent {
     public StructuredComponent(@NotNull StructuredComponent component) {
         text = component.text;
         modifier = new ChatModifier(component.modifier);
-        extra = component.extra == null ? null : component.extra.stream().map(StructuredComponent::new).collect(Collectors.toList());
+        extra = component.extra == null
+                ? null
+                : component.extra.stream().map(StructuredComponent::new).collect(Collectors.toList());
     }
 
     /**
@@ -52,7 +53,9 @@ public class StructuredComponent extends TabComponent {
      */
     public StructuredComponent(@NotNull String text, @NotNull List<StructuredComponent> components) {
         this.text = text;
-        if (components.isEmpty()) throw new IllegalArgumentException("Unexpected empty array of components"); //exception taken from minecraft
+        if (components.isEmpty())
+            throw new IllegalArgumentException(
+                    "Unexpected empty array of components"); // exception taken from minecraft
         extra = components;
     }
 
@@ -105,7 +108,7 @@ public class StructuredComponent extends TabComponent {
         StringBuilder builder = new StringBuilder();
         if (modifier.getColor() != null) {
             if (modifier.getColor().getLegacyColor() == EnumChatFormat.WHITE) {
-                //preventing unwanted &r -> &f conversion and stopping the <1.13 client bug fix from working
+                // preventing unwanted &r -> &f conversion and stopping the <1.13 client bug fix from working
                 builder.append(EnumChatFormat.RESET);
             } else {
                 builder.append(modifier.getColor().getLegacyColor());
@@ -124,5 +127,4 @@ public class StructuredComponent extends TabComponent {
         }
         return builder.toString();
     }
-
 }

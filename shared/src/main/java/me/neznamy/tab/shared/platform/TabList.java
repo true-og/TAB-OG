@@ -1,5 +1,6 @@
 package me.neznamy.tab.shared.platform;
 
+import java.util.*;
 import lombok.*;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
@@ -8,8 +9,6 @@ import me.neznamy.tab.shared.features.redis.RedisPlayer;
 import me.neznamy.tab.shared.features.redis.RedisSupport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
 
 /**
  * Interface for managing tablist entries.
@@ -35,7 +34,8 @@ public abstract class TabList<P extends TabPlayer, C> {
     /** Expected names based on configuration, saving to restore them if another plugin overrides them */
     private final Map<TabPlayer, C> expectedDisplayNames = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private final RedisSupport redisSupport = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+    private final RedisSupport redisSupport =
+            TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
 
     /** Expected names based on configuration, saving to restore them if another plugin overrides them */
     private final Map<RedisPlayer, C> expectedRedisDisplayNames = Collections.synchronizedMap(new WeakHashMap<>());
@@ -142,8 +142,9 @@ public abstract class TabList<P extends TabPlayer, C> {
      *          Viewer of the TabList with wrong entry.
      */
     protected void displayNameWrong(@NonNull String player, @NonNull TabPlayer viewer) {
-        TAB.getInstance().debug("TabList entry of player " + player + " has a different display name " +
-                "for viewer " + viewer.getName() + " than expected, fixing.");
+        TAB.getInstance()
+                .debug("TabList entry of player " + player + " has a different display name " + "for viewer "
+                        + viewer.getName() + " than expected, fixing.");
     }
 
     private void setExpectedDisplayName(@NonNull UUID entry, @Nullable C displayName) {
@@ -266,7 +267,14 @@ public abstract class TabList<P extends TabPlayer, C> {
      * @param   displayName
      *          Entry display name
      */
-    public abstract void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable C displayName);
+    public abstract void addEntry0(
+            @NonNull UUID id,
+            @NonNull String name,
+            @Nullable Skin skin,
+            boolean listed,
+            int latency,
+            int gameMode,
+            @Nullable C displayName);
 
     /**
      * Sets header and footer to specified values.
@@ -319,13 +327,16 @@ public abstract class TabList<P extends TabPlayer, C> {
     public static class Entry {
 
         /** Player UUID */
-        @NonNull private UUID uniqueId;
+        @NonNull
+        private UUID uniqueId;
 
         /** Real name of affected player */
-        @NonNull private String name = "";
+        @NonNull
+        private String name = "";
 
         /** Player's skin, null for empty skin */
-        @Nullable private Skin skin;
+        @Nullable
+        private Skin skin;
 
         /** Listed flag */
         private boolean listed;
@@ -340,7 +351,8 @@ public abstract class TabList<P extends TabPlayer, C> {
          * Display name displayed in TabList. Using {@code null} results in no display name
          * and scoreboard team prefix/suffix being visible in TabList instead.
          */
-        @Nullable private TabComponent displayName;
+        @Nullable
+        private TabComponent displayName;
 
         /**
          * Constructs new instance with given parameter.
@@ -395,13 +407,16 @@ public abstract class TabList<P extends TabPlayer, C> {
     /**
      * Class representing a minecraft skin as a value - signature pair.
      */
-    @Data @AllArgsConstructor
+    @Data
+    @AllArgsConstructor
     public static class Skin {
 
         /** Skin value */
-        @NonNull private final String value;
+        @NonNull
+        private final String value;
 
         /** Skin signature */
-        @Nullable private final String signature;
+        @Nullable
+        private final String signature;
     }
 }

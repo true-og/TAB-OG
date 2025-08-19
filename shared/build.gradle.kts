@@ -1,62 +1,47 @@
 plugins {
-    java
-    `java-library`
-    id("com.diffplug.spotless") version "7.0.4"
-    id("com.gradleup.shadow") version "8.3.6"
-    id("net.kyori.blossom") version "1.3.1"
-    id("io.freefair.lombok") version "8.13.1" // Automatic lombok support.
-    eclipse
+    id("net.kyori.blossom") version "2.1.0"
 }
-
-java { sourceCompatibility = JavaVersion.VERSION_17 }
-
-repositories { mavenCentral() }
 
 dependencies {
     api(projects.api)
+    api(projects.component)
     api("org.yaml:snakeyaml:2.0")
     api("com.github.NEZNAMY:yamlassist:1.0.8")
-    api("com.googlecode.json-simple:json-simple:1.1.1") { exclude("junit", "junit") }
+    api("com.googlecode.json-simple:json-simple:1.1.1") {
+        exclude("junit", "junit")
+    }
     api("net.kyori:event-method:3.0.0") {
         exclude("com.google.guava", "guava")
         exclude("org.checkerframework", "checker-qual")
     }
-    compileOnlyApi("com.viaversion:viaversion-api:4.7.0")
+    compileOnlyApi("com.viaversion:viaversion-api:5.2.1")
     compileOnlyApi("io.netty:netty-all:4.1.90.Final")
     compileOnlyApi("net.luckperms:api:5.4")
     compileOnlyApi("com.google.guava:guava:31.1-jre")
-    compileOnlyApi("net.kyori:adventure-api:4.13.0")
-    compileOnlyApi("net.kyori:adventure-text-serializer-legacy:4.13.0")
-    compileOnlyApi("net.kyori:adventure-text-serializer-gson:4.13.0")
-    compileOnlyApi("net.kyori:adventure-text-minimessage:4.13.0")
-    implementation(project(":libs:Utilities-OG"))
+    compileOnlyApi("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
+    compileOnlyApi("net.kyori:adventure-api:4.18.0")
+    compileOnlyApi("net.kyori:adventure-text-minimessage:4.18.0")
+    implementation("com.saicone.delivery4j:delivery4j:1.1.1")
+    implementation("com.saicone.delivery4j:broker-rabbitmq:1.1.1") {
+        exclude("org.slf4j", "slf4j-api")
+    }
+    implementation("com.saicone.delivery4j:broker-redis:1.1.1") {
+        exclude("com.google.code.gson", "gson")
+        exclude("org.slf4j", "slf4j-api")
+    }
+    implementation("com.saicone.delivery4j:extension-guava:1.1.1")
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-parameters")
-    options.compilerArgs.add("-Xlint:deprecation")
-    options.encoding = "UTF-8"
-    options.isFork = true
+sourceSets.main {
+    blossom {
+        javaSources {
+            property("name", rootProject.name)
+            property("id", rootProject.ext.get("id")!!.toString())
+            property("version", project.version.toString())
+            property("description", project.description)
+            property("website", rootProject.ext.get("website")!!.toString())
+            property("author", rootProject.ext.get("author")!!.toString())
+            property("credits", rootProject.ext.get("credits")!!.toString())
+        }
+    }
 }
-
-tasks.withType<AbstractArchiveTask>().configureEach {
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-}
-
-blossom {
-    replaceToken("@name@", rootProject.name)
-    replaceToken("@id@", rootProject.extra["id"].toString())
-    replaceToken("@version@", project.version)
-    replaceToken("@description@", project.description)
-    replaceToken("@website@", rootProject.extra["website"].toString())
-    replaceToken("@author@", rootProject.extra["author"].toString())
-    replaceTokenIn("src/main/java/me/neznamy/tab/shared/TabConstants.java")
-}
-
-tasks.register<Exec>("runCopyJarScript") {
-    workingDir(rootDir)
-    commandLine("sh", "copyjar.sh", project.version.toString())
-}
-
-tasks.named("build") { finalizedBy("runCopyJarScript") }

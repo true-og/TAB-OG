@@ -1,8 +1,8 @@
 plugins {
-    java
-    `java-library`
+    id("java") // Import Java plugin.
+    id("java-library") // Import Java Library plugin.
+    id("io.freefair.lombok") // Import automatic lombok support.
     id("com.diffplug.spotless") version "7.0.4"
-    id("io.freefair.lombok") version "8.13.1" // Automatic lombok support.
     eclipse
 }
 

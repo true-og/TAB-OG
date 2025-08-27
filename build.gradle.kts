@@ -1,19 +1,21 @@
 plugins {
     id("tab.parent")
-    id("java")
-    id("eclipse")
+    id("java") // Import Java plugin.
+    id("java-library") // Import Java Library plugin.
+    eclipse
     id("com.diffplug.spotless") version "7.0.4" apply false
     id("com.gradleup.shadow") version "8.3.6" apply false
-    id("io.freefair.lombok") version "8.13.1" // Automatic lombok support.
 }
 
 allprojects {
-    group = "me.neznamy"
-    version = "4.1.7-SNAPSHOT"
+    group = "net.trueog.tab-og"
+    version = "4.1.8"
     description = "An all-in-one solution that works"
-    extra["id"] = "tab"
-    extra["website"] = "https://github.com/NEZNAMY/TAB"
-    extra["author"] = "NEZNAMY"
+    ext.set("id", "tab")
+    ext.set("website", "https://github.com/true-og/TAB-OG")
+    ext.set("author", "NEZNAMY")
+    ext.set("credits", "Joseph T. McQuigg (JT122406)")
+
 }
 
 subprojects {

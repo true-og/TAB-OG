@@ -24,51 +24,75 @@ public class RedisPlayerList extends RedisFeature {
     private final PlayerList playerList;
 
     public RedisPlayerList(@NotNull RedisSupport redisSupport, @NotNull PlayerList playerList) {
+
         this.redisSupport = redisSupport;
         this.playerList = playerList;
         redisSupport.registerMessage("tabformat", Update.class, Update::new);
+
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
-        if (player.getVersion().getMinorVersion() < 8) return;
+
+        if (player.getVersion().getMinorVersion() < 8)
+            return;
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
+
             player.getTabList().updateDisplayName(redis.getUniqueId(), redis.getTabFormat());
+
         }
+
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
+
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getVersion().getMinorVersion() < 8) continue;
+
+            if (viewer.getVersion().getMinorVersion() < 8)
+                continue;
             viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
+
         }
+
     }
 
     @Override
     public void onServerSwitch(@NotNull TabPlayer player) {
+
         onJoin(player);
+
     }
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out, @NotNull TabPlayer player) {
+
         out.writeUTF(player.getProperty(TabConstants.Property.TABPREFIX).get()
                 + player.getProperty(TabConstants.Property.CUSTOMTABNAME).get()
                 + player.getProperty(TabConstants.Property.TABSUFFIX).get());
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+
         player.setTabFormat(TabComponent.optimized(in.readUTF()));
+
     }
 
     @Override
     public void onVanishStatusChange(@NotNull RedisPlayer player) {
-        if (player.isVanished()) return;
+
+        if (player.isVanished())
+            return;
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getVersion().getMinorVersion() < 8) continue;
+
+            if (viewer.getVersion().getMinorVersion() < 8)
+                continue;
             viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
+
         }
+
     }
 
     @NoArgsConstructor
@@ -80,22 +104,31 @@ public class RedisPlayerList extends RedisFeature {
 
         @Override
         public void write(@NotNull ByteArrayDataOutput out) {
+
             writeUUID(out, playerId);
             out.writeUTF(format);
+
         }
 
         @Override
         public void read(@NotNull ByteArrayDataInput in) {
+
             playerId = readUUID(in);
             format = in.readUTF();
+
         }
 
         @Override
         public void process(@NotNull RedisSupport redisSupport) {
+
             RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-            if (target == null) return; // Print warn?
+            if (target == null)
+                return; // Print warn?
             target.setTabFormat(TabComponent.optimized(format));
             onJoin(target);
+
         }
+
     }
+
 }

@@ -15,17 +15,18 @@ public class GroupsCommand extends SubCommand {
      * Constructs new instance
      */
     public GroupsCommand() {
+
         super("groups", TabConstants.Permission.COMMAND_GROUP_LIST);
+
     }
 
     @Override
     public void execute(@Nullable TabPlayer sender, @NotNull String[] args) {
+
         sendMessage(sender, "&3Configured groups:");
-        sendMessage(
-                sender,
-                "&9"
-                        + String.join(
-                                ", &9",
-                                TAB.getInstance().getConfiguration().getGroups().getAllEntries()));
+        sendMessage(sender,
+                "&9" + String.join(", &9", TAB.getInstance().getConfiguration().getGroups().getAllEntries()));
+
     }
+
 }

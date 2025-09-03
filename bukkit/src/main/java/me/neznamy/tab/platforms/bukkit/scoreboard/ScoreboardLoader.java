@@ -22,17 +22,20 @@ public class ScoreboardLoader {
      * Tries to load Scoreboard packets.
      */
     public static void tryLoad() {
+
         if (PacketScoreboard.isAvailable()) {
+
             instance = PacketScoreboard::new;
+
         } else {
-            BukkitUtils.compatibilityError(
-                    PacketScoreboard.getException(),
-                    "Scoreboards",
-                    null,
-                    "Scoreboard feature will not work",
-                    "Belowname feature will not work",
+
+            BukkitUtils.compatibilityError(PacketScoreboard.getException(), "Scoreboards", null,
+                    "Scoreboard feature will not work", "Belowname feature will not work",
                     "Player objective feature will not work",
                     "Scoreboard teams feature will not work (nametags & sorting)");
+
         }
+
     }
+
 }

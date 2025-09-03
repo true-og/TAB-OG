@@ -14,16 +14,23 @@ public class PlaceholderError implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         message = in.readUTF();
         int count = in.readInt();
         stack = new ArrayList<>();
         for (int i = 0; i < count; i++) {
+
             stack.add(in.readUTF());
+
         }
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         TAB.getInstance().getErrorManager().placeholderError(message, stack);
+
     }
+
 }

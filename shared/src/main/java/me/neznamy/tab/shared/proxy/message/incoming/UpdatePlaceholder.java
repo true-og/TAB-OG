@@ -17,22 +17,35 @@ public class UpdatePlaceholder implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         identifier = in.readUTF();
-        if (identifier.startsWith("%rel_")) target = in.readUTF();
+        if (identifier.startsWith("%rel_"))
+            target = in.readUTF();
         value = in.readUTF();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
-        if (!TAB.getInstance().getPlaceholderManager().isPlaceholderRegistered(identifier)) return;
+
+        if (!TAB.getInstance().getPlaceholderManager().isPlaceholderRegistered(identifier))
+            return;
         Placeholder placeholder = TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier);
         if (placeholder instanceof RelationalPlaceholder) {
+
             TabPlayer other = TAB.getInstance().getPlayer(target);
             if (other != null) { // Backend player did not connect via this proxy if null
+
                 ((RelationalPlaceholder) placeholder).updateValue(player, other, value);
+
             }
+
         } else {
+
             ((PlayerPlaceholder) placeholder).updateValue(player, value);
+
         }
+
     }
+
 }

@@ -13,30 +13,44 @@ public class LayoutLatencyRefresher extends TabFeature implements Refreshable {
     private final LayoutManagerImpl manager;
 
     public LayoutLatencyRefresher(@NotNull LayoutManagerImpl manager) {
+
         this.manager = manager;
         addUsedPlaceholder(TabConstants.Placeholder.PING);
+
     }
 
     @Override
     public void refresh(@NotNull TabPlayer p, boolean force) {
+
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-            if (all.getVersion().getMinorVersion() < 8) continue;
-            if (all.layoutData.view == null) continue;
+
+            if (all.getVersion().getMinorVersion() < 8)
+                continue;
+            if (all.layoutData.view == null)
+                continue;
             PlayerSlot slot = all.layoutData.view.getSlot(p);
-            if (slot == null) continue;
+            if (slot == null)
+                continue;
             all.getTabList().updateLatency(slot.getUniqueId(), p.getPing());
+
         }
+
     }
 
     @Override
     @NotNull
     public String getRefreshDisplayName() {
+
         return "Updating latency";
+
     }
 
     @Override
     @NotNull
     public String getFeatureName() {
+
         return manager.getFeatureName();
+
     }
+
 }

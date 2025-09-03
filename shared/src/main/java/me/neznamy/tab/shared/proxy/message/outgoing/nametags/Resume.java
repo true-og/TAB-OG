@@ -11,9 +11,12 @@ public class Resume implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("NameTagX");
         out.writeUTF("Resume");
         return out;
+
     }
+
 }

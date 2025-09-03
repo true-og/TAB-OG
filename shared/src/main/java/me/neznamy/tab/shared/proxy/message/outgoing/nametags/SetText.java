@@ -16,11 +16,14 @@ public class SetText implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("NameTagX");
         out.writeUTF("SetText");
         out.writeUTF(line);
         out.writeUTF(text);
         return out;
+
     }
+
 }

@@ -18,29 +18,37 @@ public class Groups extends SortingType {
     /**
      * Constructs new instance with given parameters.
      *
-     * @param   sorting
-     *          Sorting feature
-     * @param   options
-     *          List of groups separated with ","
+     * @param sorting Sorting feature
+     * @param options List of groups separated with ","
      */
     public Groups(Sorting sorting, String options) {
+
         super(sorting, "GROUPS", TabConstants.Placeholder.GROUP);
         sortedGroups = convertSortingElements(options.split(","));
+
     }
 
     @Override
     public String getChars(@NotNull TabPlayer p) {
+
         String group = p.getGroup().toLowerCase();
         int position;
         if (!sortedGroups.containsKey(group)) {
+
             TAB.getInstance().getConfigHelper().runtime().groupNotInSortingList(sortedGroups.keySet(), group, p);
             position = sortedGroups.size() + 1;
             p.sortingData.teamNameNote += "\n-> &cPrimary group (&e" + p.getGroup() + "&c) is not in sorting list. &r";
+
         } else {
+
             position = sortedGroups.get(group);
-            p.sortingData.teamNameNote +=
-                    "\n-> Primary group (&e" + p.getGroup() + "&r) is &a#" + position + "&r in sorting list.";
+            p.sortingData.teamNameNote += "\n-> Primary group (&e" + p.getGroup() + "&r) is &a#" + position
+                    + "&r in sorting list.";
+
         }
+
         return String.valueOf((char) (position + 47));
+
     }
+
 }

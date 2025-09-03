@@ -8,11 +8,11 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 public interface LoginPacketListener {
 
     /**
-     * Called after Login packet is received by the player to resend all
-     * scoreboard content as the packet has cleared it.
+     * Called after Login packet is received by the player to resend all scoreboard
+     * content as the packet has cleared it.
      *
-     * @param   player
-     *          Player who received the packet
+     * @param player Player who received the packet
      */
     void onLoginPacket(TabPlayer player);
+
 }

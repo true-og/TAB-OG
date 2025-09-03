@@ -15,10 +15,13 @@ public class SetDisplayObjective implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PacketPlayOutScoreboardDisplayObjective");
         out.writeInt(slot);
         out.writeUTF(objective);
         return out;
+
     }
+
 }

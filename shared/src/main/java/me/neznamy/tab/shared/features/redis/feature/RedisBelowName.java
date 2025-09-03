@@ -23,52 +23,60 @@ public class RedisBelowName extends RedisFeature {
     private final BelowName belowName;
 
     public RedisBelowName(@NotNull RedisSupport redisSupport, @NotNull BelowName belowName) {
+
         this.redisSupport = redisSupport;
         this.belowName = belowName;
         redisSupport.registerMessage("belowname", Update.class, Update::new);
+
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
+
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getScoreboard()
-                    .setScore(
-                            BelowName.OBJECTIVE_NAME,
-                            redis.getNickname(),
-                            redis.getBelowNameNumber(),
-                            null, // Unused by this objective slot
-                            redis.getBelowNameFancy());
+
+            player.getScoreboard().setScore(BelowName.OBJECTIVE_NAME, redis.getNickname(), redis.getBelowNameNumber(),
+                    null, // Unused by this objective slot
+                    redis.getBelowNameFancy());
+
         }
+
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
+
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            viewer.getScoreboard()
-                    .setScore(
-                            BelowName.OBJECTIVE_NAME,
-                            player.getNickname(),
-                            player.getBelowNameNumber(),
-                            null, // Unused by this objective slot
-                            player.getBelowNameFancy());
+
+            viewer.getScoreboard().setScore(BelowName.OBJECTIVE_NAME, player.getNickname(), player.getBelowNameNumber(),
+                    null, // Unused by this objective slot
+                    player.getBelowNameFancy());
+
         }
+
     }
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out, @NotNull TabPlayer player) {
+
         out.writeInt(belowName.getValue(player));
         out.writeUTF(player.getProperty(belowName.getFANCY_FORMAT_PROPERTY()).get());
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+
         player.setBelowNameNumber(in.readInt());
         player.setBelowNameFancy(TabComponent.optimized(in.readUTF()));
+
     }
 
     @Override
     public void onLoginPacket(@NotNull TabPlayer player) {
+
         onJoin(player);
+
     }
 
     @NoArgsConstructor
@@ -81,25 +89,34 @@ public class RedisBelowName extends RedisFeature {
 
         @Override
         public void write(@NotNull ByteArrayDataOutput out) {
+
             writeUUID(out, playerId);
             out.writeInt(value);
             out.writeUTF(fancyValue);
+
         }
 
         @Override
         public void read(@NotNull ByteArrayDataInput in) {
+
             playerId = readUUID(in);
             value = in.readInt();
             fancyValue = in.readUTF();
+
         }
 
         @Override
         public void process(@NotNull RedisSupport redisSupport) {
+
             RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-            if (target == null) return; // Print warn?
+            if (target == null)
+                return; // Print warn?
             target.setBelowNameNumber(value);
             target.setBelowNameFancy(TabComponent.optimized(fancyValue));
             onJoin(target);
+
         }
+
     }
+
 }

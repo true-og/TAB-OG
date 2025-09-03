@@ -13,15 +13,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An interface with methods that are called in universal code,
- * but require platform-specific API calls.
+ * An interface with methods that are called in universal code, but require
+ * platform-specific API calls.
  */
 public interface Platform {
 
     /**
      * Detects permission plugin and returns its representing object
      *
-     * @return  the interface representing the permission hook
+     * @return the interface representing the permission hook
      */
     @NotNull
     GroupManager detectPermissionPlugin();
@@ -29,18 +29,19 @@ public interface Platform {
     /**
      * Returns bossbar feature.
      *
-     * @return  bossbar feature
+     * @return bossbar feature
      */
     default @NotNull BossBarManagerImpl getBossBar() {
+
         return new BossBarManagerImpl();
+
     }
 
     /**
-     * Creates an instance of {@link me.neznamy.tab.api.placeholder.Placeholder}
-     * to handle this unknown placeholder (typically a PAPI placeholder)
+     * Creates an instance of {@link me.neznamy.tab.api.placeholder.Placeholder} to
+     * handle this unknown placeholder (typically a PAPI placeholder)
      *
-     * @param   identifier
-     *          placeholder's identifier
+     * @param identifier placeholder's identifier
      */
     void registerUnknownPlaceholder(@NotNull String identifier);
 
@@ -57,16 +58,16 @@ public interface Platform {
     /**
      * Creates pipeline injection instance and returns it
      *
-     * @return  new pipeline injection or null if not available
+     * @return new pipeline injection or null if not available
      */
     @Nullable
     PipelineInjector createPipelineInjector();
 
     /**
-     * Returns nametag handler when unlimited nametag mode is enabled
-     * in config file.
+     * Returns nametag handler when unlimited nametag mode is enabled in config
+     * file.
      *
-     * @return  Nametag feature handler for unlimited name tags
+     * @return Nametag feature handler for unlimited name tags
      */
     @NotNull
     NameTag getUnlimitedNameTags();
@@ -74,7 +75,7 @@ public interface Platform {
     /**
      * Creates tab expansion instance and returns it
      *
-     * @return  Created expansion
+     * @return Created expansion
      */
     @NotNull
     TabExpansion createTabExpansion();
@@ -82,7 +83,7 @@ public interface Platform {
     /**
      * Creates RedisSupport feature, registers listeners and returns it
      *
-     * @return  Created instance
+     * @return Created instance
      */
     @Nullable
     RedisSupport getRedisSupport();
@@ -90,7 +91,7 @@ public interface Platform {
     /**
      * Returns per world player list feature handler.
      *
-     * @return  Created feature or null if not available on platform
+     * @return Created feature or null if not available on platform
      */
     @Nullable
     TabFeature getPerWorldPlayerList();
@@ -99,24 +100,22 @@ public interface Platform {
      * Sends a console message with TAB's prefix using logger if available,
      * otherwise platform's method for sending console message.
      *
-     * @param   message
-     *          Message to send
+     * @param message Message to send
      */
     void logInfo(@NotNull TabComponent message);
 
     /**
-     * Sends a red console message with TAB's prefix using logger with warn type if available,
-     * otherwise platform's method for sending console message.
+     * Sends a red console message with TAB's prefix using logger with warn type if
+     * available, otherwise platform's method for sending console message.
      *
-     * @param   message
-     *          Message to send
+     * @param message Message to send
      */
     void logWarn(@NotNull TabComponent message);
 
     /**
      * Returns information about server version, which is displayed in debug command
      *
-     * @return  Server version information
+     * @return Server version information
      */
     String getServerVersionInfo();
 
@@ -133,39 +132,38 @@ public interface Platform {
     /**
      * Returns plugin's data folder for configuration files
      *
-     * @return  plugin's data folder
+     * @return plugin's data folder
      */
     File getDataFolder();
 
     /**
      * Returns {@code true} if this platform is a proxy, {@code false} if not.
      *
-     * @return  {@code true} if this platform is a proxy, {@code false} if not
+     * @return {@code true} if this platform is a proxy, {@code false} if not
      */
     boolean isProxy();
 
     /**
      * Converts TAB component into platform's component.
      *
-     * @param   component
-     *          Component to convert
-     * @param   modern
-     *          Whether clients supports RGB or not
-     * @return  Converted component
+     * @param component Component to convert
+     * @param modern    Whether clients supports RGB or not
+     * @return Converted component
      */
     Object convertComponent(@NotNull TabComponent component, boolean modern);
 
     /**
-     * Returns {@code true} if the viewer can see the target, {@code false} otherwise.
-     * This includes all vanish, permission & plugin API checks.
+     * Returns {@code true} if the viewer can see the target, {@code false}
+     * otherwise. This includes all vanish, permission & plugin API checks.
      *
-     * @param   viewer
-     *          Player who is viewing
-     * @param   target
-     *          Player who is being viewed
-     * @return  {@code true} if can see, {@code false} if not.
+     * @param viewer Player who is viewing
+     * @param target Player who is being viewed
+     * @return {@code true} if can see, {@code false} if not.
      */
     default boolean canSee(@NotNull TabPlayer viewer, @NotNull TabPlayer target) {
+
         return target.isVanished();
+
     }
+
 }

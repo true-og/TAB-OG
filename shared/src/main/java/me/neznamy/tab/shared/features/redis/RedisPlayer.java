@@ -70,31 +70,24 @@ public class RedisPlayer {
     /**
      * Constructs new instance with given parameters.
      *
-     * @param   uniqueId
-     *          Player's tablist UUID
-     * @param   name
-     *          Player's real name
-     * @param   nickname
-     *          Player's nickname in game profile
-     * @param   server
-     *          Player's server
-     * @param   vanished
-     *          Whether player is vanished or not
-     * @param   staff
-     *          Whether player has {@link Permission#STAFF} permission or not
+     * @param uniqueId Player's tablist UUID
+     * @param name     Player's real name
+     * @param nickname Player's nickname in game profile
+     * @param server   Player's server
+     * @param vanished Whether player is vanished or not
+     * @param staff    Whether player has {@link Permission#STAFF} permission or not
      */
-    public RedisPlayer(
-            @NotNull UUID uniqueId,
-            @NotNull String name,
-            @NotNull String nickname,
-            @NotNull String server,
-            boolean vanished,
-            boolean staff) {
+    public RedisPlayer(@NotNull UUID uniqueId, @NotNull String name, @NotNull String nickname, @NotNull String server,
+            boolean vanished, boolean staff)
+    {
+
         this.uniqueId = uniqueId;
         this.name = name;
         this.nickname = nickname;
         this.server = server;
         this.vanished = vanished;
         this.staff = staff;
+
     }
+
 }

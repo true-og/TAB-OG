@@ -12,6 +12,9 @@ public class UnnamedFormat1 implements RGBFormatter {
 
     @Override
     public @NotNull String reformat(@NotNull String text) {
+
         return text.contains(identifier) ? text.replace(identifier, "#") : text;
+
     }
+
 }

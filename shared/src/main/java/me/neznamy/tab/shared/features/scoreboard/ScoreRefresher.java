@@ -26,49 +26,54 @@ public class ScoreRefresher extends TabFeature implements Refreshable {
 
     @Override
     public void refresh(@NotNull TabPlayer refreshed, boolean force) {
-        if (!line.getParent().getPlayers().contains(refreshed)) return;
-        if (refreshed.getProperty(NUMBER_FORMAT_PROPERTY) == null) return; // Shrug
-        refreshed
-                .getScoreboard()
-                .setScore(
-                        ScoreboardManagerImpl.OBJECTIVE_NAME,
-                        line.getPlayerName(refreshed),
-                        line.getNumber(refreshed),
-                        null,
-                        getNumberFormat(refreshed));
+
+        if (!line.getParent().getPlayers().contains(refreshed))
+            return;
+        if (refreshed.getProperty(NUMBER_FORMAT_PROPERTY) == null)
+            return; // Shrug
+        refreshed.getScoreboard().setScore(ScoreboardManagerImpl.OBJECTIVE_NAME, line.getPlayerName(refreshed),
+                line.getNumber(refreshed), null, getNumberFormat(refreshed));
+
     }
 
     @Override
     @NotNull
     public String getRefreshDisplayName() {
+
         return "Updating NumberFormat";
+
     }
 
     /**
      * Registers properties for player.
      *
-     * @param   player
-     *          Player to register properties for
+     * @param player Player to register properties for
      */
     public void registerProperties(@NotNull TabPlayer player) {
+
         player.setProperty(this, NUMBER_FORMAT_PROPERTY, numberFormat);
+
     }
 
     /**
      * Returns new number format value for specified player.
      *
-     * @param   player
-     *          Player to get number format for
-     * @return  New number format based on current placeholder results
+     * @param player Player to get number format for
+     * @return New number format based on current placeholder results
      */
     @Nullable
     public TabComponent getNumberFormat(@NotNull TabPlayer player) {
+
         return TabComponent.optimized(player.getProperty(NUMBER_FORMAT_PROPERTY).updateAndGet());
+
     }
 
     @Override
     @NotNull
     public String getFeatureName() {
+
         return line.getFeatureName();
+
     }
+
 }

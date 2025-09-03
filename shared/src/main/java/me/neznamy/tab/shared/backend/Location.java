@@ -18,4 +18,5 @@ public class Location {
 
     /** Z position */
     private double z;
+
 }

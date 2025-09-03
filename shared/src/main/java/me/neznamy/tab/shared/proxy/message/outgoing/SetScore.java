@@ -18,26 +18,36 @@ public class SetScore implements OutgoingMessage {
     private String numberFormat;
 
     public SetScore(String objective, String scoreHolder) {
+
         this.objective = objective;
         this.scoreHolder = scoreHolder;
         action = Scoreboard.ScoreAction.REMOVE;
+
     }
 
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PacketPlayOutScoreboardScore");
         out.writeUTF(objective);
         out.writeInt(action);
         out.writeUTF(scoreHolder);
         if (action == 0) {
+
             out.writeInt(score);
             out.writeBoolean(displayName != null);
-            if (displayName != null) out.writeUTF(displayName);
+            if (displayName != null)
+                out.writeUTF(displayName);
             out.writeBoolean(numberFormat != null);
-            if (numberFormat != null) out.writeUTF(numberFormat);
+            if (numberFormat != null)
+                out.writeUTF(numberFormat);
+
         }
+
         return out;
+
     }
+
 }

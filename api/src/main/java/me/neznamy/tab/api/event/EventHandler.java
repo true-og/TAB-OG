@@ -1,8 +1,8 @@
 package me.neznamy.tab.api.event;
 
 /**
- * A handler for an event. This allows listening for events in a more
- * functional style.
+ * A handler for an event. This allows listening for events in a more functional
+ * style.
  *
  * @param <E> the type of event this handler handles
  */
@@ -15,4 +15,5 @@ public interface EventHandler<E> {
      * @param event the event to handle
      */
     void handle(E event);
+
 }

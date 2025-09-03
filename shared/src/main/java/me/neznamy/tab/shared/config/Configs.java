@@ -30,8 +30,8 @@ public class Configs {
             getClass().getClassLoader().getResourceAsStream("config/config.yml"),
             new File(TAB.getInstance().getDataFolder(), "config.yml"));
 
-    private final boolean bukkitPermissions =
-            TAB.getInstance().getPlatform().isProxy() && config.getBoolean("use-bukkit-permissions-manager", false);
+    private final boolean bukkitPermissions = TAB.getInstance().getPlatform().isProxy()
+            && config.getBoolean("use-bukkit-permissions-manager", false);
     private final boolean debugMode = config.getBoolean("debug", false);
     private final boolean onlineUuidInTabList = config.getBoolean("use-online-uuid-in-tablist", true);
     private final boolean pipelineInjection = getSecretOption("pipeline-injection", true);
@@ -56,15 +56,14 @@ public class Configs {
     private MySQL mysql;
 
     /**
-     * Constructs new instance and loads configuration files.
-     * If needed, converts old configuration files as well.
+     * Constructs new instance and loads configuration files. If needed, converts
+     * old configuration files as well.
      *
-     * @throws  IOException
-     *          if File I/O operation fails
-     * @throws  YAMLException
-     *          if files contain syntax errors
+     * @throws IOException   if File I/O operation fails
+     * @throws YAMLException if files contain syntax errors
      */
     public Configs() throws IOException {
+
         Converter converter = new Converter();
         converter.convert2810to290(animationFile);
         converter.convert292to300(config);
@@ -74,111 +73,156 @@ public class Configs {
         converter.convert403to404(config);
         converter.convert409to410(config);
         if (config.getBoolean("mysql.enabled", false)) {
+
             try {
-                // Initialization to try to avoid java.sql.SQLException: No suitable driver found
+
+                // Initialization to try to avoid java.sql.SQLException: No suitable driver
+                // found
                 try {
+
                     Class.forName("com.mysql.cj.jdbc.Driver");
+
                 } catch (ClassNotFoundException e) {
+
                     Class.forName("com.mysql.jdbc.Driver");
+
                 }
-                mysql = new MySQL(
-                        config.getString("mysql.host", "127.0.0.1"),
-                        config.getInt("mysql.port", 3306),
-                        config.getString("mysql.database", "tab"),
-                        config.getString("mysql.username", "user"),
-                        config.getString("mysql.password", "password"),
-                        config.getBoolean("mysql.useSSL", true));
+
+                mysql = new MySQL(config.getString("mysql.host", "127.0.0.1"), config.getInt("mysql.port", 3306),
+                        config.getString("mysql.database", "tab"), config.getString("mysql.username", "user"),
+                        config.getString("mysql.password", "password"), config.getBoolean("mysql.useSSL", true));
                 mysql.openConnection();
                 groups = new MySQLGroupConfiguration(mysql);
                 users = new MySQLUserConfiguration(mysql);
                 return;
+
             } catch (SQLException | ClassNotFoundException e) {
+
                 TAB.getInstance().getErrorManager().mysqlConnectionFailed(e);
+
             }
+
         }
-        groups = new YamlPropertyConfigurationFile(
-                getClass().getClassLoader().getResourceAsStream("config/groups.yml"),
+
+        groups = new YamlPropertyConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/groups.yml"),
                 new File(TAB.getInstance().getDataFolder(), "groups.yml"));
-        users = new YamlPropertyConfigurationFile(
-                getClass().getClassLoader().getResourceAsStream("config/users.yml"),
+        users = new YamlPropertyConfigurationFile(getClass().getClassLoader().getResourceAsStream("config/users.yml"),
                 new File(TAB.getInstance().getDataFolder(), "users.yml"));
-        TAB.getInstance()
-                .getConfigHelper()
-                .hint()
+        TAB.getInstance().getConfigHelper().hint()
                 .checkForRedundantElseReplacement(config.getConfigurationSection("placeholder-output-replacements"));
+
     }
 
     /**
-     * Returns value of hidden config option with specified path if it exists, defaultValue otherwise
+     * Returns value of hidden config option with specified path if it exists,
+     * defaultValue otherwise
      *
-     * @param   path
-     *          path to value
-     * @param   defaultValue
-     *          value to return if option is not present in file
-     * @return  value with specified path or default value if not present
+     * @param path         path to value
+     * @param defaultValue value to return if option is not present in file
+     * @return value with specified path or default value if not present
      */
     @SuppressWarnings("unchecked")
     public @NotNull <T> T getSecretOption(@NotNull String path, @NotNull T defaultValue) {
+
         Object value = config.getObject(path);
         return value == null ? defaultValue : (T) value;
+
     }
 
     public ConfigurationFile getPlayerDataFile() {
+
         if (playerdata == null) {
+
             File file = new File(TAB.getInstance().getDataFolder(), "playerdata.yml");
             try {
+
                 if (file.exists() || file.createNewFile()) {
+
                     playerdata = new YamlConfigurationFile(null, file);
+
                 }
+
             } catch (IOException e) {
+
                 TAB.getInstance().getErrorManager().criticalError("Failed to load playerdata.yml", e);
+
             }
+
         }
+
         return playerdata;
+
     }
 
     public String getGroup(@NotNull List<Object> serverGroups, @Nullable String element) {
-        if (serverGroups.isEmpty() || element == null) return element;
+
+        if (serverGroups.isEmpty() || element == null)
+            return element;
         for (Object worldGroup : serverGroups) {
+
             for (String definedWorld : worldGroup.toString().split(";")) {
+
                 if (definedWorld.endsWith("*")) {
+
                     if (element.toLowerCase()
-                            .startsWith(definedWorld
-                                    .substring(0, definedWorld.length() - 1)
-                                    .toLowerCase())) return worldGroup.toString();
+                            .startsWith(definedWorld.substring(0, definedWorld.length() - 1).toLowerCase()))
+                        return worldGroup.toString();
+
                 } else if (definedWorld.startsWith("*")) {
+
                     if (element.toLowerCase().endsWith(definedWorld.substring(1).toLowerCase()))
                         return worldGroup.toString();
+
                 } else {
-                    if (element.equalsIgnoreCase(definedWorld)) return worldGroup.toString();
+
+                    if (element.equalsIgnoreCase(definedWorld))
+                        return worldGroup.toString();
+
                 }
+
             }
+
         }
+
         return element;
+
     }
 
     public String getServerGroup(@NotNull List<Object> serverGroups, @Nullable String server) {
+
         String globalGroup = tryServerGroup(serverGroups, server);
-        if (globalGroup != null) return globalGroup;
+        if (globalGroup != null)
+            return globalGroup;
 
         // Use existing logic to check config key for server group (separated by ';')
         return getGroup(serverGroups, server);
+
     }
 
     private @Nullable String tryServerGroup(@NotNull List<Object> serverGroups, @Nullable String server) {
-        if (serverGroups.isEmpty() || server == null) return null;
+
+        if (serverGroups.isEmpty() || server == null)
+            return null;
 
         // Check global-playerlist server-groups for this server
         FeatureManager featureManager = TAB.getInstance().getFeatureManager();
-        if (!featureManager.isFeatureEnabled(TabConstants.Feature.GLOBAL_PLAYER_LIST)) return null;
+        if (!featureManager.isFeatureEnabled(TabConstants.Feature.GLOBAL_PLAYER_LIST))
+            return null;
 
         GlobalPlayerList t = featureManager.getFeature(TabConstants.Feature.GLOBAL_PLAYER_LIST);
-        if (t == null) return null;
+        if (t == null)
+            return null;
 
         String globalGroup = t.getServerGroup(server);
         for (Object serverGroup : serverGroups) {
-            if (globalGroup.equals(serverGroup.toString())) return globalGroup;
+
+            if (globalGroup.equals(serverGroup.toString()))
+                return globalGroup;
+
         }
+
         return null;
+
     }
+
 }

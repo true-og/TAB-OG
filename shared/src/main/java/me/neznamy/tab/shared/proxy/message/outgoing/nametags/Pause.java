@@ -11,9 +11,12 @@ public class Pause implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("NameTagX");
         out.writeUTF("Pause");
         return out;
+
     }
+
 }

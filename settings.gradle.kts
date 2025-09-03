@@ -1,4 +1,13 @@
+// settings.gradle.kts
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+pluginManagement {
+    repositories {
+        maven("https://repo.spongepowered.org/repository/maven-public/")
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 
 dependencyResolutionManagement {
     repositories {
@@ -14,17 +23,7 @@ dependencyResolutionManagement {
     }
 }
 
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        maven("https://repo.spongepowered.org/repository/maven-public/")
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
-
 rootProject.name = "TAB-OG"
-
 
 ProcessBuilder("sh", "bootstrap.sh").directory(rootDir).inheritIO().start().let {
     if (it.waitFor() != 0) throw GradleException("bootstrap.sh failed")
@@ -37,9 +36,3 @@ file("libs")
         include(":libs:${dir.name}")
         project(":libs:${dir.name}").projectDir = dir
     }
-
-include(":api")
-include(":shared")
-include(":bukkit")
-include(":jar")
-

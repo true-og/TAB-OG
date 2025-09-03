@@ -9,4 +9,5 @@ public interface UnLoadable {
      * Called on plugin unload.
      */
     void unload();
+
 }

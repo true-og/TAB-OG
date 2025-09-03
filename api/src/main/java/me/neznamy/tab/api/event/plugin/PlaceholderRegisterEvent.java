@@ -9,15 +9,15 @@ import me.neznamy.tab.api.event.TabEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when an unknown placeholder is about to be registered.
- * It defaults to a PlaceholderAPI implementation, but can be overridden.
+ * Called when an unknown placeholder is about to be registered. It defaults to
+ * a PlaceholderAPI implementation, but can be overridden.
  */
 public interface PlaceholderRegisterEvent extends TabEvent {
 
     /**
      * Returns placeholder identifier starting and ending with {@code %}
      *
-     * @return  placeholder identifier starting and ending with {@code %}
+     * @return placeholder identifier starting and ending with {@code %}
      */
     @NotNull
     String getIdentifier();
@@ -25,24 +25,22 @@ public interface PlaceholderRegisterEvent extends TabEvent {
     /**
      * Sets placeholder to specified server placeholder implementation.
      *
-     * @param   supplier
-     *          Placeholder replacer
+     * @param supplier Placeholder replacer
      */
     void setServerPlaceholder(@NonNull Supplier<Object> supplier);
 
     /**
      * Sets placeholder to specified player placeholder implementation.
      *
-     * @param   function
-     *          Placeholder replacer
+     * @param function Placeholder replacer
      */
     void setPlayerPlaceholder(@NonNull Function<TabPlayer, Object> function);
 
     /**
      * Sets placeholder to specified relational placeholder implementation.
      *
-     * @param   function
-     *          Placeholder replacer
+     * @param function Placeholder replacer
      */
     void setRelationalPlaceholder(@NonNull BiFunction<TabPlayer, TabPlayer, Object> function);
+
 }

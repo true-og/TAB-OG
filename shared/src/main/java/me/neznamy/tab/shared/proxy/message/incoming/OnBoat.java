@@ -10,11 +10,16 @@ public class OnBoat implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         onBoat = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         player.setOnBoat(onBoat);
+
     }
+
 }

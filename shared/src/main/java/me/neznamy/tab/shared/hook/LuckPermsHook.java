@@ -27,56 +27,69 @@ public class LuckPermsHook {
 
     /** Function retrieving group of player from LuckPerms */
     private final Function<TabPlayer, String> groupFunction = p -> {
+
         User user = LuckPermsProvider.get().getUserManager().getUser(p.getUniqueId());
-        if (user == null) return TabConstants.NO_GROUP;
+        if (user == null)
+            return TabConstants.NO_GROUP;
         return user.getPrimaryGroup();
+
     };
 
     /**
      * Returns player's prefix configured in LuckPerms
      *
-     * @param   p
-     *          Player to get prefix of
-     * @return  Player's prefix
+     * @param p Player to get prefix of
+     * @return Player's prefix
      */
     public String getPrefix(@NonNull TabPlayer p) {
+
         return getValue(p, true);
+
     }
 
     /**
      * Returns player's suffix configured in LuckPerms
      *
-     * @param   p
-     *          Player to get suffix of
-     * @return  Player's suffix
+     * @param p Player to get suffix of
+     * @return Player's suffix
      */
     public String getSuffix(@NonNull TabPlayer p) {
+
         return getValue(p, false);
+
     }
 
     /**
-     * Returns player's metadata value based on entered boolean flag,
-     * {@code true} for prefix, {@code false} for suffix.
+     * Returns player's metadata value based on entered boolean flag, {@code true}
+     * for prefix, {@code false} for suffix.
      *
-     * @param   p
-     *          Player to get metadata value of
-     * @param   prefix
-     *          {@code true} if prefix should be returned, {@code false} if suffix
-     * @return  Player's metadata value
+     * @param p      Player to get metadata value of
+     * @param prefix {@code true} if prefix should be returned, {@code false} if
+     *               suffix
+     * @return Player's metadata value
      */
     private String getValue(@NonNull TabPlayer p, boolean prefix) {
+
         User user = LuckPermsProvider.get().getUserManager().getUser(p.getUniqueId());
-        if (user == null) return "";
-        Optional<QueryOptions> options =
-                LuckPermsProvider.get().getContextManager().getQueryOptions(user);
-        if (!options.isPresent()) return "";
+        if (user == null)
+            return "";
+        Optional<QueryOptions> options = LuckPermsProvider.get().getContextManager().getQueryOptions(user);
+        if (!options.isPresent())
+            return "";
         CachedMetaData data = user.getCachedData().getMetaData(options.get());
         String value;
         if (prefix) {
+
             value = data.getPrefix();
+
         } else {
+
             value = data.getSuffix();
+
         }
+
         return value == null ? "" : value;
+
     }
+
 }

@@ -17,4 +17,5 @@ public class GroupPattern {
     private final Condition condition;
 
     private final int[] slots;
+
 }

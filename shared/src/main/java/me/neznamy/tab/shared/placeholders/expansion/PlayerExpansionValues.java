@@ -10,4 +10,5 @@ public class PlayerExpansionValues {
 
     /** Map of placeholder values */
     public final Map<String, String> values = new HashMap<>();
+
 }

@@ -9,4 +9,5 @@ public interface IncomingMessage {
     void read(@NotNull ByteArrayDataInput in);
 
     void process(@NotNull ProxyTabPlayer player);
+
 }

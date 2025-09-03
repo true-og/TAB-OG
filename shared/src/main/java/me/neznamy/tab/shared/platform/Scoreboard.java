@@ -13,10 +13,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Scoreboard class for sending scoreboard-related packets.
- * @param   <T>
- *          Platform's TabPlayer class
- * @param   <C>
- *          Platform's component class
+ * 
+ * @param <T> Platform's TabPlayer class
+ * @param <C> Platform's component class
  */
 @RequiredArgsConstructor
 public abstract class Scoreboard<T extends TabPlayer, C> {
@@ -53,314 +52,318 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
     /**
      * Sets display slot of an objective.
      *
-     * @param   slot
-     *          Objective slot: 0 = playerlist, 1 = sidebar, 2 = belowname
-     * @param   objective
-     *          Objective name
+     * @param slot      Objective slot: 0 = playerlist, 1 = sidebar, 2 = belowname
+     * @param objective Objective name
      */
     public final void setDisplaySlot(int slot, @NonNull String objective) {
-        if (frozen) return;
+
+        if (frozen)
+            return;
         setDisplaySlot0(slot, objective);
+
     }
 
     /**
      * Sets score of a holder to specified value.
      *
-     * @param   objective
-     *          Objective to set score on
-     * @param   scoreHolder
-     *          Name of score holder
-     * @param   score
-     *          Numeric score value
-     * @param   displayName
-     *          Display name of score holder (1.20.3+)
-     * @param   numberFormat
-     *          Number format of score value (1.20.3+)
+     * @param objective    Objective to set score on
+     * @param scoreHolder  Name of score holder
+     * @param score        Numeric score value
+     * @param displayName  Display name of score holder (1.20.3+)
+     * @param numberFormat Number format of score value (1.20.3+)
      */
-    public final void setScore(
-            @NonNull String objective,
-            @NonNull String scoreHolder,
-            int score,
-            @Nullable TabComponent displayName,
-            @Nullable TabComponent numberFormat) {
-        if (frozen) return;
+    public final void setScore(@NonNull String objective, @NonNull String scoreHolder, int score,
+            @Nullable TabComponent displayName, @Nullable TabComponent numberFormat)
+    {
+
+        if (frozen)
+            return;
         if (!registeredObjectives.contains(objective)) {
-            error(
-                    "Tried to update score (%s) without the existence of its requested objective '%s' to player ",
+
+            error("Tried to update score (%s) without the existence of its requested objective '%s' to player ",
                     scoreHolder, objective);
             return;
+
         }
-        setScore0(
-                objective,
-                scoreHolder,
-                score,
-                displayName == null ? null : displayName.convert(player.getVersion()),
+
+        setScore0(objective, scoreHolder, score, displayName == null ? null : displayName.convert(player.getVersion()),
                 numberFormat == null ? null : numberFormat.convert(player.getVersion()));
+
     }
 
     /**
      * Removes score from specified objective.
      *
-     * @param   objective
-     *          Objective to remove score from
-     * @param   scoreHolder
-     *          Name of score holder to remove score of
+     * @param objective   Objective to remove score from
+     * @param scoreHolder Name of score holder to remove score of
      */
     public final void removeScore(@NonNull String objective, @NonNull String scoreHolder) {
-        if (frozen) return;
+
+        if (frozen)
+            return;
         if (!registeredObjectives.contains(objective)) {
-            error(
-                    "Tried to remove score (%s) without the existence of its requested objective '%s' to player ",
+
+            error("Tried to remove score (%s) without the existence of its requested objective '%s' to player ",
                     scoreHolder, objective);
             return;
+
         }
+
         removeScore0(objective, scoreHolder);
+
     }
 
     /**
      * Registers new scoreboard objective.
      *
-     * @param   objectiveName
-     *          Objective name
-     * @param   title
-     *          Objective title
-     * @param   display
-     *          Display type: 0 = integer, 1 = hearts
-     * @param   numberFormat
-     *          Default number format for all scores in this objective (1.20.3+)
+     * @param objectiveName Objective name
+     * @param title         Objective title
+     * @param display       Display type: 0 = integer, 1 = hearts
+     * @param numberFormat  Default number format for all scores in this objective
+     *                      (1.20.3+)
      */
-    public final void registerObjective(
-            @NonNull String objectiveName, @NonNull String title, int display, @Nullable TabComponent numberFormat) {
-        if (frozen) return;
+    public final void registerObjective(@NonNull String objectiveName, @NonNull String title, int display,
+            @Nullable TabComponent numberFormat)
+    {
+
+        if (frozen)
+            return;
         if (!registeredObjectives.add(objectiveName)) {
+
             error("Tried to register duplicated objective %s to player ", objectiveName);
             return;
+
         }
-        registerObjective0(
-                objectiveName,
-                cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
-                display,
+
+        registerObjective0(objectiveName, cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13), display,
                 numberFormat == null ? null : numberFormat.convert(player.getVersion()));
+
     }
 
     /**
      * Unregisters scoreboard objective.
      *
-     * @param   objectiveName
-     *          Objective name
+     * @param objectiveName Objective name
      */
     public final void unregisterObjective(@NonNull String objectiveName) {
-        if (frozen) return;
+
+        if (frozen)
+            return;
         if (!registeredObjectives.remove(objectiveName)) {
+
             error("Tried to unregister non-existing objective %s for player ", objectiveName);
             return;
+
         }
+
         unregisterObjective0(objectiveName);
+
     }
 
     /**
      * Updates objective properties.
      *
-     * @param   objectiveName
-     *          Objective name
-     * @param   title
-     *          New objective title
-     * @param   display
-     *          New objective display type: 0 = integer, 1 = hearts
-     * @param   numberFormat
-     *          New default number format for all scores
+     * @param objectiveName Objective name
+     * @param title         New objective title
+     * @param display       New objective display type: 0 = integer, 1 = hearts
+     * @param numberFormat  New default number format for all scores
      */
-    public final void updateObjective(
-            @NonNull String objectiveName, @NonNull String title, int display, @Nullable TabComponent numberFormat) {
-        if (frozen) return;
+    public final void updateObjective(@NonNull String objectiveName, @NonNull String title, int display,
+            @Nullable TabComponent numberFormat)
+    {
+
+        if (frozen)
+            return;
         if (!registeredObjectives.contains(objectiveName)) {
+
             error("Tried to modify non-existing objective %s for player ", objectiveName);
             return;
+
         }
-        updateObjective0(
-                objectiveName,
-                cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
-                display,
+
+        updateObjective0(objectiveName, cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13), display,
                 numberFormat == null ? null : numberFormat.convert(player.getVersion()));
+
     }
 
     /**
      * Registers new team into the scoreboard.
      *
-     * @param   name
-     *          Team name
-     * @param   prefix
-     *          Team prefix
-     * @param   suffix
-     *          Team suffix
-     * @param   visibility
-     *          Team nametag visibility
-     * @param   collision
-     *          Team collision rule
-     * @param   players
-     *          Players to add to the team
-     * @param   options
-     *          Team options:
-     *              0x01 - Allow friendly fire
-     *              0x02 - Can see friendly invisibles
-     * @param   color
-     *          Team color (name color and prefix/suffix color start)
+     * @param name       Team name
+     * @param prefix     Team prefix
+     * @param suffix     Team suffix
+     * @param visibility Team nametag visibility
+     * @param collision  Team collision rule
+     * @param players    Players to add to the team
+     * @param options    Team options: 0x01 - Allow friendly fire 0x02 - Can see
+     *                   friendly invisibles
+     * @param color      Team color (name color and prefix/suffix color start)
      */
-    public final void registerTeam(
-            @NonNull String name,
-            @NonNull String prefix,
-            @NonNull String suffix,
-            @NonNull NameVisibility visibility,
-            @NonNull CollisionRule collision,
-            @NonNull Collection<String> players,
-            int options,
-            @NonNull EnumChatFormat color) {
-        if (frozen) return;
+    public final void registerTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
+            @NonNull NameVisibility visibility, @NonNull CollisionRule collision, @NonNull Collection<String> players,
+            int options, @NonNull EnumChatFormat color)
+    {
+
+        if (frozen)
+            return;
         if (!registeredTeams.add(name)) {
+
             error("Tried to register duplicated team %s to player ", name);
             return;
+
         }
+
         for (String player : players) {
+
             expectedTeams.put(player, name);
+
         }
-        registerTeam0(
-                name,
-                cutTo(prefix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
-                cutTo(suffix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
-                visibility,
-                collision,
-                players,
-                options,
-                color);
+
+        registerTeam0(name, cutTo(prefix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
+                cutTo(suffix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13), visibility, collision, players, options, color);
+
     }
 
     /**
      * Unregisters team from the scoreboard.
      *
-     * @param   teamName
-     *          Team name
+     * @param teamName Team name
      */
     public final void unregisterTeam(@NonNull String teamName) {
-        if (frozen) return;
+
+        if (frozen)
+            return;
         if (!registeredTeams.remove(teamName)) {
+
             error("Tried to unregister non-existing team %s for player ", teamName);
             return;
+
         }
+
         for (Map.Entry<String, String> entry : expectedTeams.entrySet()) {
+
             if (entry.getValue().equals(teamName)) {
+
                 expectedTeams.remove(entry.getKey());
                 break;
+
             }
+
         }
+
         unregisterTeam0(teamName);
+
     }
 
     /**
      * Updates team properties.
      *
-     * @param   name
-     *          Team name
-     * @param   prefix
-     *          New team prefix
-     * @param   suffix
-     *          New team suffix
-     * @param   visibility
-     *          New team nametag visibility
-     * @param   collision
-     *          New team collision rule
-     * @param   options
-     *          New team options:
-     *              0x01 - Allow friendly fire
-     *              0x02 - Can see friendly invisibles
-     * @param   color
-     *          New team color (name color and prefix/suffix color start)
+     * @param name       Team name
+     * @param prefix     New team prefix
+     * @param suffix     New team suffix
+     * @param visibility New team nametag visibility
+     * @param collision  New team collision rule
+     * @param options    New team options: 0x01 - Allow friendly fire 0x02 - Can see
+     *                   friendly invisibles
+     * @param color      New team color (name color and prefix/suffix color start)
      */
-    public final void updateTeam(
-            @NonNull String name,
-            @NonNull String prefix,
-            @NonNull String suffix,
-            @NonNull NameVisibility visibility,
-            @NonNull CollisionRule collision,
-            int options,
-            @NonNull EnumChatFormat color) {
-        if (frozen) return;
+    public final void updateTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
+            @NonNull NameVisibility visibility, @NonNull CollisionRule collision, int options,
+            @NonNull EnumChatFormat color)
+    {
+
+        if (frozen)
+            return;
         if (!registeredTeams.contains(name)) {
+
             error("Tried to modify non-existing team %s for player ", name);
             return;
+
         }
-        updateTeam0(
-                name,
-                cutTo(prefix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
-                cutTo(suffix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
-                visibility,
-                collision,
-                options,
-                color);
+
+        updateTeam0(name, cutTo(prefix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13),
+                cutTo(suffix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13), visibility, collision, options, color);
+
     }
 
     /**
      * Prints a debug message if attempted to perform an invalid operation.
      *
-     * @param   format
-     *          Message format
-     * @param   args
-     *          Format arguments
+     * @param format Message format
+     * @param args   Format arguments
      */
     private void error(@NonNull String format, @NonNull Object... args) {
+
         TAB.getInstance().debug(String.format(format, args) + player.getName());
+
     }
 
     /**
      * Marks for freeze. While frozen, no packets will be sent.
      */
     public void freeze() {
+
         frozen = true;
+
     }
 
     /**
      * Clears frozen flag and clears maps of registered teams and objectives.
      */
     public void unfreeze() {
+
         registeredTeams.clear();
         registeredObjectives.clear();
         frozen = false;
+
     }
 
     /**
-     * Cuts given string to specified character length (or length-1 if last character is a color character)
-     * and translates RGB to legacy colors. If string is not that long, the original string is returned.
-     * RGB codes are converted into legacy, since cutting is only needed for &lt;1.13.
-     * If {@code string} is {@code null}, empty string is returned.
+     * Cuts given string to specified character length (or length-1 if last
+     * character is a color character) and translates RGB to legacy colors. If
+     * string is not that long, the original string is returned. RGB codes are
+     * converted into legacy, since cutting is only needed for &lt;1.13. If
+     * {@code string} is {@code null}, empty string is returned.
      *
-     * @param   string
-     *          String to cut
-     * @param   length
-     *          Length to cut to
-     * @return  string cut to {@code length} characters
+     * @param string String to cut
+     * @param length Length to cut to
+     * @return string cut to {@code length} characters
      */
     private String cutTo(@Nullable String string, int length) {
-        if (player.getVersion().getMinorVersion() >= 13) return string;
-        if (string == null) return "";
+
+        if (player.getVersion().getMinorVersion() >= 13)
+            return string;
+        if (string == null)
+            return "";
         String legacyText = string;
         if (string.contains("#")) {
+
             // converting RGB to legacy colors
             legacyText = RGBUtils.getInstance().convertRGBtoLegacy(string);
+
         }
-        if (legacyText.length() <= length) return legacyText;
+
+        if (legacyText.length() <= length)
+            return legacyText;
         if (legacyText.charAt(length - 1) == EnumChatFormat.COLOR_CHAR) {
+
             return legacyText.substring(0, length - 1); // cutting one extra character to prevent prefix ending with "&"
+
         } else {
+
             return legacyText.substring(0, length);
+
         }
+
     }
 
     /**
      * Processes packet send.
      *
-     * @param   packet
-     *          Packet sent by the server
+     * @param packet Packet sent by the server
      */
     public void onPacketSend(@NonNull Object packet) {
+
         // Implemented by platforms with pipeline injection
     }
 
@@ -368,138 +371,148 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
      * Returns {@code true} if this scoreboard contains team with specified name,
      * {@code false} if not.
      *
-     * @param   teamName
-     *          Name of team to check
-     * @return  {@code true} if scoreboard contains the team, {@code false} if not
+     * @param teamName Name of team to check
+     * @return {@code true} if scoreboard contains the team, {@code false} if not
      */
     public boolean containsTeam(@NonNull String teamName) {
+
         return registeredTeams.contains(teamName);
+
     }
 
     /**
-     * Checks if team contains a player who should belong to a different team and if override attempt was detected,
-     * sends a warning and removes player from the collection.
+     * Checks if team contains a player who should belong to a different team and if
+     * override attempt was detected, sends a warning and removes player from the
+     * collection.
      *
-     * @param   action
-     *          Team packet action
-     * @param   teamName
-     *          Team name in the packet
-     * @param   players
-     *          Players in the packet
-     * @return  Modified collection of players
+     * @param action   Team packet action
+     * @param teamName Team name in the packet
+     * @param players  Players in the packet
+     * @return Modified collection of players
      */
     @NotNull
     public Collection<String> onTeamPacket(int action, @NonNull String teamName, @NonNull Collection<String> players) {
+
         Collection<String> newList = new ArrayList<>();
         if (action == TeamAction.CREATE || action == TeamAction.ADD_PLAYER) {
+
             for (String entry : players) {
+
                 String expectedTeam = expectedTeams.get(entry);
                 if (expectedTeam == null) {
+
                     blockedTeamAdds.remove(entry);
                     allowedTeamAdds.put(entry, teamName);
                     newList.add(entry);
                     continue;
+
                 }
+
                 if (teamName.equals(expectedTeam)) {
+
                     newList.add(entry);
                     allowedTeamAdds.remove(entry);
+
                 } else {
+
                     blockedTeamAdds.put(entry, teamName);
                     logTeamOverride(teamName, entry, expectedTeam);
+
                 }
+
             }
+
             return newList;
+
         }
+
         if (action == TeamAction.REMOVE_PLAYER) {
+
             // TAB does not send remove player, making checks easier
             for (String entry : players) {
+
                 String expectedTeam = expectedTeams.get(entry);
                 if (expectedTeam != null) {
+
                     allowedTeamAdds.remove(entry);
                     blockedTeamAdds.remove(entry);
                     continue;
+
                 }
+
                 if (allowedTeamAdds.containsKey(entry)) {
+
                     allowedTeamAdds.remove(entry);
                     newList.add(entry);
                     continue;
+
                 }
+
                 blockedTeamAdds.remove(entry);
+
             }
+
             return newList;
+
         }
+
         if (action == TeamAction.REMOVE) {
+
             allowedTeamAdds.entrySet().removeIf(entry -> entry.getValue().equals(teamName));
             blockedTeamAdds.entrySet().removeIf(entry -> entry.getValue().equals(teamName));
+
         }
+
         return players;
+
     }
 
     /**
-     * Logs a message into anti-override log when blocking attempt to add
-     * a player into a team.
+     * Logs a message into anti-override log when blocking attempt to add a player
+     * into a team.
      *
-     * @param   team
-     *          Team name from another source
-     * @param   player
-     *          Player who was about to be added into the team
-     * @param   expectedTeam
-     *          Expected team
+     * @param team         Team name from another source
+     * @param player       Player who was about to be added into the team
+     * @param expectedTeam Expected team
      */
     public static void logTeamOverride(@NonNull String team, @NonNull String player, @NonNull String expectedTeam) {
+
         String message = "Blocked attempt to add player " + player + " into team " + team + " (expected team: "
                 + expectedTeam + ")";
         // not logging the same message for every online player who received the packet
         if (!message.equals(lastTeamOverrideMessage)) {
+
             lastTeamOverrideMessage = message;
-            TAB.getInstance()
-                    .getErrorManager()
-                    .printError(
-                            message,
-                            Collections.emptyList(),
-                            false,
-                            TAB.getInstance().getErrorManager().getAntiOverrideLog());
+            TAB.getInstance().getErrorManager().printError(message, Collections.emptyList(), false,
+                    TAB.getInstance().getErrorManager().getAntiOverrideLog());
+
         }
+
     }
 
     protected abstract void setDisplaySlot0(int slot, @NonNull String objective);
 
-    protected abstract void setScore0(
-            @NonNull String objective,
-            @NonNull String scoreHolder,
-            int score,
-            @Nullable C displayName,
-            @Nullable C numberFormat);
+    protected abstract void setScore0(@NonNull String objective, @NonNull String scoreHolder, int score,
+            @Nullable C displayName, @Nullable C numberFormat);
 
     protected abstract void removeScore0(@NonNull String objective, @NonNull String scoreHolder);
 
-    protected abstract void registerObjective0(
-            @NonNull String objectiveName, @NonNull String title, int display, @Nullable C numberFormat);
+    protected abstract void registerObjective0(@NonNull String objectiveName, @NonNull String title, int display,
+            @Nullable C numberFormat);
 
     protected abstract void unregisterObjective0(@NonNull String objectiveName);
 
-    protected abstract void updateObjective0(
-            @NonNull String objectiveName, @NonNull String title, int display, @Nullable C numberFormat);
+    protected abstract void updateObjective0(@NonNull String objectiveName, @NonNull String title, int display,
+            @Nullable C numberFormat);
 
-    protected abstract void registerTeam0(
-            @NonNull String name,
-            @NonNull String prefix,
-            @NonNull String suffix,
-            @NonNull NameVisibility visibility,
-            @NonNull CollisionRule collision,
-            @NonNull Collection<String> players,
-            int options,
-            @NonNull EnumChatFormat color);
+    protected abstract void registerTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
+            @NonNull NameVisibility visibility, @NonNull CollisionRule collision, @NonNull Collection<String> players,
+            int options, @NonNull EnumChatFormat color);
 
     protected abstract void unregisterTeam0(@NonNull String name);
 
-    protected abstract void updateTeam0(
-            @NonNull String name,
-            @NonNull String prefix,
-            @NonNull String suffix,
-            @NonNull NameVisibility visibility,
-            @NonNull CollisionRule collision,
-            int options,
+    protected abstract void updateTeam0(@NonNull String name, @NonNull String prefix, @NonNull String suffix,
+            @NonNull NameVisibility visibility, @NonNull CollisionRule collision, int options,
             @NonNull EnumChatFormat color);
 
     /**
@@ -529,21 +542,25 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         @Override
         public String toString() {
+
             return string;
+
         }
 
         /**
-         * Returns enum constant from code name. If invalid, {@link #ALWAYS}
-         * is returned.
+         * Returns enum constant from code name. If invalid, {@link #ALWAYS} is
+         * returned.
          *
-         * @param   name
-         *          Code name of the collision rule
-         * @return  Enum constant from given code name
+         * @param name Code name of the collision rule
+         * @return Enum constant from given code name
          */
         @NotNull
         public static CollisionRule getByName(@NotNull String name) {
+
             return BY_NAME.getOrDefault(name, ALWAYS);
+
         }
+
     }
 
     /**
@@ -573,20 +590,24 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         @Override
         public String toString() {
+
             return string;
+
         }
 
         /**
-         * Returns enum constant from code name. If invalid, {@link #ALWAYS}
-         * is returned.
+         * Returns enum constant from code name. If invalid, {@link #ALWAYS} is
+         * returned.
          *
-         * @param   name
-         *          Code name of the collision rule
-         * @return  Enum constant from given code name
+         * @param name Code name of the collision rule
+         * @return Enum constant from given code name
          */
         public static NameVisibility getByName(String name) {
+
             return BY_NAME.getOrDefault(name, ALWAYS);
+
         }
+
     }
 
     /**
@@ -602,6 +623,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         /** Update objective action */
         public static final int UPDATE = 2;
+
     }
 
     /**
@@ -614,6 +636,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         /** HEARTS display type (1.8+) */
         public static final int HEARTS = 1;
+
     }
 
     /**
@@ -629,6 +652,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         /** Belowname slot below player nametags */
         public static final int BELOW_NAME = 2;
+
     }
 
     /**
@@ -641,6 +665,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         /** Removes score */
         public static final int REMOVE = 1;
+
     }
 
     /**
@@ -663,5 +688,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
 
         /** Removes player from the team */
         public static final int REMOVE_PLAYER = 4;
+
     }
+
 }

@@ -1,8 +1,8 @@
 package me.neznamy.tab.shared.config.helper;
 
 /**
- * Class for detecting misconfiguration in config files and fix mistakes
- * to avoid headaches when making a configuration mistake.
+ * Class for detecting misconfiguration in config files and fix mistakes to
+ * avoid headaches when making a configuration mistake.
  */
 public class ConfigHelper {
 
@@ -18,27 +18,34 @@ public class ConfigHelper {
     /**
      * Returns startup warn printer.
      *
-     * @return  startup warn printer
+     * @return startup warn printer
      */
     public StartupWarnPrinter startup() {
+
         return startupWarnPrinter;
+
     }
 
     /**
      * Returns hint printer.
      *
-     * @return  hint printer
+     * @return hint printer
      */
     public HintPrinter hint() {
+
         return hintPrinter;
+
     }
 
     /**
      * Returns runtime error printer.
      *
-     * @return  runtime error printer
+     * @return runtime error printer
      */
     public RuntimeErrorPrinter runtime() {
+
         return runtimeErrorPrinter;
+
     }
+
 }

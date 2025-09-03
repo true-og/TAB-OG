@@ -31,84 +31,97 @@ public class FixedSlot extends TabFeature implements Refreshable {
 
     @Override
     public void refresh(@NotNull TabPlayer p, boolean force) {
-        if (p.layoutData.view == null
-                || p.layoutData.view.getPattern() != pattern
-                || p.getVersion().getMinorVersion() < 8) return;
+
+        if (p.layoutData.view == null || p.layoutData.view.getPattern() != pattern
+                || p.getVersion().getMinorVersion() < 8)
+            return;
         if (p.getProperty(skinProperty).update()) {
+
             p.getTabList().removeEntry(id);
             p.getTabList().addEntry(createEntry(p));
+
         } else {
-            p.getTabList()
-                    .updateDisplayName(
-                            id,
-                            TabComponent.optimized(p.getProperty(propertyName).updateAndGet()));
+
+            p.getTabList().updateDisplayName(id, TabComponent.optimized(p.getProperty(propertyName).updateAndGet()));
+
         }
+
     }
 
     @Override
     @NotNull
     public String getRefreshDisplayName() {
+
         return "Updating fixed slots";
+
     }
 
     public @NotNull TabList.Entry createEntry(@NotNull TabPlayer viewer) {
+
         viewer.setProperty(this, propertyName, text);
         viewer.setProperty(this, skinProperty, skin);
-        return new TabList.Entry(
-                id,
-                manager.getDirection().getEntryName(viewer, slot),
-                manager.getSkinManager()
-                        .getSkin(viewer.getProperty(skinProperty).updateAndGet()),
-                true,
-                ping,
-                0,
+        return new TabList.Entry(id, manager.getDirection().getEntryName(viewer, slot),
+                manager.getSkinManager().getSkin(viewer.getProperty(skinProperty).updateAndGet()), true, ping, 0,
                 TabComponent.optimized(viewer.getProperty(propertyName).updateAndGet()));
+
     }
 
-    public static @Nullable FixedSlot fromLine(
-            @NotNull String line, @NotNull LayoutPattern pattern, @NotNull LayoutManagerImpl manager) {
+    public static @Nullable FixedSlot fromLine(@NotNull String line, @NotNull LayoutPattern pattern,
+            @NotNull LayoutManagerImpl manager)
+    {
+
         String[] array = line.split("\\|");
         if (array.length < 1) {
+
             TAB.getInstance().getConfigHelper().startup().invalidFixedSlotDefinition(pattern.getName(), line);
             return null;
+
         }
+
         int slot;
         try {
+
             slot = Integer.parseInt(array[0]);
+
         } catch (NumberFormatException e) {
+
             TAB.getInstance().getConfigHelper().startup().invalidFixedSlotDefinition(pattern.getName(), line);
             return null;
+
         }
+
         String text = array.length > 1 ? array[1] : "";
         String skin = array.length > 2 ? array[2] : "";
         int ping = manager.getEmptySlotPing();
         if (array.length > 3) {
+
             try {
+
                 ping = (int) Math.round(Double.parseDouble(array[3]));
+
             } catch (NumberFormatException ignored) {
+
                 // Maybe a warning?
             }
+
         }
-        FixedSlot f = new FixedSlot(
-                manager,
-                slot,
-                pattern,
-                manager.getUUID(slot),
-                text,
-                "Layout-" + pattern.getName() + "-SLOT-" + slot,
-                skin.isEmpty() ? manager.getDefaultSkin(slot) : skin,
-                "Layout-" + pattern.getName() + "-SLOT-" + slot + "-skin",
-                ping);
+
+        FixedSlot f = new FixedSlot(manager, slot, pattern, manager.getUUID(slot), text,
+                "Layout-" + pattern.getName() + "-SLOT-" + slot, skin.isEmpty() ? manager.getDefaultSkin(slot) : skin,
+                "Layout-" + pattern.getName() + "-SLOT-" + slot + "-skin", ping);
         if (!text.isEmpty())
-            TAB.getInstance()
-                    .getFeatureManager()
+            TAB.getInstance().getFeatureManager()
                     .registerFeature(TabConstants.Feature.layoutSlot(pattern.getName(), slot), f);
         return f;
+
     }
 
     @Override
     @NotNull
     public String getFeatureName() {
+
         return manager.getFeatureName();
+
     }
+
 }

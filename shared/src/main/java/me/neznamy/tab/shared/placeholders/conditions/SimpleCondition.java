@@ -27,68 +27,67 @@ public abstract class SimpleCondition {
     private final String[] rightSidePlaceholders;
 
     protected SimpleCondition(@NotNull String[] arr) {
+
         leftSide = arr.length < 1 ? "" : arr[0];
-        leftSidePlaceholders = TAB.getInstance()
-                .getPlaceholderManager()
-                .detectPlaceholders(leftSide)
+        leftSidePlaceholders = TAB.getInstance().getPlaceholderManager().detectPlaceholders(leftSide)
                 .toArray(new String[0]);
         rightSide = arr.length < 2 ? "" : arr[1];
-        rightSidePlaceholders = TAB.getInstance()
-                .getPlaceholderManager()
-                .detectPlaceholders(rightSide)
+        rightSidePlaceholders = TAB.getInstance().getPlaceholderManager().detectPlaceholders(rightSide)
                 .toArray(new String[0]);
+
     }
 
     /**
      * Replaces placeholders on the left side and return result
      *
-     * @param   p
-     *          player to replace placeholders for
-     * @return  replaced left side
+     * @param p player to replace placeholders for
+     * @return replaced left side
      */
     public @NotNull String parseLeftSide(@NotNull TabPlayer p) {
+
         return parseSide(p, leftSide, leftSidePlaceholders);
+
     }
 
     /**
      * Replaces placeholders on the right side and return result
      *
-     * @param    p
-     *           player to replace placeholders for
-     * @return   replaced right side
+     * @param p player to replace placeholders for
+     * @return replaced right side
      */
     public @NotNull String parseRightSide(@NotNull TabPlayer p) {
+
         return parseSide(p, rightSide, rightSidePlaceholders);
+
     }
 
     /**
      * Replaces placeholders in provided value
      *
-     * @param   p
-     *          player to replace placeholders for
-     * @param   value
-     *          string to replace placeholders in
-     * @param   placeholders
-     *          used placeholders
-     * @return  replaced string
+     * @param p            player to replace placeholders for
+     * @param value        string to replace placeholders in
+     * @param placeholders used placeholders
+     * @return replaced string
      */
     public String parseSide(@NotNull TabPlayer p, @NotNull String value, @NotNull String[] placeholders) {
+
         String result = value;
         for (String identifier : placeholders) {
-            result = TAB.getInstance()
-                    .getPlaceholderManager()
-                    .getPlaceholder(identifier)
-                    .set(result, p);
+
+            result = TAB.getInstance().getPlaceholderManager().getPlaceholder(identifier).set(result, p);
+
         }
+
         return EnumChatFormat.color(result);
+
     }
 
     /**
      * Returns {@code true} if condition is met for player, {@code false} if not
      *
-     * @param   p
-     *          player to check condition for
-     * @return  {@code true} if met, {@code false} if not
+     * @param p player to check condition for
+     * @return {@code true} if met, {@code false} if not
      */
     public abstract boolean isMet(@NotNull TabPlayer p);
+
 }

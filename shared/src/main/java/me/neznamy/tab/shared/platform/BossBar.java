@@ -13,65 +13,51 @@ public interface BossBar {
     /**
      * Creates boss bar and sends it to the player
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
-     * @param   title
-     *          BossBar title
-     * @param   progress
-     *          BossBar progress (0-1)
-     * @param   color
-     *          BossBar color
-     * @param   style
-     *          BossBar style
+     * @param id       Unique identifier to match the bossbar with other functions
+     * @param title    BossBar title
+     * @param progress BossBar progress (0-1)
+     * @param color    BossBar color
+     * @param style    BossBar style
      */
-    void create(
-            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style);
+    void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color,
+            @NotNull BarStyle style);
 
     /**
      * Updates title
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
-     * @param   title
-     *          New title
+     * @param id    Unique identifier to match the bossbar with other functions
+     * @param title New title
      */
     void update(@NotNull UUID id, @NotNull String title);
 
     /**
      * Updates progress
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
-     * @param   progress
-     *          New progress (0-1)
+     * @param id       Unique identifier to match the bossbar with other functions
+     * @param progress New progress (0-1)
      */
     void update(@NotNull UUID id, float progress);
 
     /**
      * Updates style
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
-     * @param   style
-     *          New style
+     * @param id    Unique identifier to match the bossbar with other functions
+     * @param style New style
      */
     void update(@NotNull UUID id, @NotNull BarStyle style);
 
     /**
      * Updates color
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
-     * @param   color
-     *          New color
+     * @param id    Unique identifier to match the bossbar with other functions
+     * @param color New color
      */
     void update(@NotNull UUID id, @NotNull BarColor color);
 
     /**
      * Removes boss bar
      *
-     * @param   id
-     *          Unique identifier to match the bossbar with other functions
+     * @param id Unique identifier to match the bossbar with other functions
      */
     void remove(@NotNull UUID id);
 
@@ -79,6 +65,7 @@ public interface BossBar {
      * Freezes the class, not letting any packets through.
      */
     default void freeze() {
+
         // Empty by default
     }
 
@@ -86,6 +73,8 @@ public interface BossBar {
      * Unfreezes the class, enabling it back.
      */
     default void unfreeze() {
+
         // Empty by default
     }
+
 }

@@ -17,23 +17,32 @@ public class SetObjective implements OutgoingMessage {
     private String numberFormat;
 
     public SetObjective(String objectiveName) {
+
         this.objectiveName = objectiveName;
         action = Scoreboard.ObjectiveAction.UNREGISTER;
+
     }
 
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PacketPlayOutScoreboardObjective");
         out.writeUTF(objectiveName);
         out.writeInt(action);
         if (action == Scoreboard.ObjectiveAction.REGISTER || action == Scoreboard.ObjectiveAction.UPDATE) {
+
             out.writeUTF(title);
             out.writeInt(display);
             out.writeBoolean(numberFormat != null);
-            if (numberFormat != null) out.writeUTF(numberFormat);
+            if (numberFormat != null)
+                out.writeUTF(numberFormat);
+
         }
+
         return out;
+
     }
+
 }

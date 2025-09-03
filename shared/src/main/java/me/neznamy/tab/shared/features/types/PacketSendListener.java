@@ -11,10 +11,9 @@ public interface PacketSendListener {
     /**
      * Called when a player is about to receive a packet from the server
      *
-     * @param   receiver
-     *          Player who is about to receive a packet
-     * @param   packet
-     *          The packet
+     * @param receiver Player who is about to receive a packet
+     * @param packet   The packet
      */
     void onPacketSend(@NotNull TabPlayer receiver, @NotNull Object packet);
+
 }

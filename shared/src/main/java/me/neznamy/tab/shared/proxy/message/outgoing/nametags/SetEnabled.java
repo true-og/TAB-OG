@@ -15,10 +15,13 @@ public class SetEnabled implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("NameTagX");
         out.writeUTF("SetEnabled");
         out.writeBoolean(enabled);
         return out;
+
     }
+
 }

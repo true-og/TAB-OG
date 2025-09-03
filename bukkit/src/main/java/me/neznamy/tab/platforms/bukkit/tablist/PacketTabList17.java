@@ -34,97 +34,117 @@ public class PacketTabList17 extends TabListBase<String> {
     /**
      * Constructs new instance with given player.
      *
-     * @param   player
-     *          Player this tablist will belong to.
+     * @param player Player this tablist will belong to.
      */
     public PacketTabList17(@NonNull BukkitTabPlayer player) {
+
         super(player);
+
     }
 
     /**
-     * Attempts to load all required NMS classes, fields and methods.
-     * If anything fails, throws an exception.
+     * Attempts to load all required NMS classes, fields and methods. If anything
+     * fails, throws an exception.
      *
-     * @throws  ReflectiveOperationException
-     *          If something goes wrong
+     * @throws ReflectiveOperationException If something goes wrong
      */
     public static void load() throws ReflectiveOperationException {
+
         Class<?> PlayerInfoClass = BukkitReflection.getClass("PacketPlayOutPlayerInfo", "Packet201PlayerInfo");
         try {
+
             Constructor<?> newPlayerInfo = PlayerInfoClass.getConstructor(String.class, boolean.class, int.class);
             newPacket = newPlayerInfo::newInstance;
+
         } catch (NoSuchMethodException e) {
+
             // 1.7.10 spigot with protocol hack
             Constructor<?> newPlayerInfo = PlayerInfoClass.getConstructor();
             Field USERNAME = ReflectionUtils.getField(PlayerInfoClass, "username");
             Field ACTION = ReflectionUtils.getField(PlayerInfoClass, "action");
             Field PING = ReflectionUtils.getField(PlayerInfoClass, "ping");
             newPacket = (name, addOrUpdate, latency) -> {
+
                 Object packet = newPlayerInfo.newInstance();
                 USERNAME.set(packet, name);
                 ACTION.set(packet, addOrUpdate ? 3 : 4);
                 PING.set(packet, latency);
                 return packet;
+
             };
+
         }
+
         packetSender = new PacketSender();
+
     }
 
     @Override
     @SneakyThrows
     public void removeEntry(@NonNull UUID entry) {
-        if (!displayNames.containsKey(entry)) return; // Entry not tracked by TAB
+
+        if (!displayNames.containsKey(entry))
+            return; // Entry not tracked by TAB
         packetSender.sendPacket(player.getPlayer(), newPacket.apply(displayNames.get(entry), false, 0));
         userNames.remove(entry);
         displayNames.remove(entry);
+
     }
 
     @Override
     @SneakyThrows
     public void updateDisplayName0(@NonNull UUID entry, @Nullable String displayName) {
-        if (!displayNames.containsKey(entry)) return; // Entry not tracked by TAB
+
+        if (!displayNames.containsKey(entry))
+            return; // Entry not tracked by TAB
         packetSender.sendPacket(player.getPlayer(), newPacket.apply(displayNames.get(entry), false, 0));
         addEntry0(entry, userNames.get(entry), null, false, 0, 0, displayName);
+
     }
 
     @Override
     @SneakyThrows
     public void updateLatency(@NonNull UUID entry, int latency) {
-        if (!displayNames.containsKey(entry)) return; // Entry not tracked by TAB
+
+        if (!displayNames.containsKey(entry))
+            return; // Entry not tracked by TAB
         packetSender.sendPacket(player.getPlayer(), newPacket.apply(displayNames.get(entry), true, latency));
+
     }
 
     @Override
     public void updateGameMode(@NonNull UUID entry, int gameMode) {
+
         // Added in 1.8
     }
 
     @Override
     public void updateListed(@NonNull UUID entry, boolean listed) {
+
         // Added in 1.19.3
     }
 
     @Override
     @SneakyThrows
-    public void addEntry0(
-            @NonNull UUID id,
-            @NonNull String name,
-            @Nullable Skin skin,
-            boolean listed,
-            int latency,
-            int gameMode,
-            @Nullable String displayName) {
+    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency,
+            int gameMode, @Nullable String displayName)
+    {
+
         String display = displayName == null ? name : displayName;
         packetSender.sendPacket(player.getPlayer(), newPacket.apply(display, true, latency));
         userNames.put(id, name);
         displayNames.put(id, display);
+
     }
 
     @Override
     public String toComponent(@NonNull TabComponent component) {
+
         String name = component.toLegacyText();
         if (name.length() > Limitations.MAX_DISPLAY_NAME_LENGTH_1_7)
             name = name.substring(0, Limitations.MAX_DISPLAY_NAME_LENGTH_1_7);
         return name;
+
     }
+
 }

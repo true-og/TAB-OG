@@ -12,9 +12,9 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * BossBar using wither entity for <1.9 players on <1.9 servers.
- * Additional logic, such as teleporting the entity must be done
- * separately, as this class does not handle it.
+ * BossBar using wither entity for <1.9 players on <1.9 servers. Additional
+ * logic, such as teleporting the entity must be done separately, as this class
+ * does not handle it.
  */
 @RequiredArgsConstructor
 public class EntityBossBar implements BossBar {
@@ -33,46 +33,60 @@ public class EntityBossBar implements BossBar {
     private final BukkitTabPlayer player;
 
     @Override
-    public void create(
-            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
+    public void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color,
+            @NotNull BarStyle style)
+    {
+
         DataWatcher w = new DataWatcher();
         float health = WITHER_MAX_HEALTH * progress;
-        if (health == 0) health = 1;
+        if (health == 0)
+            health = 1;
         w.setHealth(health);
         w.setCustomName(title, player.getVersion());
         w.setEntityFlags(INVISIBLE_FLAG);
         w.setWitherInvulnerableTime(IDEAL_INVULNERABLE_TIME);
         player.getEntityView().spawnEntity(id.hashCode(), new UUID(0, 0), EntityType.WITHER, new Location(0, 0, 0), w);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull String title) {
+
         DataWatcher w = new DataWatcher();
         w.setCustomName(title, player.getVersion());
         player.getEntityView().updateEntityMetadata(id.hashCode(), w);
+
     }
 
     @Override
     public void update(@NotNull UUID id, float progress) {
+
         DataWatcher w = new DataWatcher();
         float health = WITHER_MAX_HEALTH * progress;
-        if (health == 0) health = 1;
+        if (health == 0)
+            health = 1;
         w.setHealth(health);
         player.getEntityView().updateEntityMetadata(id.hashCode(), w);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarStyle style) {
-        /*Added in 1.9*/
+
+        /* Added in 1.9 */
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarColor color) {
-        /*Added in 1.9*/
+
+        /* Added in 1.9 */
     }
 
     @Override
     public void remove(@NotNull UUID id) {
+
         player.getEntityView().destroyEntities(id.hashCode());
+
     }
+
 }

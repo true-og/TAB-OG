@@ -19,7 +19,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An additional class with additional code for &lt;1.9 servers due to an entity being required
+ * An additional class with additional code for &lt;1.9 servers due to an entity
+ * being required
  */
 @RequiredArgsConstructor
 public class WitherBossBar extends BossBarManagerImpl implements Listener, WorldSwitchListener {
@@ -30,75 +31,87 @@ public class WitherBossBar extends BossBarManagerImpl implements Listener, World
     /**
      * Constructs new instance and registers events
      *
-     * @param   plugin
-     *          Plugin instance to register events
+     * @param plugin Plugin instance to register events
      */
     public WitherBossBar(JavaPlugin plugin) {
+
         Bukkit.getPluginManager().registerEvents(this, plugin);
+
     }
 
     @Override
     public void load() {
+
         // when MC is on fullscreen, BossBar disappears after 1 second of not being seen
         // when in a small window, it's about 100ms
-        TAB.getInstance()
-                .getCPUManager()
-                .startRepeatingMeasuredTask(
-                        100, getFeatureName(), TabConstants.CpuUsageCategory.TELEPORTING_WITHER, this::teleport);
+        TAB.getInstance().getCPUManager().startRepeatingMeasuredTask(100, getFeatureName(),
+                TabConstants.CpuUsageCategory.TELEPORTING_WITHER, this::teleport);
         super.load();
         teleport();
+
     }
 
     /**
      * Updates Wither location for all online players
      */
     private void teleport() {
+
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-            if (p.getVersion().getMinorVersion() > 8) continue; // sending VV packets to those
+
+            if (p.getVersion().getMinorVersion() > 8)
+                continue; // sending VV packets to those
             for (BossBar line : getRegisteredBossBars().values()) {
-                if (!line.containsPlayer(p)) continue;
+
+                if (!line.containsPlayer(p))
+                    continue;
                 Location eyeLocation = ((BukkitTabPlayer) p).getPlayer().getEyeLocation();
-                Location loc =
-                        eyeLocation.add(eyeLocation.getDirection().normalize().multiply(WITHER_DISTANCE));
-                if (loc.getY() < 1) loc.setY(1);
-                ((BackendTabPlayer) p)
-                        .getEntityView()
-                        .teleportEntity(
-                                line.getUniqueId().hashCode(),
-                                new me.neznamy.tab.shared.backend.Location(loc.getX(), loc.getY(), loc.getZ()));
+                Location loc = eyeLocation.add(eyeLocation.getDirection().normalize().multiply(WITHER_DISTANCE));
+                if (loc.getY() < 1)
+                    loc.setY(1);
+                ((BackendTabPlayer) p).getEntityView().teleportEntity(line.getUniqueId().hashCode(),
+                        new me.neznamy.tab.shared.backend.Location(loc.getX(), loc.getY(), loc.getZ()));
+
             }
+
         }
+
     }
 
     @Override
     public void unload() {
+
         super.unload();
         HandlerList.unregisterAll(this);
+
     }
 
     /**
      * Respawning wither as respawn screen destroys all entities in client.
      *
-     * @param   e
-     *          Respawn event
+     * @param e Respawn event
      */
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
+
         TabPlayer player = TAB.getInstance().getPlayer(e.getPlayer().getUniqueId());
-        if (player == null) return;
-        TAB.getInstance()
-                .getCPUManager()
-                .runMeasuredTask(
-                        getFeatureName(),
-                        TabConstants.CpuUsageCategory.PLAYER_RESPAWN,
-                        () -> detectBossBarsAndSend(player));
+        if (player == null)
+            return;
+        TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(),
+                TabConstants.CpuUsageCategory.PLAYER_RESPAWN, () -> detectBossBarsAndSend(player));
+
     }
 
     @Override
     public void onWorldChange(@NotNull TabPlayer p, @NotNull String from, @NotNull String to) {
+
         for (BossBar line : lineValues) {
+
             line.removePlayer(p);
+
         }
+
         detectBossBarsAndSend(p);
+
     }
+
 }

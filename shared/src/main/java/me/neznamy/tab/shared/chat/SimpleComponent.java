@@ -17,12 +17,17 @@ public class SimpleComponent extends TabComponent {
     @Override
     @NotNull
     public String toLegacyText() {
+
         return text;
+
     }
 
     @Override
     @NotNull
     public String toRawText() {
+
         return text;
+
     }
+
 }

@@ -29,46 +29,59 @@ public abstract class SkinSource {
     private final Map<String, List<String>> cache;
 
     protected SkinSource(@NotNull ConfigurationFile file, @NotNull String path) {
+
         this.file = file;
         this.path = path;
         cache = file.getConfigurationSection(path);
+
     }
 
     /**
      * Returns skin using given skin definition.
      *
-     * @param   skin
-     *          Skin definition
-     * @return  Skin from definition or empty list if invalid
+     * @param skin Skin definition
+     * @return Skin from definition or empty list if invalid
      */
     @NotNull
     public List<String> getSkin(@NotNull String skin) {
+
         if (cache.containsKey(skin)) {
+
             return cache.get(skin);
+
         }
+
         List<String> properties = download(skin);
         if (!properties.isEmpty()) {
+
             cache.put(skin, properties);
             file.set(path, cache);
             return properties;
+
         }
+
         return properties;
+
     }
 
     /**
      * Downloads skin with given skin definition.
      *
-     * @param   input
-     *          Skin definition
-     * @return  Downloaded skin or empty list if invalid
+     * @param input Skin definition
+     * @return Downloaded skin or empty list if invalid
      */
     @NotNull
     public abstract List<String> download(@NotNull String input);
 
     @NotNull
     protected JSONObject getResponse(@NotNull String url) throws IOException, ParseException {
+
         try (InputStreamReader reader = new InputStreamReader(new URL(url).openStream())) {
+
             return (JSONObject) new JSONParser().parse(reader);
+
         }
+
     }
+
 }

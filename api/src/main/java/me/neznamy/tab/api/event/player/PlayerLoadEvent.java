@@ -12,16 +12,17 @@ public interface PlayerLoadEvent extends TabEvent {
     /**
      * Gets the player that was loaded.
      *
-     * @return  the player that was loaded
+     * @return the player that was loaded
      */
     @NotNull
     TabPlayer getPlayer();
 
     /**
-     * Returns {@code true} if player was loaded because they joined,
-     * {@code false} if the player was loaded because tab reload command was executed
+     * Returns {@code true} if player was loaded because they joined, {@code false}
+     * if the player was loaded because tab reload command was executed
      *
-     * @return  {@code true} if player joined, {@code false} if plugin was reloaded
+     * @return {@code true} if player joined, {@code false} if plugin was reloaded
      */
     boolean isJoin();
+
 }

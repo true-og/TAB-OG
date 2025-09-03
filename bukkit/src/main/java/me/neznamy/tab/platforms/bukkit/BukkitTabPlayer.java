@@ -28,8 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class BukkitTabPlayer extends BackendTabPlayer {
 
     @NotNull
-    private final Scoreboard<BukkitTabPlayer, ?> scoreboard =
-            ScoreboardLoader.getInstance().apply(this);
+    private final Scoreboard<BukkitTabPlayer, ?> scoreboard = ScoreboardLoader.getInstance().apply(this);
 
     @NotNull
     private final TabListBase<?> tabList = TabListBase.getInstance().apply(this);
@@ -38,86 +37,107 @@ public class BukkitTabPlayer extends BackendTabPlayer {
     private final BossBar bossBar = BossBarLoader.findInstance(this);
 
     @NotNull
-    private final EntityView entityView =
-            PacketEntityView.isAvailable() ? new PacketEntityView(this) : new DummyEntityView();
+    private final EntityView entityView = PacketEntityView.isAvailable() ? new PacketEntityView(this)
+            : new DummyEntityView();
 
     /**
      * Constructs new instance with given bukkit player
      *
-     * @param   platform
-     *          Server platform
-     * @param   p
-     *          bukkit player
+     * @param platform Server platform
+     * @param p        bukkit player
      */
     public BukkitTabPlayer(@NotNull BukkitPlatform platform, @NotNull Player p) {
-        super(
-                platform,
-                p,
-                p.getUniqueId(),
-                p.getName(),
-                p.getWorld().getName(),
+
+        super(platform, p, p.getUniqueId(), p.getName(), p.getWorld().getName(),
                 platform.getServerVersion().getNetworkId());
+
     }
 
     @Override
     public boolean hasPermission(@NotNull String permission) {
+
         return getPlayer().hasPermission(permission);
+
     }
 
     @Override
     public int getPing() {
+
         return PingRetriever.getPing(getPlayer());
+
     }
 
     @Override
     public void sendMessage(@NotNull TabComponent message) {
-        getPlayer()
-                .sendMessage(getPlatform().toBukkitFormat(message, getVersion().supportsRGB()));
+
+        getPlayer().sendMessage(getPlatform().toBukkitFormat(message, getVersion().supportsRGB()));
+
     }
 
     @Override
     public boolean hasInvisibilityPotion() {
+
         return getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY);
+
     }
 
     @Override
     @Nullable
     public TabList.Skin getSkin() {
+
         return tabList.getSkin();
+
     }
 
     @Override
     @NotNull
     public Player getPlayer() {
+
         return (Player) player;
+
     }
 
     @Override
     public BukkitPlatform getPlatform() {
+
         return (BukkitPlatform) platform;
+
     }
 
     @Override
     public boolean isVanished() {
+
         for (MetadataValue v : getPlayer().getMetadata("vanished")) {
-            if (v.asBoolean()) return true;
+
+            if (v.asBoolean())
+                return true;
+
         }
+
         return false;
+
     }
 
     @Override
     public int getGamemode() {
+
         return getPlayer().getGameMode().getValue();
+
     }
 
     @Override
     public double getHealth() {
+
         return getPlayer().getHealth();
+
     }
 
     @Override
     @NotNull
     public String getDisplayName() {
+
         return getPlayer().getDisplayName();
+
     }
+
 }

@@ -23,63 +23,85 @@ public class EventBusImpl implements EventBus {
     private final MethodSubscriptionAdapter<Object> methodAdapter;
 
     public EventBusImpl() {
+
         bus = new SimpleEventBus<TabEvent>(TabEvent.class) {
 
             @Override
             protected boolean shouldPost(@NotNull TabEvent event, @NotNull EventSubscriber<?> subscriber) {
+
                 return true;
+
             }
+
         };
-        methodAdapter = new SimpleMethodSubscriptionAdapter<>(
-                bus, new MethodHandleEventExecutorFactory<>(), new TabMethodScanner());
+        methodAdapter = new SimpleMethodSubscriptionAdapter<>(bus, new MethodHandleEventExecutorFactory<>(),
+                new TabMethodScanner());
+
     }
 
     public <E extends TabEvent> void fire(E event) {
-        if (!bus.hasSubscribers(event.getClass())) return;
+
+        if (!bus.hasSubscribers(event.getClass()))
+            return;
         PostResult result = bus.post(event);
-        if (result.exceptions().isEmpty()) return;
-        TAB.getInstance()
-                .getErrorManager()
-                .errorFiringEvent(event, result.exceptions().values());
+        if (result.exceptions().isEmpty())
+            return;
+        TAB.getInstance().getErrorManager().errorFiringEvent(event, result.exceptions().values());
+
     }
 
     @Override
     public void register(@lombok.NonNull Object listener) {
+
         methodAdapter.register(listener);
+
     }
 
     @Override
     public <E extends TabEvent> void register(@lombok.NonNull Class<E> type, @lombok.NonNull EventHandler<E> handler) {
+
         bus.register(type, new HandlerWrapper<>(handler));
+
     }
 
     @Override
     public void unregister(@lombok.NonNull Object listener) {
+
         methodAdapter.unregister(listener);
+
     }
 
     @Override
     public <E extends TabEvent> void unregister(@lombok.NonNull EventHandler<E> handler) {
-        bus.unregister(subscriber ->
-                subscriber instanceof HandlerWrapper && ((HandlerWrapper<?>) subscriber).handler == handler);
+
+        bus.unregister(subscriber -> subscriber instanceof HandlerWrapper
+                && ((HandlerWrapper<?>) subscriber).handler == handler);
+
     }
 
     private static class TabMethodScanner implements MethodScanner<Object> {
 
         @Override
         public boolean shouldRegister(@NotNull Object listener, @NotNull Method method) {
+
             return method.isAnnotationPresent(Subscribe.class);
+
         }
 
         @Override
         public int postOrder(@NotNull Object listener, @NotNull Method method) {
+
             return PostOrders.NORMAL;
+
         }
 
         @Override
         public boolean consumeCancelledEvents(@NotNull Object listener, @NotNull Method method) {
+
             return true;
+
         }
+
     }
 
     @AllArgsConstructor
@@ -89,7 +111,11 @@ public class EventBusImpl implements EventBus {
 
         @Override
         public void invoke(@NotNull E event) {
+
             handler.handle(event);
+
         }
+
     }
+
 }

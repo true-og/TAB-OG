@@ -17,4 +17,5 @@ public class TabPlaceholderRegisterEvent implements PlaceholderRegisterEvent {
     private Supplier<Object> serverPlaceholder;
     private Function<TabPlayer, Object> playerPlaceholder;
     private BiFunction<TabPlayer, TabPlayer, Object> relationalPlaceholder;
+
 }

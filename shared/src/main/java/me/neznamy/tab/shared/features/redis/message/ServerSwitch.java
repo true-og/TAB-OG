@@ -18,21 +18,29 @@ public class ServerSwitch extends RedisMessage {
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out) {
+
         writeUUID(out, playerId);
         out.writeUTF(newServer);
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         playerId = readUUID(in);
         newServer = in.readUTF();
+
     }
 
     @Override
     public void process(@NotNull RedisSupport redisSupport) {
+
         RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-        if (target == null) return; // Print warn?
+        if (target == null)
+            return; // Print warn?
         target.setServer(newServer);
         redisSupport.getFeatures().forEach(f -> f.onServerSwitch(target));
+
     }
+
 }

@@ -11,21 +11,26 @@ public class EmptyTabExpansion implements TabExpansion {
 
     @Override
     public void setRawPropertyValue(@NotNull TabPlayer player, @NotNull String property, @NotNull String value) {
+
         // Do nothing
     }
 
     @Override
     public void setPlaceholderValue(@NotNull TabPlayer player, @NotNull String placeholder, @NotNull String value) {
+
         // Do nothing
     }
 
     @Override
     public void setValue(@NonNull TabPlayer player, @NonNull String key, @NonNull String value) {
-        /*Do nothing*/
+
+        /* Do nothing */
     }
 
     @Override
     public void unregisterExpansion() {
+
         /* Do nothing */
     }
+
 }

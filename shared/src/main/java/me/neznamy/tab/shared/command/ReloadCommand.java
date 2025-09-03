@@ -15,12 +15,17 @@ public class ReloadCommand extends SubCommand {
      * Constructs new instance
      */
     public ReloadCommand() {
+
         super("reload", TabConstants.Permission.COMMAND_RELOAD);
+
     }
 
     @Override
     public void execute(@Nullable TabPlayer sender, @NotNull String[] args) {
+
         TAB.getInstance().unload();
         sendMessage(sender, TAB.getInstance().load());
+
     }
+
 }

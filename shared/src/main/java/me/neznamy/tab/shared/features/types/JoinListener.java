@@ -9,11 +9,11 @@ import org.jetbrains.annotations.NotNull;
 public interface JoinListener {
 
     /**
-     * Called when player connects to the server. The player is
-     * already added to online player list.
+     * Called when player connects to the server. The player is already added to
+     * online player list.
      *
-     * @param   connectedPlayer
-     *          Player who connected
+     * @param connectedPlayer Player who connected
      */
     void onJoin(@NotNull TabPlayer connectedPlayer);
+
 }

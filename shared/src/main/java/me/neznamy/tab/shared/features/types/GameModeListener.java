@@ -12,8 +12,8 @@ public interface GameModeListener {
      * Called when player changes game mode. New game mode is available in
      * {@link TabPlayer#getGamemode()}.
      *
-     * @param   player
-     *          Player who changed game mode
+     * @param player Player who changed game mode
      */
     void onGameModeChange(@NotNull TabPlayer player);
+
 }

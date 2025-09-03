@@ -32,42 +32,53 @@ public class ViaBossBar implements BossBar {
     private final Map<UUID, com.viaversion.viaversion.api.legacy.bossbar.BossBar> viaBossBars = new HashMap<>();
 
     @Override
-    public void create(
-            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
-        if (viaBossBars.containsKey(id)) return;
-        com.viaversion.viaversion.api.legacy.bossbar.BossBar bar = Via.getAPI()
-                .legacyAPI()
-                .createLegacyBossBar(
-                        TabComponent.optimized(title).toLegacyText(),
-                        progress,
-                        BossColor.valueOf(color.name()),
-                        styles[style.ordinal()]);
+    public void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color,
+            @NotNull BarStyle style)
+    {
+
+        if (viaBossBars.containsKey(id))
+            return;
+        com.viaversion.viaversion.api.legacy.bossbar.BossBar bar = Via.getAPI().legacyAPI().createLegacyBossBar(
+                TabComponent.optimized(title).toLegacyText(), progress, BossColor.valueOf(color.name()),
+                styles[style.ordinal()]);
         viaBossBars.put(id, bar);
         bar.addPlayer(player.getPlayer().getUniqueId());
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull String title) {
+
         viaBossBars.get(id).setTitle(TabComponent.optimized(title).toLegacyText());
+
     }
 
     @Override
     public void update(@NotNull UUID id, float progress) {
+
         viaBossBars.get(id).setHealth(progress);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarStyle style) {
+
         viaBossBars.get(id).setStyle(styles[style.ordinal()]);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarColor color) {
+
         viaBossBars.get(id).setColor(BossColor.valueOf(color.name()));
+
     }
 
     @Override
     public void remove(@NotNull UUID id) {
+
         viaBossBars.remove(id).removePlayer(player.getPlayer().getUniqueId());
+
     }
+
 }

@@ -22,7 +22,9 @@ import org.jetbrains.annotations.NotNull;
 @RequiredArgsConstructor
 public class AdventureBossBar implements BossBar {
 
-    /** Flag tracking whether this implementation is available on the server or not */
+    /**
+     * Flag tracking whether this implementation is available on the server or not
+     */
     @Getter
     private static final boolean available = ReflectionUtils.classExists("net.kyori.adventure.bossbar.BossBar");
 
@@ -36,56 +38,78 @@ public class AdventureBossBar implements BossBar {
     private boolean frozen;
 
     @Override
-    public void create(
-            @NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color, @NotNull BarStyle style) {
-        if (frozen) return; // Server switch
+    public void create(@NotNull UUID id, @NotNull String title, float progress, @NotNull BarColor color,
+            @NotNull BarStyle style)
+    {
+
+        if (frozen)
+            return; // Server switch
         net.kyori.adventure.bossbar.BossBar bar = net.kyori.adventure.bossbar.BossBar.bossBar(
-                TabComponent.optimized(title).convert(player.getVersion()),
-                progress,
-                Color.valueOf(color.name()),
+                TabComponent.optimized(title).convert(player.getVersion()), progress, Color.valueOf(color.name()),
                 Overlay.valueOf(style.name()));
         bossBars.put(id, bar);
         ((Audience) player.getPlayer()).showBossBar(bar);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull String title) {
-        if (frozen) return; // Server switch
+
+        if (frozen)
+            return; // Server switch
         bossBars.get(id).name(TabComponent.optimized(title).convert(player.getVersion()));
+
     }
 
     @Override
     public void update(@NotNull UUID id, float progress) {
-        if (frozen) return; // Server switch
+
+        if (frozen)
+            return; // Server switch
         bossBars.get(id).progress(progress);
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarStyle style) {
-        if (frozen) return; // Server switch
+
+        if (frozen)
+            return; // Server switch
         bossBars.get(id).overlay(Overlay.valueOf(style.name()));
+
     }
 
     @Override
     public void update(@NotNull UUID id, @NotNull BarColor color) {
-        if (frozen) return; // Server switch
+
+        if (frozen)
+            return; // Server switch
         bossBars.get(id).color(Color.valueOf(color.name()));
+
     }
 
     @Override
     public void remove(@NotNull UUID id) {
-        if (frozen) return; // Server switch
+
+        if (frozen)
+            return; // Server switch
         ((Audience) player.getPlayer()).hideBossBar(bossBars.remove(id));
+
     }
 
     @Override
     public void freeze() {
+
         bossBars.clear();
         frozen = true;
+
     }
 
     @Override
     public void unfreeze() {
+
         frozen = false;
+
     }
+
 }

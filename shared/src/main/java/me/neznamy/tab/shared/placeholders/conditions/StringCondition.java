@@ -16,18 +16,22 @@ public class StringCondition extends SimpleCondition {
     /**
      * Constructs new instance with given parameters.
      *
-     * @param   arr
-     *          Array with first value being left side, second value being right side
-     * @param   function
-     *          Condition function
+     * @param arr      Array with first value being left side, second value being
+     *                 right side
+     * @param function Condition function
      */
     public StringCondition(@NotNull String[] arr, @NotNull BiFunction<String, String, Boolean> function) {
+
         super(arr);
         this.function = function;
+
     }
 
     @Override
     public boolean isMet(@NotNull TabPlayer p) {
+
         return function.apply(parseLeftSide(p), parseRightSide(p));
+
     }
+
 }

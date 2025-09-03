@@ -11,11 +11,16 @@ public class SetWorld implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         world = in.readUTF();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         TAB.getInstance().getFeatureManager().onWorldChange(player.getUniqueId(), world);
+
     }
+
 }

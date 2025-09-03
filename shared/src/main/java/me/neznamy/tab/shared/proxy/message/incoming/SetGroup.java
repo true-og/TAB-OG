@@ -10,11 +10,16 @@ public class SetGroup implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         group = in.readUTF();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         player.setGroup(group);
+
     }
+
 }

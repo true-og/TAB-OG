@@ -12,4 +12,5 @@ public class PlayerLoadEventImpl implements PlayerLoadEvent {
     private final TabPlayer player;
 
     private final boolean join;
+
 }

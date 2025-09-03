@@ -27,60 +27,85 @@ public class LayoutView {
     private final List<ParentGroup> groups = new ArrayList<>();
 
     public LayoutView(LayoutManagerImpl manager, LayoutPattern pattern, TabPlayer viewer) {
+
         this.manager = manager;
         this.viewer = viewer;
         this.pattern = pattern;
         fixedSlots = pattern.getFixedSlots().values();
         displayCondition = pattern.getCondition();
         for (FixedSlot slot : fixedSlots) {
+
             emptySlots.remove((Integer) slot.getSlot());
+
         }
+
         for (GroupPattern group : pattern.getGroups()) {
+
             emptySlots.removeAll(Arrays.stream(group.getSlots()).boxed().collect(Collectors.toList()));
             groups.add(new ParentGroup(this, group, viewer));
+
         }
+
     }
 
     public void send() {
-        if (viewer.getVersion().getMinorVersion() < 8) return;
+
+        if (viewer.getVersion().getMinorVersion() < 8)
+            return;
         groups.forEach(ParentGroup::sendSlots);
         for (FixedSlot slot : fixedSlots) {
+
             viewer.getTabList().addEntry(slot.createEntry(viewer));
+
         }
+
         for (int slot : emptySlots) {
-            viewer.getTabList()
-                    .addEntry(new TabList.Entry(
-                            manager.getUUID(slot),
-                            manager.getDirection().getEntryName(viewer, slot),
-                            manager.getSkinManager().getDefaultSkin(slot),
-                            true,
-                            manager.getEmptySlotPing(),
-                            0,
-                            new SimpleComponent("")));
+
+            viewer.getTabList().addEntry(new TabList.Entry(manager.getUUID(slot),
+                    manager.getDirection().getEntryName(viewer, slot), manager.getSkinManager().getDefaultSkin(slot),
+                    true, manager.getEmptySlotPing(), 0, new SimpleComponent("")));
+
         }
+
         tick();
+
     }
 
     public void destroy() {
-        if (viewer.getVersion().getMinorVersion() < 8) return;
+
+        if (viewer.getVersion().getMinorVersion() < 8)
+            return;
         viewer.getTabList().removeEntries(manager.getUuids().values());
+
     }
 
     public void tick() {
+
         Stream<TabPlayer> str = manager.getSortedPlayers().keySet().stream()
                 .filter(player -> TAB.getInstance().getPlatform().canSee(viewer, player));
         List<TabPlayer> players = str.collect(Collectors.toList());
         for (ParentGroup group : groups) {
+
             group.tick(players);
+
         }
+
     }
 
     public PlayerSlot getSlot(@NotNull TabPlayer target) {
+
         for (ParentGroup group : groups) {
+
             if (group.getPlayers().containsKey(target)) {
+
                 return group.getPlayers().get(target);
+
             }
+
         }
+
         return null;
+
     }
+
 }

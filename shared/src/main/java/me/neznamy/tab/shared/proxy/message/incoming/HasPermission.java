@@ -11,12 +11,17 @@ public class HasPermission implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         permission = in.readUTF();
         value = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         player.setHasPermission(permission, value);
+
     }
+
 }

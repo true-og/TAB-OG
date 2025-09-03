@@ -10,4 +10,5 @@ public class TabLoadEventImpl implements TabLoadEvent {
 
     @Getter
     private static final TabLoadEvent instance = new TabLoadEventImpl();
+
 }

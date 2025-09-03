@@ -13,18 +13,24 @@ public class Vanished implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         vanished = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         boolean oldVanish = player.isVanished();
         if (oldVanish != vanished) {
+
             player.setVanished(vanished);
             TAB.getInstance().getFeatureManager().onVanishStatusChange(player);
-            ((PlayerPlaceholderImpl)
-                            TAB.getInstance().getPlaceholderManager().getPlaceholder(TabConstants.Placeholder.VANISHED))
-                    .updateValue(player, player.isVanished());
+            ((PlayerPlaceholderImpl) TAB.getInstance().getPlaceholderManager()
+                    .getPlaceholder(TabConstants.Placeholder.VANISHED)).updateValue(player, player.isVanished());
+
         }
+
     }
+
 }

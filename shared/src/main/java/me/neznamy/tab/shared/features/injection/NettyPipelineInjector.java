@@ -16,7 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A pipeline injector for Netty connections. As most servers use Netty, this avoids code duplication.
+ * A pipeline injector for Netty connections. As most servers use Netty, this
+ * avoids code duplication.
  */
 @RequiredArgsConstructor
 public abstract class NettyPipelineInjector extends PipelineInjector {
@@ -31,53 +32,66 @@ public abstract class NettyPipelineInjector extends PipelineInjector {
     protected abstract Channel getChannel(@NotNull TabPlayer player);
 
     /**
-     * Injects custom channel duplex handler to prevent other plugins from overriding this one
+     * Injects custom channel duplex handler to prevent other plugins from
+     * overriding this one
      *
-     * @param   player
-     *          player to inject
+     * @param player player to inject
      */
     @Override
     public void inject(@NotNull TabPlayer player) {
+
         Channel channel = getChannel(player);
-        if (player.getVersion().getMinorVersion() < 8 || channel == null) return; // hello A248
+        if (player.getVersion().getMinorVersion() < 8 || channel == null)
+            return; // hello A248
         if (!channel.pipeline().names().contains(injectPosition)) {
+
             // fake player or waterfall bug
             return;
+
         }
+
         uninject(player);
         try {
-            channel.pipeline()
-                    .addBefore(
-                            injectPosition,
-                            TabConstants.PIPELINE_HANDLER_NAME,
-                            getChannelFunction().apply(player));
+
+            channel.pipeline().addBefore(injectPosition, TabConstants.PIPELINE_HANDLER_NAME,
+                    getChannelFunction().apply(player));
+
         } catch (NoSuchElementException | IllegalArgumentException e) {
+
             // I don't really know how does this keep happening but whatever
         }
+
     }
 
     @Override
     public void uninject(@NotNull TabPlayer player) {
+
         Channel channel = getChannel(player);
-        if (player.getVersion().getMinorVersion() < 8 || channel == null) return; // hello A248
+        if (player.getVersion().getMinorVersion() < 8 || channel == null)
+            return; // hello A248
         try {
+
             if (channel.pipeline().names().contains(TabConstants.PIPELINE_HANDLER_NAME))
                 channel.pipeline().remove(TabConstants.PIPELINE_HANDLER_NAME);
+
         } catch (NoSuchElementException e) {
+
             // for whatever reason this rarely throws
             // java.util.NoSuchElementException: TAB
         }
+
     }
 
     /**
      * Returns {@code true} if packet is Login packet, {@code false} if not.
      *
-     * @param   packet
-     *          Packet to check
-     * @return  {@code true} if packet is Login packet, {@code false} if not
+     * @param packet Packet to check
+     * @return {@code true} if packet is Login packet, {@code false} if not
      */
     public boolean isLogin(@NotNull Object packet) {
+
         return false; // Default implementation
+
     }
 
     /**
@@ -91,49 +105,60 @@ public abstract class NettyPipelineInjector extends PipelineInjector {
 
         @Override
         public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
+
             try {
+
                 if (player.getVersion().getMinorVersion() >= 8)
                     player.getTabList().onPacketSend(packet);
 
                 long time = System.nanoTime();
                 player.getScoreboard().onPacketSend(packet);
-                TAB.getInstance()
-                        .getCPUManager()
-                        .addTime(
-                                "Scoreboard management",
-                                TabConstants.CpuUsageCategory.ANTI_OVERRIDE,
-                                System.nanoTime() - time);
+                TAB.getInstance().getCPUManager().addTime("Scoreboard management",
+                        TabConstants.CpuUsageCategory.ANTI_OVERRIDE, System.nanoTime() - time);
 
                 if (isLogin(packet)) {
+
                     player.getScoreboard().freeze();
                     super.write(context, packet, channelPromise);
-                    TAB.getInstance()
-                            .getCPUManager()
-                            .runTaskLater(200, getFeatureName(), TabConstants.CpuUsageCategory.PACKET_LOGIN, () -> {
+                    TAB.getInstance().getCPUManager().runTaskLater(200, getFeatureName(),
+                            TabConstants.CpuUsageCategory.PACKET_LOGIN, () ->
+                            {
+
                                 TAB.getInstance().getFeatureManager().onLoginPacket(player);
                                 if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_20_2.getNetworkId()) {
+
                                     // For 1.20.2+ we need to do this, because server switch event is called before
                                     // tablist is cleared
                                     TAB.getInstance().getFeatureManager().onTabListClear(player);
+
                                 }
+
                             });
                     return;
+
                 }
+
                 TAB.getInstance().getFeatureManager().onPacketSend(player, packet);
+
             } catch (Throwable e) {
+
                 TAB.getInstance().getErrorManager().printError("An error occurred when reading packets", e);
+
             }
+
             try {
+
                 super.write(context, packet, channelPromise);
+
             } catch (Throwable e) {
-                TAB.getInstance()
-                        .getErrorManager()
-                        .printError(
-                                String.format(
-                                        "Failed to forward packet %s to %s",
-                                        packet.getClass().getSimpleName(), player.getName()),
-                                e);
+
+                TAB.getInstance().getErrorManager().printError(String.format("Failed to forward packet %s to %s",
+                        packet.getClass().getSimpleName(), player.getName()), e);
+
             }
+
         }
+
     }
+
 }

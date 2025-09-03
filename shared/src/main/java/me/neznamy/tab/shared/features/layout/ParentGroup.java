@@ -27,46 +27,64 @@ public class ParentGroup {
     private final Map<TabPlayer, PlayerSlot> players = new HashMap<>();
 
     public ParentGroup(@NotNull LayoutView layout, @NotNull GroupPattern pattern, @NotNull TabPlayer viewer) {
+
         this.layout = layout;
         condition = pattern.getCondition();
         slots = pattern.getSlots();
         this.viewer = viewer;
         for (int slot : slots) {
-            playerSlots.put(
-                    slot, new PlayerSlot(slot, layout, layout.getManager().getUUID(slot)));
+
+            playerSlots.put(slot, new PlayerSlot(slot, layout, layout.getManager().getUUID(slot)));
+
         }
+
     }
 
     public void tick(@NotNull List<TabPlayer> remainingPlayers) {
+
         players.clear();
         List<TabPlayer> meetingCondition = new ArrayList<>();
         for (TabPlayer p : remainingPlayers) {
-            if (condition == null || condition.isMet(p)) meetingCondition.add(p);
+
+            if (condition == null || condition.isMet(p))
+                meetingCondition.add(p);
+
         }
+
         remainingPlayers.removeAll(meetingCondition);
         for (int index = 0; index < slots.length; index++) {
+
             int slot = slots[index];
-            if (layout.getManager().isRemainingPlayersTextEnabled()
-                    && index == slots.length - 1
-                    && playerSlots.size() < meetingCondition.size()) {
-                playerSlots
-                        .get(slot)
-                        .setText(String.format(
-                                layout.getManager().getRemainingPlayersText(),
-                                meetingCondition.size() - playerSlots.size() + 1));
+            if (layout.getManager().isRemainingPlayersTextEnabled() && index == slots.length - 1
+                    && playerSlots.size() < meetingCondition.size())
+            {
+
+                playerSlots.get(slot).setText(String.format(layout.getManager().getRemainingPlayersText(),
+                        meetingCondition.size() - playerSlots.size() + 1));
                 break;
+
             }
+
             if (meetingCondition.size() > index) {
+
                 TabPlayer p = meetingCondition.get(index);
                 playerSlots.get(slot).setPlayer(p);
                 players.put(p, playerSlots.get(slot));
+
             } else {
+
                 playerSlots.get(slot).setText("");
+
             }
+
         }
+
     }
 
     public void sendSlots() {
+
         playerSlots.values().forEach(s -> viewer.getTabList().addEntry(s.getSlot(viewer)));
+
     }
+
 }

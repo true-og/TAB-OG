@@ -10,11 +10,16 @@ public class Disguised implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         disguised = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         player.setDisguised(disguised);
+
     }
+
 }

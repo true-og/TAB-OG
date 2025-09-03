@@ -20,104 +20,168 @@ public class RedisGlobalPlayerList extends RedisFeature {
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
+
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
+
             if (!redis.getServer().equals(player.getServer()) && shouldSee(player, redis)) {
+
                 player.getTabList().addEntry(getEntry(redis));
+
             }
+
         }
+
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
+
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+
             if (shouldSee(viewer, player) && !viewer.getServer().equals(player.getServer())) {
+
                 viewer.getTabList().addEntry(getEntry(player));
+
             }
+
         }
+
     }
 
     @Override
     public void onServerSwitch(@NotNull RedisPlayer player) {
-        TAB.getInstance()
-                .getCPUManager()
-                .runTaskLater(200, redisSupport.getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
+
+        TAB.getInstance().getCPUManager().runTaskLater(200, redisSupport.getFeatureName(),
+                TabConstants.CpuUsageCategory.SERVER_SWITCH, () ->
+                {
+
                     for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-                        if (viewer.getServer().equals(player.getServer())) continue;
+
+                        if (viewer.getServer().equals(player.getServer()))
+                            continue;
                         if (shouldSee(viewer, player)) {
+
                             viewer.getTabList().addEntry(getEntry(player));
+
                         } else {
+
                             viewer.getTabList().removeEntry(player.getUniqueId());
+
                         }
+
                     }
+
                 });
+
     }
 
     @Override
     public void onQuit(@NotNull RedisPlayer player) {
+
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+
             if (!player.getServer().equals(viewer.getServer())) {
+
                 viewer.getTabList().removeEntry(player.getUniqueId());
+
             }
+
         }
+
     }
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out, @NotNull TabPlayer player) {
+
         out.writeBoolean(player.getSkin() != null);
         if (player.getSkin() != null) {
+
             out.writeUTF(player.getSkin().getValue());
             out.writeBoolean(player.getSkin().getSignature() != null);
             if (player.getSkin().getSignature() != null) {
+
                 out.writeUTF(player.getSkin().getSignature());
+
             }
+
         }
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+
         if (in.readBoolean()) {
+
             String value = in.readUTF();
             String signature = null;
             if (in.readBoolean()) {
+
                 signature = in.readUTF();
+
             }
+
             player.setSkin(new TabList.Skin(value, signature));
+
         }
+
     }
 
     @Override
     public void onTabListClear(@NotNull TabPlayer player) {
+
         onJoin(player);
+
     }
 
     private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull RedisPlayer target) {
-        if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED)) return false;
-        if (globalPlayerList.isSpyServer(viewer.getServer())) return true;
-        return globalPlayerList
-                .getServerGroup(viewer.getServer())
+
+        if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED))
+            return false;
+        if (globalPlayerList.isSpyServer(viewer.getServer()))
+            return true;
+        return globalPlayerList.getServerGroup(viewer.getServer())
                 .equals(globalPlayerList.getServerGroup(target.getServer()));
+
     }
 
     @NotNull
     private TabList.Entry getEntry(@NotNull RedisPlayer player) {
-        return new TabList.Entry(
-                player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0, player.getTabFormat());
+
+        return new TabList.Entry(player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0,
+                player.getTabFormat());
+
     }
 
     @Override
     public void onVanishStatusChange(@NotNull RedisPlayer player) {
+
         if (player.isVanished()) {
+
             for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
+
                 if (!shouldSee(all, player)) {
+
                     all.getTabList().removeEntry(player.getUniqueId());
+
                 }
+
             }
+
         } else {
+
             for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+
                 if (shouldSee(viewer, player)) {
+
                     viewer.getTabList().addEntry(getEntry(player));
+
                 }
+
             }
+
         }
+
     }
+
 }

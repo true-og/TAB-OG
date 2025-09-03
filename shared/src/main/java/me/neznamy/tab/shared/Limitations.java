@@ -1,8 +1,8 @@
 package me.neznamy.tab.shared;
 
 /**
- * Class containing constants representing value length
- * limits on different versions.
+ * Class containing constants representing value length limits on different
+ * versions.
  */
 public class Limitations {
 
@@ -24,6 +24,9 @@ public class Limitations {
     /** Max bossbar name length for 1.7 and lower */
     public static final int BOSSBAR_NAME_LENGTH_1_7 = 64;
 
-    /** Max team name length on <1.18 (still forced on all versions by the plugin) */
+    /**
+     * Max team name length on <1.18 (still forced on all versions by the plugin)
+     */
     public static final int TEAM_NAME_LENGTH = 16;
+
 }

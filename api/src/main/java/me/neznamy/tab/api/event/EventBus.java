@@ -3,8 +3,8 @@ package me.neznamy.tab.api.event;
 import lombok.NonNull;
 
 /**
- * The event bus. This is used to register event listeners/handlers for
- * handling events that may be fired by TAB.
+ * The event bus. This is used to register event listeners/handlers for handling
+ * events that may be fired by TAB.
  */
 @SuppressWarnings("unused") // API class
 public interface EventBus {
@@ -13,16 +13,17 @@ public interface EventBus {
      * Scans the given listener for any method that is annotated with
      * {@link Subscribe} and registers it as a listener to this event bus.
      *
-     * <p>All methods in this class that are annotated with {@link Subscribe}
-     * must meet the following criteria:
+     * <p>
+     * All methods in this class that are annotated with {@link Subscribe} must meet
+     * the following criteria:
      * <ul>
-     *     <li>It must be <strong>public</strong>.</li>
-     *     <li>It must <strong>not</strong> be abstract.</li>
-     *     <li>It must have exactly <strong>one</strong> parameter.</li>
-     *     <li>Its single parameter must be <strong>an event</strong>.</li>
+     * <li>It must be <strong>public</strong>.</li>
+     * <li>It must <strong>not</strong> be abstract.</li>
+     * <li>It must have exactly <strong>one</strong> parameter.</li>
+     * <li>Its single parameter must be <strong>an event</strong>.</li>
      * </ul>
-     * If a method does not meet the above criteria, an exception <strong>will</strong>
-     * be thrown.
+     * If a method does not meet the above criteria, an exception
+     * <strong>will</strong> be thrown.
      *
      * @param listener the listener to register
      * @throws RuntimeException if a method does not meet the criteria
@@ -32,9 +33,9 @@ public interface EventBus {
     /**
      * Registers the given handler to this event bus.
      *
-     * @param type the class type of the event
+     * @param type    the class type of the event
      * @param handler the handler to register
-     * @param <E> the type of the event
+     * @param <E>     the type of the event
      */
     <E extends TabEvent> void register(@NonNull Class<E> type, @NonNull EventHandler<E> handler);
 
@@ -50,7 +51,8 @@ public interface EventBus {
      * Unregisters the given handler from this event bus.
      *
      * @param handler the handler to unregister
-     * @param <E> the type of the event
+     * @param <E>     the type of the event
      */
     <E extends TabEvent> void unregister(@NonNull EventHandler<E> handler);
+
 }

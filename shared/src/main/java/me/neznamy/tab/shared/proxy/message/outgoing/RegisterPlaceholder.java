@@ -15,10 +15,13 @@ public class RegisterPlaceholder implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Placeholder");
         out.writeUTF(identifier);
         out.writeInt(refresh);
         return out;
+
     }
+
 }

@@ -23,52 +23,60 @@ public class RedisYellowNumber extends RedisFeature {
     private final YellowNumber yellowNumber;
 
     public RedisYellowNumber(@NotNull RedisSupport redisSupport, @NotNull YellowNumber yellowNumber) {
+
         this.redisSupport = redisSupport;
         this.yellowNumber = yellowNumber;
         redisSupport.registerMessage("yellow-number", Update.class, Update::new);
+
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
+
         for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getScoreboard()
-                    .setScore(
-                            YellowNumber.OBJECTIVE_NAME,
-                            redis.getNickname(),
-                            redis.getPlayerlistNumber(),
-                            null, // Unused by this objective slot
-                            redis.getPlayerlistFancy());
+
+            player.getScoreboard().setScore(YellowNumber.OBJECTIVE_NAME, redis.getNickname(),
+                    redis.getPlayerlistNumber(), null, // Unused by this objective slot
+                    redis.getPlayerlistFancy());
+
         }
+
     }
 
     @Override
     public void onJoin(@NotNull RedisPlayer player) {
+
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            viewer.getScoreboard()
-                    .setScore(
-                            YellowNumber.OBJECTIVE_NAME,
-                            player.getNickname(),
-                            player.getPlayerlistNumber(),
-                            null, // Unused by this objective slot
-                            player.getPlayerlistFancy());
+
+            viewer.getScoreboard().setScore(YellowNumber.OBJECTIVE_NAME, player.getNickname(),
+                    player.getPlayerlistNumber(), null, // Unused by this objective slot
+                    player.getPlayerlistFancy());
+
         }
+
     }
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out, @NotNull TabPlayer player) {
+
         out.writeInt(yellowNumber.getValueNumber(player));
         out.writeUTF(player.getProperty(yellowNumber.getPROPERTY_VALUE_FANCY()).get());
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+
         player.setPlayerlistNumber(in.readInt());
         player.setPlayerlistFancy(TabComponent.optimized(in.readUTF()));
+
     }
 
     @Override
     public void onLoginPacket(@NotNull TabPlayer player) {
+
         onJoin(player);
+
     }
 
     @NoArgsConstructor
@@ -81,25 +89,34 @@ public class RedisYellowNumber extends RedisFeature {
 
         @Override
         public void write(@NotNull ByteArrayDataOutput out) {
+
             writeUUID(out, playerId);
             out.writeInt(value);
             out.writeUTF(fancyValue);
+
         }
 
         @Override
         public void read(@NotNull ByteArrayDataInput in) {
+
             playerId = readUUID(in);
             value = in.readInt();
             fancyValue = in.readUTF();
+
         }
 
         @Override
         public void process(@NotNull RedisSupport redisSupport) {
+
             RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-            if (target == null) return; // Print warn?
+            if (target == null)
+                return; // Print warn?
             target.setPlayerlistNumber(value);
             target.setPlayerlistFancy(TabComponent.optimized(fancyValue));
             onJoin(target);
+
         }
+
     }
+
 }

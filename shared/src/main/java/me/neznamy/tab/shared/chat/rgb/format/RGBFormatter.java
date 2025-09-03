@@ -10,10 +10,10 @@ public interface RGBFormatter {
     /**
      * Reformats RGB codes in provided text into #RRGGBB format
      *
-     * @param   text
-     *          text to format
-     * @return  reformatted text
+     * @param text text to format
+     * @return reformatted text
      */
     @NotNull
     String reformat(@NotNull String text);
+
 }

@@ -6,15 +6,17 @@ package me.neznamy.tab.shared.features.nametags.unlimited;
 public interface ArmorStandManager {
 
     /**
-     * Sends destroy packet of all armor stands to everyone and clears nearby players list
+     * Sends destroy packet of all armor stands to everyone and clears nearby
+     * players list
      */
     void destroy();
 
     /**
      * Refreshes text of all armor stands for all nearby players
      *
-     * @param   force
-     *          If refresh should be force despite no update seemingly being needed
+     * @param force If refresh should be force despite no update seemingly being
+     *              needed
      */
     void refresh(boolean force);
+
 }

@@ -10,11 +10,16 @@ public class Invisible implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         invisible = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
+
         player.setInvisibilityPotion(invisible);
+
     }
+
 }

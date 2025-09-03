@@ -7,4 +7,5 @@ public interface OutgoingMessage {
 
     @NotNull
     ByteArrayDataOutput write();
+
 }

@@ -18,21 +18,29 @@ public class UpdateVanishStatus extends RedisMessage {
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out) {
+
         writeUUID(out, playerId);
         out.writeBoolean(vanished);
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         playerId = readUUID(in);
         vanished = in.readBoolean();
+
     }
 
     @Override
     public void process(@NotNull RedisSupport redisSupport) {
+
         RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-        if (target == null) return; // Print warn?
+        if (target == null)
+            return; // Print warn?
         target.setVanished(vanished);
         redisSupport.getFeatures().forEach(f -> f.onVanishStatusChange(target));
+
     }
+
 }

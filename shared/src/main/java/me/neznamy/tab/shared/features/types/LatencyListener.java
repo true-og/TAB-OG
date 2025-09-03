@@ -10,13 +10,12 @@ public interface LatencyListener {
 
     /**
      * Called when latency of a player
-     * @param   viewer
-     *          Player who received the packet
-     * @param   packetId
-     *          UUID of the entry
-     * @param   ping
-     *          Original ping in the packet
-     * @return  New ping to use
+     * 
+     * @param viewer   Player who received the packet
+     * @param packetId UUID of the entry
+     * @param ping     Original ping in the packet
+     * @return New ping to use
      */
     int onLatencyChange(TabPlayer viewer, UUID packetId, int ping);
+
 }

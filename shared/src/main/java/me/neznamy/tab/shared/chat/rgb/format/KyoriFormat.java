@@ -13,14 +13,21 @@ public class KyoriFormat implements RGBFormatter {
 
     @Override
     public @NotNull String reformat(@NotNull String text) {
-        if (!text.contains("<#")) return text;
+
+        if (!text.contains("<#"))
+            return text;
         String replaced = text;
         Matcher m = pattern.matcher(replaced);
         while (m.find()) {
+
             String hexCode = m.group();
             String fixed = hexCode.substring(2, 8);
             replaced = replaced.replace(hexCode, "#" + fixed);
+
         }
+
         return replaced;
+
     }
+
 }

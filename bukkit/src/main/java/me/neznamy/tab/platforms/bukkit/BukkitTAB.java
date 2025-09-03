@@ -13,12 +13,17 @@ public class BukkitTAB extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
         TAB.create(folia ? new FoliaPlatform(this) : new BukkitPlatform(this));
+
     }
 
     @Override
     public void onDisable() {
+
         TAB.getInstance().unload();
+
     }
+
 }

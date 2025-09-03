@@ -17,19 +17,27 @@ public class PlayerQuit extends RedisMessage {
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out) {
+
         writeUUID(out, playerId);
+
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
+
         playerId = readUUID(in);
+
     }
 
     @Override
     public void process(@NotNull RedisSupport redisSupport) {
+
         RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
-        if (target == null) return; // Print warn?
+        if (target == null)
+            return; // Print warn?
         redisSupport.getFeatures().forEach(f -> f.onQuit(target));
         redisSupport.getRedisPlayers().remove(target.getUniqueId());
+
     }
+
 }

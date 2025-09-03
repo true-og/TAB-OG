@@ -15,10 +15,13 @@ public class ExpansionPlaceholder implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Expansion");
         out.writeUTF(placeholder);
         out.writeUTF(value);
         return out;
+
     }
+
 }

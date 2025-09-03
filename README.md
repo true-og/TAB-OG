@@ -1,14 +1,13 @@
 # TAB-OG
 
-TAB-OG is a fork of [TAB](https://github.com/NEZNAMY/TAB) maintained for [TrueOG Network](https://true-og.net/).
+TAB-OG is a soft fork of [TAB](https://github.com/NEZNAMY/TAB) (version 4) maintained for [TrueOG Network](https://true-og.net/).
 
-# Changes over TAB
+# Differences over mainline TAB
 
-- Remove fabric support.
-- Remove velocity support.
-- Remove floodgate support.
-- Remove sponge support.
-- Remove bungeecord support.
+- Targets Purpur 1.19.4.
+- Single file gradle 8.14.3 build.
+- Deprecation fixes.
+- Unlimited nametag mode.
 - Builds with TrueOG's config files.
 
 # About TAB

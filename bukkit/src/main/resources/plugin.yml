@@ -1,17 +1,17 @@
 main: me.neznamy.tab.platforms.bukkit.BukkitTAB
-name: @name@
-version: @version@
-description: @description@
+name: TAB-OG
+version: '${version}'
+description: \"That\" TAB plugin.
 api-version: 1.13 # Defining to avoid legacy plugin warn
 load: POSTWORLD
-author: @author@
-website: "@website@"
+authors: [NEZNAMY, NotAlexNoyle]
+website: "https://github.com/true-og/TAB-OG"
 depend: []
 softdepend: [PlaceholderAPI, LuckPerms, LibsDisguises, ViaVersion, ViaRewind, Vault]
 loadbefore: []
 prefix: TAB
 libraries: []
-folia-supported: true
+folia-supported: false
 commands:
   tab:
     description: Plugin's main command

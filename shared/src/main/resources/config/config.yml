@@ -12,8 +12,8 @@ header-footer:
     #- ""
     #- ""
     - ""
-    - "%animation:RightToLeft% &2<online>&7/&b200 &6Players Online %animation:LeftToRight%"
-    - "&B1m TPS: &r<server_tps_1> &B5m TPS: &r<server_tps_5> &7| &6Used RAM: &r<server_ram_used> &7| &2Total RAM: &r<server_ram_max>"
+    - "%animation:RightToLeft% &2%online%&7/&b200 &6Players Online %animation:LeftToRight%"
+    - "&B1m TPS: &r%server_tps_1% &B5m TPS: &r%server_tps_5% &7| &6Used RAM: &r%server_ram_used% &7| &2Total RAM: &r%server_ram_max%"
     #- ""
   disable-condition: '%world%=disabledworld'
   per-world:
@@ -45,7 +45,7 @@ scoreboard-teams:
   anti-override: true
   # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
   sorting-types:
-    - "GROUPS:owner,moderator,builder,helper,tester,youtube,og-master,og-pro,og,default"
+    - "GROUPS:admin,moderator,builder,developer,helper,tester,youtube,og-master,og-pro,og,default"
     - "PLACEHOLDER_A_TO_Z:%player%"
   case-sensitive-sorting: true
   can-see-friendly-invisibles: false

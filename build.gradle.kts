@@ -120,7 +120,6 @@ dependencies {
         exclude("org.slf4j", "slf4j-api")
     }
     implementation("com.saicone.delivery4j:extension-guava:1.1.1")
-    compileOnlyApi(project(":libs:Utilities-OG")) // Import TrueOG Network Utilities-OG Java API (from source).
 }
 
 apply(from = "eclipse.gradle.kts") // Import eclipse classpath support script.

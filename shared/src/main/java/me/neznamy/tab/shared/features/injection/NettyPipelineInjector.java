@@ -4,161 +4,85 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import java.util.NoSuchElementException;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.platform.decorators.SafeScoreboard;
+import me.neznamy.tab.shared.platform.decorators.TrackedTabList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+
 /**
- * A pipeline injector for Netty connections. As most servers use Netty, this
- * avoids code duplication.
+ * A pipeline injector for Netty connections. As most servers use Netty, this avoids code duplication.
  */
 @RequiredArgsConstructor
 public abstract class NettyPipelineInjector extends PipelineInjector {
 
-    // handler to inject before
+    //handler to inject before
     private final @NotNull String injectPosition;
 
-    @Getter
-    private final Function<TabPlayer, ChannelDuplexHandler> channelFunction = TabChannelDuplexHandler::new;
+    @Getter private final Function<TabPlayer, ChannelDuplexHandler> channelFunction = TabChannelDuplexHandler::new;
 
-    @Nullable
+    @NotNull
     protected abstract Channel getChannel(@NotNull TabPlayer player);
 
-    /**
-     * Injects custom channel duplex handler to prevent other plugins from
-     * overriding this one
-     *
-     * @param player player to inject
-     */
     @Override
     public void inject(@NotNull TabPlayer player) {
-
         Channel channel = getChannel(player);
-        if (player.getVersion().getMinorVersion() < 8 || channel == null)
-            return; // hello A248
-        if (!channel.pipeline().names().contains(injectPosition)) {
-
-            // fake player or waterfall bug
-            return;
-
-        }
-
+        if (!channel.pipeline().names().contains(injectPosition)) return; // Player got disconnected instantly or fake player
         uninject(player);
         try {
-
-            channel.pipeline().addBefore(injectPosition, TabConstants.PIPELINE_HANDLER_NAME,
-                    getChannelFunction().apply(player));
-
+            channel.pipeline().addBefore(injectPosition, TabConstants.PIPELINE_HANDLER_NAME, getChannelFunction().apply(player));
         } catch (NoSuchElementException | IllegalArgumentException e) {
-
-            // I don't really know how does this keep happening but whatever
+            //I don't really know how does this keep happening but whatever
         }
-
     }
 
     @Override
     public void uninject(@NotNull TabPlayer player) {
-
         Channel channel = getChannel(player);
-        if (player.getVersion().getMinorVersion() < 8 || channel == null)
-            return; // hello A248
         try {
-
-            if (channel.pipeline().names().contains(TabConstants.PIPELINE_HANDLER_NAME))
-                channel.pipeline().remove(TabConstants.PIPELINE_HANDLER_NAME);
-
+            if (channel.pipeline().names().contains(TabConstants.PIPELINE_HANDLER_NAME)) channel.pipeline().remove(TabConstants.PIPELINE_HANDLER_NAME);
         } catch (NoSuchElementException e) {
-
-            // for whatever reason this rarely throws
-            // java.util.NoSuchElementException: TAB
+            //for whatever reason this rarely throws
+            //java.util.NoSuchElementException: TAB
         }
-
-    }
-
-    /**
-     * Returns {@code true} if packet is Login packet, {@code false} if not.
-     *
-     * @param packet Packet to check
-     * @return {@code true} if packet is Login packet, {@code false} if not
-     */
-    public boolean isLogin(@NotNull Object packet) {
-
-        return false; // Default implementation
-
     }
 
     /**
      * TAB's custom channel duplex handler.
      */
     @RequiredArgsConstructor
-    public class TabChannelDuplexHandler extends ChannelDuplexHandler {
+    public static class TabChannelDuplexHandler extends ChannelDuplexHandler {
 
         /** Injected player */
         protected final TabPlayer player;
 
         @Override
-        public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
-
+        public void write(@NotNull ChannelHandlerContext context, @Nullable Object packet, @NotNull ChannelPromise channelPromise) {
+            Object newPacket = packet;
             try {
-
-                if (player.getVersion().getMinorVersion() >= 8)
-                    player.getTabList().onPacketSend(packet);
-
-                long time = System.nanoTime();
-                player.getScoreboard().onPacketSend(packet);
-                TAB.getInstance().getCPUManager().addTime("Scoreboard management",
-                        TabConstants.CpuUsageCategory.ANTI_OVERRIDE, System.nanoTime() - time);
-
-                if (isLogin(packet)) {
-
-                    player.getScoreboard().freeze();
-                    super.write(context, packet, channelPromise);
-                    TAB.getInstance().getCPUManager().runTaskLater(200, getFeatureName(),
-                            TabConstants.CpuUsageCategory.PACKET_LOGIN, () ->
-                            {
-
-                                TAB.getInstance().getFeatureManager().onLoginPacket(player);
-                                if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_20_2.getNetworkId()) {
-
-                                    // For 1.20.2+ we need to do this, because server switch event is called before
-                                    // tablist is cleared
-                                    TAB.getInstance().getFeatureManager().onTabListClear(player);
-
-                                }
-
-                            });
+                if (newPacket == null) {
                     return;
-
                 }
-
-                TAB.getInstance().getFeatureManager().onPacketSend(player, packet);
-
+                if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_8.getNetworkId()) {
+                    newPacket = ((TrackedTabList<?>)player.getTabList()).onPacketSend(newPacket);
+                }
+                newPacket = ((SafeScoreboard<?>)player.getScoreboard()).onPacketSend(newPacket);
             } catch (Throwable e) {
-
                 TAB.getInstance().getErrorManager().printError("An error occurred when reading packets", e);
-
             }
-
             try {
-
-                super.write(context, packet, channelPromise);
-
+                super.write(context, newPacket, channelPromise);
             } catch (Throwable e) {
-
-                TAB.getInstance().getErrorManager().printError(String.format("Failed to forward packet %s to %s",
-                        packet.getClass().getSimpleName(), player.getName()), e);
-
+                TAB.getInstance().getErrorManager().printError(String.format("Failed to forward packet %s to %s", newPacket, player.getName()), e);
             }
-
         }
-
     }
-
 }

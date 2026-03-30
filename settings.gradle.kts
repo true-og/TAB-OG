@@ -1,38 +1,37 @@
-// settings.gradle.kts
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral() // Netty, SnakeYaml, json-simple, Guava, Kyori event, bStats, AuthLib, LuckPerms
+        maven("https://repo.viaversion.com/") // ViaVersion
+        maven("https://repo.william278.net/releases/") // VelocityScoreboardAPI
+        maven("https://repo.codemc.org/repository/nms/") // CraftBukkit + NMS
+        maven("https://repo.papermc.io/repository/maven-public/") // paperweight, Velocity, Adventure
+        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
+        maven("https://repo.opencollab.dev/maven-snapshots/") // Floodgate, Bungeecord-proxy
+        maven("https://repo.purpurmc.org/snapshots") // Purpur
+        maven("https://jitpack.io") // PremiumVanish, Vault, YamlAssist, RedisBungee
+        maven("https://mvn.lib.co.nz/public") // LibsDisguises
+        maven("https://repo.william278.net/velocity/") // Velocity-proxy
+    }
+}
+
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         maven("https://repo.spongepowered.org/repository/maven-public/")
+        maven("https://maven.architectury.dev/")
         gradlePluginPortal()
         mavenCentral()
     }
 }
 
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        maven("https://repo.papermc.io/repository/maven-public/")
-        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-        maven("https://repo.viaversion.com/")
-        maven("https://repo.opencollab.dev/maven-snapshots/")
-        maven("https://repo.purpurmc.org/snapshots")
-        maven("https://repo.spongepowered.org/repository/maven-public/")
-        maven("https://jitpack.io")
-        maven("https://nexus.codecrafter47.dyndns.eu/content/repositories/public/")
-    }
-}
-
 rootProject.name = "TAB-OG"
 
-ProcessBuilder("sh", "bootstrap.sh").directory(rootDir).inheritIO().start().let {
-    if (it.waitFor() != 0) throw GradleException("bootstrap.sh failed")
-}
-
-file("libs")
-    .listFiles()
-    ?.filter { it.isDirectory && !it.name.startsWith(".") }
-    ?.forEach { dir ->
-        include(":libs:${dir.name}")
-        project(":libs:${dir.name}").projectDir = dir
-    }
+include(":api")
+include(":shared")
+include(":velocity")
+include(":bukkit")
+include(":bukkit:v1_19_R3")
+include(":bungeecord")
+include(":jar")

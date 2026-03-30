@@ -1,38 +1,30 @@
 package me.neznamy.tab.shared.chat.rgb.format;
 
+import me.neznamy.tab.shared.chat.TabTextColor;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import me.neznamy.tab.shared.chat.EnumChatFormat;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Formatter for &amp;x&amp;R&amp;R&amp;G&amp;G&amp;B&amp;B
  */
 public class BukkitFormat implements RGBFormatter {
 
-    private final Pattern pattern = Pattern
-            .compile("[" + EnumChatFormat.COLOR_CHAR + "&]x[" + EnumChatFormat.COLOR_CHAR + "&\\p{XDigit}]{12}");
-
+    private final Pattern pattern = Pattern.compile("§x[§\\p{XDigit}]{12}");
+    
     @Override
-    public @NotNull String reformat(@NotNull String text) {
-
-        if (!text.contains("&x") && !text.contains(EnumChatFormat.COLOR_CHAR + "x"))
-            return text;
+    @NotNull
+    public String reformat(@NotNull String text, @NotNull Function<TabTextColor, String> rgbFunction) {
+        if (!text.contains("§x")) return text;
         String replaced = text;
         Matcher m = pattern.matcher(replaced);
         while (m.find()) {
-
-            String hexCode = m.group();
-            String fixed = new String(
-                    new char[]
-                    { '#', hexCode.charAt(3), hexCode.charAt(5), hexCode.charAt(7), hexCode.charAt(9),
-                            hexCode.charAt(11), hexCode.charAt(13) });
-            replaced = replaced.replace(hexCode, fixed);
-
+            String group = m.group();
+            String hexCode = new String(new char[] {group.charAt(3), group.charAt(5), group.charAt(7), group.charAt(9), group.charAt(11), group.charAt(13)});
+            replaced = replaced.replace(group, rgbFunction.apply(new TabTextColor(hexCode)));
         }
-
         return replaced;
-
     }
-
 }

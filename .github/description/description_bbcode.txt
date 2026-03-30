@@ -1,0 +1,34 @@
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Section_About.png[/IMG]
+TAB is an all-in-one plugin for displaying information in various places, which aims to outperform all similar plugins in terms of features, compatibility and performance.
+The compact configuration allows you to get the plugin to work the way you want regardless of how simple or complex you want it to be or how experienced you are. The default configuration already contains useful values and examples to give you a better understanding and get you started quickly with instant results. The extensive [URL='https://github.com/NEZNAMY/TAB/wiki']wiki[/URL] answers any of your questions.
+
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Badge_Release.svg[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Badge_Minecraft.svg[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Badge_Java.svg[/IMG]
+[URL='https://github.com/NEZNAMY/TAB'][IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Badge_SourceCode.svg[/IMG][/URL]
+[URL='https://github.com/NEZNAMY/TAB/issues'][IMG]https://img.shields.io/github/issues/neznamy/tab?label=Issues[/IMG][/URL]
+[URL='https://github.com/NEZNAMY/TAB/wiki'][IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Badge_Documentation.svg[/IMG][/URL]
+[CENTER][B][SIZE=7]Discord?[/SIZE][/B][/CENTER]
+Official support by me is no longer provided to free users due to limited time and extreme inefficiency (see [URL='https://github.com/NEZNAMY/TAB?tab=readme-ov-file#provided-services']provided services[/URL] for more info).
+However, you can join this [URL='https://discord.gg/YPqXt63YQj']fresh new community discord[/URL] made by a nice person who promises to help everyone with all plugins, including TAB.
+
+Before you consider requiring assistance, check out the [URL='https://github.com/NEZNAMY/TAB/wiki']wiki[/URL] first. It will answer any questions you may have and is also constantly getting improved.
+
+[CENTER][IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/master/.github/description/images/Section_Features.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_HeaderFooter.png[/IMG][IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_NameTags.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Sorting.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_TablistFormatting.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_PlayerlistObjective.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Belowname.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Bossbar.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_GlobalPlayerlist.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Layout.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Scoreboard.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_PerWorldPlayerlist.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_API.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_Placeholders.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_PlaceholderOutputReplacements.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_RGB.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_ConditionalPlaceholders.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_HighPerformance.png[/IMG]
+[IMG]https://raw.githubusercontent.com/NEZNAMY/TAB/refs/heads/master/.github/description/images/Generated_More.png[/IMG][/CENTER]

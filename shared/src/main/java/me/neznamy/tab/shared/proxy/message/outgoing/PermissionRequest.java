@@ -14,12 +14,9 @@ public class PermissionRequest implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
-
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Permission");
         out.writeUTF(permission);
         return out;
-
     }
-
 }

@@ -9,5 +9,4 @@ public interface Loadable {
      * Called on plugin (re)load.
      */
     void load();
-
 }

@@ -1,331 +1,228 @@
 package me.neznamy.tab.shared.features.scoreboard;
 
-import java.util.*;
-import java.util.Map.Entry;
 import lombok.Getter;
 import lombok.NonNull;
+import me.neznamy.tab.api.scoreboard.Line;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
+import me.neznamy.tab.shared.cpu.ThreadExecutor;
+import me.neznamy.tab.shared.cpu.TimedCaughtTask;
+import me.neznamy.tab.shared.data.Server;
+import me.neznamy.tab.shared.features.ToggleManager;
+import me.neznamy.tab.shared.features.scoreboard.ScoreboardConfiguration.ScoreboardDefinition;
+import me.neznamy.tab.shared.features.scoreboard.lines.ScoreboardLine;
 import me.neznamy.tab.shared.features.types.*;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.platform.TabPlayer;
+import me.neznamy.tab.shared.util.cache.StringToComponentCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Feature handler for scoreboard feature.
  */
-public class ScoreboardManagerImpl extends TabFeature
-        implements ScoreboardManager, JoinListener, CommandListener, DisplayObjectiveListener, ObjectiveListener,
-        Loadable, UnLoadable, Refreshable, QuitListener, LoginPacketListener
-{
+@Getter
+public class ScoreboardManagerImpl extends RefreshableFeature implements ScoreboardManager, JoinListener,
+        DisplayObjectiveListener, ObjectiveListener, Loadable,
+        QuitListener, CustomThreaded, ServerSwitchListener, Dumpable {
 
     /** Objective name used by this feature */
     public static final String OBJECTIVE_NAME = "TAB-Scoreboard";
 
-    // config options
-    @Getter
-    private final String command = config().getString("scoreboard.toggle-command", "/sb");
+    private final StringToComponentCache cache = new StringToComponentCache("Scoreboard", 1000);
 
-    @Getter
-    private final boolean usingNumbers = config().getBoolean("scoreboard.use-numbers", false);
+    private final ThreadExecutor customThread = new ThreadExecutor("TAB Scoreboard Thread");
 
-    private final boolean rememberToggleChoice = config().getBoolean("scoreboard.remember-toggle-choice", false);
-    private final boolean hiddenByDefault = config().getBoolean("scoreboard.hidden-by-default", false);
-    private final boolean respectOtherPlugins = config().getBoolean("scoreboard.respect-other-plugins", true);
+    private final ScoreboardConfiguration configuration;
 
-    @Getter
-    private final int staticNumber = config().getInt("scoreboard.static-number", 0);
+    /** All registered scoreboards, both in config and using the API */
+    private final Map<String, ScoreboardImpl> registeredScoreboards = new LinkedHashMap<>();
 
-    private final int joinDelay = config().getInt("scoreboard.delay-on-join-milliseconds", 0);
+    /** Scoreboards defined in the config. This does not include scoreboards creating using API. */
+    private ScoreboardImpl[] definedScoreboards;
 
-    // defined scoreboards
-    @Getter
-    private final Map<String, me.neznamy.tab.api.scoreboard.Scoreboard> registeredScoreboards = new LinkedHashMap<>();
+    /** Manager for toggled players if remembering is enabled in config */
+    @Nullable
+    private ToggleManager toggleManager;
 
-    private me.neznamy.tab.api.scoreboard.Scoreboard[] definedScoreboards;
-
-    // list of players with disabled scoreboard
-    private final List<String> sbOffPlayers = rememberToggleChoice
-            ? TAB.getInstance().getConfiguration().getPlayerDataFile().getStringList("scoreboard-off",
-                    new ArrayList<>())
-            : Collections.emptyList();
-
-    // active scoreboard announcement
+    //active scoreboard announcement
     @Nullable
     private me.neznamy.tab.api.scoreboard.Scoreboard announcement;
 
+    /**
+     * Constructs new instance and loads config options.
+     *
+     * @param   configuration
+     *          Feature configuration
+     */
+    public ScoreboardManagerImpl(@NotNull ScoreboardConfiguration configuration) {
+        this.configuration = configuration;
+        if (configuration.isRememberToggleChoice()) {
+            toggleManager = new ToggleManager(TAB.getInstance().getConfiguration().getPlayerData(), "scoreboard-off");
+        }
+    }
+
     @Override
     public void load() {
-
-        Map<String, Map<String, Object>> map = config().getConfigurationSection("scoreboard.scoreboards");
-        boolean noConditionScoreboardFound = false;
-        String noConditionScoreboard = null;
-        for (Entry<String, Map<String, Object>> entry : map.entrySet()) {
-
-            if (entry.getValue() == null) {
-
-                TAB.getInstance().getConfigHelper().startup().invalidScoreboardSection(entry.getKey());
-                continue;
-
+        TAB.getInstance().getPlatform().registerCustomCommand(configuration.getToggleCommand().replaceFirst("/", ""), (p, args) -> {
+            if (!isActive()) return;
+            if (p.hasPermission(TabConstants.Permission.COMMAND_SCOREBOARD_TOGGLE)) {
+                toggleScoreboard(p, true);
+            } else {
+                p.sendMessage(TAB.getInstance().getConfiguration().getMessages().getNoPermission());
             }
-
-            String condition = (String) entry.getValue().get("display-condition");
-            if (condition == null || condition.isEmpty()) {
-
-                noConditionScoreboardFound = true;
-                noConditionScoreboard = entry.getKey();
-
-            } else if (noConditionScoreboardFound) {
-
-                TAB.getInstance().getConfigHelper().startup().nonLastNoConditionScoreboard(noConditionScoreboard,
-                        entry.getKey());
-
-            }
-
-            String title = TAB.getInstance().getConfigHelper().startup().fromMapOrElse(entry.getValue(), "title",
-                    "<Title not defined>", "Scoreboard \"" + entry.getKey() + "\" is missing title!");
-            List<String> lines = TAB.getInstance().getConfigHelper().startup().fromMapOrElse(entry.getValue(), "lines",
-                    Arrays.asList("scoreboard \"" + entry.getKey() + "\" is missing \"lines\" keyword!",
-                            "did you forget to configure it or just your spacing is wrong?"),
-                    "Scoreboard \"" + entry.getKey() + "\" is missing lines!");
-            ScoreboardImpl sb = new ScoreboardImpl(this, entry.getKey(), title, lines, condition);
-            registeredScoreboards.put(entry.getKey(), sb);
-            TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.scoreboardLine(entry.getKey()),
-                    sb);
-
+        });
+        for (Entry<String, ScoreboardDefinition> entry : configuration.getScoreboards().entrySet()) {
+            String scoreboardName = entry.getKey();
+            ScoreboardImpl sb = new ScoreboardImpl(this, scoreboardName, entry.getValue());
+            registeredScoreboards.put(scoreboardName, sb);
+            TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.scoreboardLine(scoreboardName), sb);
         }
-
-        definedScoreboards = registeredScoreboards.values().toArray(new me.neznamy.tab.api.scoreboard.Scoreboard[0]);
+        definedScoreboards = registeredScoreboards.values().stream().filter(s -> !s.isApi()).toArray(ScoreboardImpl[]::new);
         for (TabPlayer p : TAB.getInstance().getOnlinePlayers()) {
-
             onJoin(p);
-
         }
+    }
 
+    @NotNull
+    @Override
+    public String getRefreshDisplayName() {
+        return "Switching scoreboards";
     }
 
     @Override
     public void refresh(@NotNull TabPlayer p, boolean force) {
-
-        if (p.scoreboardData.forcedScoreboard != null || !hasScoreboardVisible(p) || announcement != null
-                || p.scoreboardData.otherPluginScoreboard != null || p.scoreboardData.joinDelayed)
-            return;
+        if (p.scoreboardData.forcedScoreboard != null || !hasScoreboardVisible(p) ||
+                announcement != null || p.scoreboardData.joinDelayed) return;
         sendHighestScoreboard(p);
-
-    }
-
-    @Override
-    @NotNull
-    public String getRefreshDisplayName() {
-
-        return "Switching scoreboards";
-
-    }
-
-    @Override
-    public void unload() {
-
-        for (me.neznamy.tab.api.scoreboard.Scoreboard board : definedScoreboards) {
-
-            board.unregister();
-
-        }
-
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer connectedPlayer) {
-
-        TAB.getInstance().getPlaceholderManager().getTabExpansion().setScoreboardName(connectedPlayer, "");
-        TAB.getInstance().getPlaceholderManager().getTabExpansion().setScoreboardVisible(connectedPlayer, false);
-        if (joinDelay > 0) {
-
+        connectedPlayer.expansionData.setScoreboardName("");
+        connectedPlayer.expansionData.setScoreboardVisible(false);
+        if (toggleManager != null) toggleManager.convert(connectedPlayer);
+        if (configuration.getJoinDelay() > 0) {
             connectedPlayer.scoreboardData.joinDelayed = true;
-            TAB.getInstance().getCPUManager().runTaskLater(joinDelay, getFeatureName(),
-                    TabConstants.CpuUsageCategory.PLAYER_JOIN, () ->
-                    {
-
-                        if (connectedPlayer.scoreboardData.otherPluginScoreboard == null)
-                            setScoreboardVisible(connectedPlayer,
-                                    hiddenByDefault == sbOffPlayers.contains(connectedPlayer.getName()), false);
-                        connectedPlayer.scoreboardData.joinDelayed = false;
-
-                    });
-
+            customThread.executeLater(new TimedCaughtTask(TAB.getInstance().getCpu(), () -> {
+                setScoreboardVisible(connectedPlayer, configuration.isHiddenByDefault() == (toggleManager != null && toggleManager.contains(connectedPlayer)), false);
+                connectedPlayer.scoreboardData.joinDelayed = false;
+            }, getFeatureName(), TabConstants.CpuUsageCategory.PLAYER_JOIN), configuration.getJoinDelay());
         } else {
-
-            setScoreboardVisible(connectedPlayer, hiddenByDefault == sbOffPlayers.contains(connectedPlayer.getName()),
-                    false);
-
+            setScoreboardVisible(connectedPlayer, configuration.isHiddenByDefault() == (toggleManager != null && toggleManager.contains(connectedPlayer)), false);
         }
-
     }
 
     /**
      * Sends the player scoreboard he should see according to conditions and worlds
      *
-     * @param p player to send scoreboard to
+     * @param   p
+     *          player to send scoreboard to
      */
     public void sendHighestScoreboard(@NonNull TabPlayer p) {
-
-        if (!hasScoreboardVisible(p))
-            return;
+        if (!hasScoreboardVisible(p)) return;
         ScoreboardImpl scoreboard = (ScoreboardImpl) detectHighestScoreboard(p);
         ScoreboardImpl current = p.scoreboardData.activeScoreboard;
         if (scoreboard != current) {
-
             if (current != null) {
-
                 current.removePlayer(p);
-
             }
-
             if (scoreboard != null) {
-
                 scoreboard.addPlayer(p);
-
             }
-
         }
-
     }
 
     /**
-     * Removes this player from registered users in scoreboard and sends unregister
-     * packets if set
+     * Removes this player from registered users in scoreboard and sends unregister packets if set
      *
-     * @param p player to unregister scoreboard to
+     * @param   p
+     *          player to unregister scoreboard to
      */
     public void unregisterScoreboard(@NonNull TabPlayer p) {
-
         if (p.scoreboardData.activeScoreboard != null) {
-
             p.scoreboardData.activeScoreboard.removePlayer(p);
             p.scoreboardData.activeScoreboard = null;
-
         }
-
     }
 
     /**
      * Returns currently the highest scoreboard in chain for specified player
      *
-     * @param p player to check
-     * @return highest scoreboard player should see
+     * @param   p
+     *          player to check
+     * @return  highest scoreboard player should see
      */
     public @Nullable me.neznamy.tab.api.scoreboard.Scoreboard detectHighestScoreboard(@NonNull TabPlayer p) {
-
-        if (p.scoreboardData.forcedScoreboard != null)
-            return p.scoreboardData.forcedScoreboard;
-        for (me.neznamy.tab.api.scoreboard.Scoreboard sb : definedScoreboards) {
-
-            if (((ScoreboardImpl) sb).isConditionMet(p))
-                return sb;
-
+        if (p.scoreboardData.forcedScoreboard != null) return p.scoreboardData.forcedScoreboard;
+        for (ScoreboardImpl sb : definedScoreboards) {
+            if (sb.isConditionMet(p)) return sb;
         }
-
         return null;
-
-    }
-
-    @Override
-    public boolean onCommand(@NotNull TabPlayer sender, @NotNull String message) {
-
-        if (message.equals(command)) {
-
-            TAB.getInstance().getCommand().execute(sender, new String[] { "scoreboard" });
-            return true;
-
-        }
-
-        return false;
-
     }
 
     @Override
     public void onDisplayObjective(@NotNull TabPlayer receiver, int slot, @NotNull String objective) {
-
-        if (respectOtherPlugins && slot == Scoreboard.DisplaySlot.SIDEBAR && !objective.equals(OBJECTIVE_NAME)) {
-
-            TAB.getInstance().debug(
-                    "Player " + receiver.getName() + " received scoreboard called " + objective + ", hiding TAB one.");
+        if (slot == Scoreboard.DisplaySlot.SIDEBAR.ordinal() && !objective.equals(OBJECTIVE_NAME)) {
+            TAB.getInstance().debug("Player " + receiver.getName() + " received scoreboard called " + objective + ", disabling TAB's scoreboard slotting.");
             receiver.scoreboardData.otherPluginScoreboard = objective;
-            ScoreboardImpl sb = receiver.scoreboardData.activeScoreboard;
-            if (sb != null) {
-
-                TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(),
-                        TabConstants.CpuUsageCategory.SCOREBOARD_PACKET_CHECK, () -> sb.removePlayer(receiver));
-
-            }
-
         }
-
     }
 
     @Override
     public void onObjective(@NotNull TabPlayer receiver, int action, @NotNull String objective) {
-
-        if (respectOtherPlugins && action == Scoreboard.ObjectiveAction.UNREGISTER
-                && objective.equals(receiver.scoreboardData.otherPluginScoreboard))
-        {
-
-            TAB.getInstance()
-                    .debug("Player " + receiver.getName() + " no longer has another scoreboard, sending TAB one.");
+        if (action == Scoreboard.ObjectiveAction.UNREGISTER && objective.equals(receiver.scoreboardData.otherPluginScoreboard)) {
+            TAB.getInstance().debug("Player " + receiver.getName() + " no longer has another scoreboard, slotting TAB scoreboard.");
             receiver.scoreboardData.otherPluginScoreboard = null;
-            TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(),
-                    TabConstants.CpuUsageCategory.SCOREBOARD_PACKET_CHECK, () -> sendHighestScoreboard(receiver));
-
+            if (receiver.scoreboardData.activeScoreboard != null) {
+                receiver.getScoreboard().setDisplaySlot(OBJECTIVE_NAME, Scoreboard.DisplaySlot.SIDEBAR);
+            }
         }
-
-    }
-
-    private void savePlayers() {
-
-        synchronized (sbOffPlayers) {
-
-            TAB.getInstance().getConfiguration().getPlayerDataFile().set("scoreboard-off",
-                    new ArrayList<>(sbOffPlayers));
-
-        }
-
     }
 
     @Override
     public void onQuit(@NotNull TabPlayer disconnectedPlayer) {
-
         ScoreboardImpl sb = disconnectedPlayer.scoreboardData.activeScoreboard;
         if (sb != null) {
-
             sb.removePlayerFromSet(disconnectedPlayer);
-
         }
-
-    }
-
-    @Override
-    public void onLoginPacket(TabPlayer player) {
-
-        if (!player.isLoaded())
-            return;
-        player.scoreboardData.otherPluginScoreboard = null;
-        ScoreboardImpl scoreboard = player.scoreboardData.activeScoreboard;
-        if (scoreboard != null) {
-
-            scoreboard.removePlayerFromSet(player);
-            scoreboard.addPlayer(player);
-
-        }
-
     }
 
     @Override
     @NotNull
-    public String getFeatureName() {
-
-        return "Scoreboard";
-
+    public Object dump(@NotNull TabPlayer player) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("configuration", configuration.getSection().getMap());
+        map.put("chain", new LinkedHashMap<String, Object>() {{
+            for (ScoreboardImpl scoreboard : definedScoreboards) {
+                put(scoreboard.getName(), scoreboard.dump(player, player.scoreboardData.activeScoreboard));
+            }
+        }});
+        if (player.scoreboardData.otherPluginScoreboard != null) {
+            map.put("scoreboard feature occupied by another plugin", "Yes (\"" + player.scoreboardData.otherPluginScoreboard + "\")");
+        } else {
+            map.put("scoreboard feature occupied by another plugin", "No");
+        }
+        map.put("scoreboard visible (= not toggled by user)", player.scoreboardData.visible);
+        if (player.scoreboardData.activeScoreboard != null) {
+            map.put("currently displayed scoreboard", new LinkedHashMap<String, Object>() {{
+                put("name", player.scoreboardData.activeScoreboard.getName());
+                put("title", player.scoreboardData.titleProperty.get());
+                List<String> lines = new ArrayList<>();
+                for (Line line : player.scoreboardData.activeScoreboard.getLines()) {
+                    lines.add(player.scoreboardData.lineProperties.get((ScoreboardLine) line).get() + " || " +
+                            player.scoreboardData.numberFormatProperties.get((ScoreboardLine) line).get());
+                }
+                put("lines", lines);
+            }});
+        } else {
+            map.put("currently displayed scoreboard", null);
+        }
+        return map;
     }
 
     // ------------------
@@ -334,250 +231,182 @@ public class ScoreboardManagerImpl extends TabFeature
 
     @Override
     @NotNull
-    public me.neznamy.tab.api.scoreboard.Scoreboard createScoreboard(@NonNull String name, @NonNull String title,
-            @NonNull List<String> lines)
-    {
-
+    public me.neznamy.tab.api.scoreboard.Scoreboard createScoreboard(@NonNull String name, @NonNull String title, @NonNull List<String> lines) {
         ensureActive();
-        me.neznamy.tab.api.scoreboard.Scoreboard sb = new ScoreboardImpl(this, name, title, lines, true);
+        ScoreboardImpl sb = new ScoreboardImpl(this, name, new ScoreboardDefinition(null, title, lines), true, true);
         registeredScoreboards.put(name, sb);
-        definedScoreboards = registeredScoreboards.values().toArray(new me.neznamy.tab.api.scoreboard.Scoreboard[0]);
         return sb;
-
     }
 
     @Override
-    public void showScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player,
-            @NonNull me.neznamy.tab.api.scoreboard.Scoreboard scoreboard)
-    {
+    public void removeScoreboard(@NonNull String name) {
+        ScoreboardImpl removed = registeredScoreboards.remove(name);
+        if (removed == null) {
+            throw new IllegalArgumentException("No registered scoreboard found with name " + name);
+        }
 
+        Set<TabPlayer> players = removed.getPlayers();
+        removed.unregister();
+        for (TabPlayer p : players) {
+            p.scoreboardData.forcedScoreboard = null;
+            sendHighestScoreboard(p);
+        }
+    }
+
+    @Override
+    public void removeScoreboard(@NonNull me.neznamy.tab.api.scoreboard.Scoreboard scoreboard) {
+        if (!registeredScoreboards.remove(scoreboard.getName(), (ScoreboardImpl) scoreboard)) {
+            throw new IllegalArgumentException("This scoreboard (" + scoreboard.getName() + ") is not registered.");
+        }
+
+        Set<TabPlayer> players = ((ScoreboardImpl)scoreboard).getPlayers();
+        scoreboard.unregister();
+        for (TabPlayer p : players) {
+            p.scoreboardData.forcedScoreboard = null;
+            sendHighestScoreboard(p);
+        }
+    }
+
+    @Override
+    public void showScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player, @NonNull me.neznamy.tab.api.scoreboard.Scoreboard scoreboard) {
         ensureActive();
         TabPlayer p = (TabPlayer) player;
-        p.ensureLoaded();
 
-        if (p.scoreboardData.forcedScoreboard != null) {
+        customThread.execute(new TimedCaughtTask(TAB.getInstance().getCpu(), () -> {
+            if (p.scoreboardData.forcedScoreboard != null) {
+                p.scoreboardData.forcedScoreboard.removePlayer(p);
+            }
+            p.scoreboardData.forcedScoreboard = (ScoreboardImpl) scoreboard;
 
-            p.scoreboardData.forcedScoreboard.removePlayer(p);
+            if (p.scoreboardData.activeScoreboard != null) {
+                p.scoreboardData.activeScoreboard.removePlayer(p);
+                p.scoreboardData.activeScoreboard = null;
+            }
 
-        }
-
-        p.scoreboardData.forcedScoreboard = (ScoreboardImpl) scoreboard;
-
-        if (p.scoreboardData.activeScoreboard != null) {
-
-            p.scoreboardData.activeScoreboard.removePlayer(p);
-            p.scoreboardData.activeScoreboard = null;
-
-        }
-
-        if (hasScoreboardVisible(player))
-            ((ScoreboardImpl) scoreboard).addPlayer(p);
-
+            if (hasScoreboardVisible(player)) ((ScoreboardImpl) scoreboard).addPlayer(p);
+        }, getFeatureName(), "Showing custom Scoreboard"));
     }
 
     @Override
     public boolean hasCustomScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player) {
-
         ensureActive();
-        return ((TabPlayer) player).scoreboardData.forcedScoreboard != null;
-
+        return ((TabPlayer)player).scoreboardData.forcedScoreboard != null;
     }
-
+    
     @Override
     public void resetScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player) {
-
         ensureActive();
         TabPlayer p = (TabPlayer) player;
-        p.ensureLoaded();
 
-        if (p.scoreboardData.forcedScoreboard != null) {
-
-            p.scoreboardData.forcedScoreboard.removePlayer(p);
-            p.scoreboardData.forcedScoreboard = null;
-            me.neznamy.tab.api.scoreboard.Scoreboard sb = detectHighestScoreboard(p);
-            if (sb == null)
-                return; // no scoreboard available
-            p.scoreboardData.activeScoreboard = (ScoreboardImpl) sb;
-            ((ScoreboardImpl) sb).addPlayer(p);
-
-        }
-
+        customThread.execute(new TimedCaughtTask(TAB.getInstance().getCpu(), () -> {
+            if (p.scoreboardData.forcedScoreboard != null) {
+                p.scoreboardData.forcedScoreboard.removePlayer(p);
+                p.scoreboardData.forcedScoreboard = null;
+                me.neznamy.tab.api.scoreboard.Scoreboard sb = detectHighestScoreboard(p);
+                if (sb == null) return; //no scoreboard available
+                ((ScoreboardImpl) sb).addPlayer(p);
+            }
+        }, getFeatureName(), "Resetting custom Scoreboard"));
     }
 
     @Override
     public boolean hasScoreboardVisible(@NonNull me.neznamy.tab.api.TabPlayer player) {
-
         ensureActive();
-        return ((TabPlayer) player).scoreboardData.visible;
-
+        return ((TabPlayer)player).scoreboardData.visible;
     }
 
     @Override
-    public void setScoreboardVisible(@NonNull me.neznamy.tab.api.TabPlayer p, boolean visible,
-            boolean sendToggleMessage)
-    {
-
+    public void setScoreboardVisible(@NonNull me.neznamy.tab.api.TabPlayer p, boolean visible, boolean sendToggleMessage) {
         ensureActive();
         TabPlayer player = (TabPlayer) p;
-        if (player.scoreboardData.visible == visible)
-            return;
+        if (player.scoreboardData.visible == visible) return;
         if (visible) {
-
             player.scoreboardData.visible = true;
             sendHighestScoreboard(player);
             if (sendToggleMessage) {
-
-                player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getScoreboardOn(), true);
-
+                player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getScoreboardOn());
             }
-
-            if (rememberToggleChoice) {
-
-                if (hiddenByDefault) {
-
-                    if (!sbOffPlayers.contains(player.getName())) {
-
-                        sbOffPlayers.add(player.getName());
-                        savePlayers();
-
-                    }
-
+            if (toggleManager != null) {
+                if (configuration.isHiddenByDefault()) {
+                    toggleManager.add(player);
                 } else {
-
-                    if (sbOffPlayers.remove(player.getName())) {
-
-                        savePlayers();
-
-                    }
-
+                    toggleManager.remove(player);
                 }
-
             }
-
         } else {
-
             player.scoreboardData.visible = false;
             unregisterScoreboard(player);
             if (sendToggleMessage) {
-
-                player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getScoreboardOff(), true);
-
+                player.sendMessage(TAB.getInstance().getConfiguration().getMessages().getScoreboardOff());
             }
-
-            if (rememberToggleChoice) {
-
-                if (hiddenByDefault) {
-
-                    if (sbOffPlayers.remove(player.getName())) {
-
-                        savePlayers();
-
-                    }
-
+            if (toggleManager != null) {
+                if (configuration.isHiddenByDefault()) {
+                    toggleManager.remove(player);
                 } else {
-
-                    if (!sbOffPlayers.contains(player.getName())) {
-
-                        sbOffPlayers.add(player.getName());
-                        savePlayers();
-
-                    }
-
+                    toggleManager.add(player);
                 }
-
             }
-
         }
-
-        TAB.getInstance().getPlaceholderManager().getTabExpansion().setScoreboardVisible(player, visible);
-
+        player.expansionData.setScoreboardVisible(visible);
     }
 
     @Override
     public void toggleScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player, boolean sendToggleMessage) {
-
         ensureActive();
-        setScoreboardVisible(player, !((TabPlayer) player).scoreboardData.visible, sendToggleMessage);
-
+        setScoreboardVisible(player, !((TabPlayer)player).scoreboardData.visible, sendToggleMessage);
     }
 
     @Override
     public void announceScoreboard(@NonNull String scoreboard, int duration) {
-
         ensureActive();
-        if (duration < 0)
-            throw new IllegalArgumentException("Duration cannot be negative");
-        ScoreboardImpl sb = (ScoreboardImpl) registeredScoreboards.get(scoreboard);
-        if (sb == null)
-            throw new IllegalArgumentException("No registered scoreboard found with name " + scoreboard);
+        if (duration < 0) throw new IllegalArgumentException("Duration cannot be negative");
+        ScoreboardImpl sb = registeredScoreboards.get(scoreboard);
+        if (sb == null) throw new IllegalArgumentException("No registered scoreboard found with name " + scoreboard);
         Map<TabPlayer, ScoreboardImpl> previous = new HashMap<>();
-        TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), "Adding announced Scoreboard", () -> {
-
+        customThread.execute(new TimedCaughtTask(TAB.getInstance().getCpu(), () -> {
             announcement = sb;
             for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-
-                if (!hasScoreboardVisible(all))
-                    continue;
+                if (!hasScoreboardVisible(all)) continue;
                 previous.put(all, all.scoreboardData.activeScoreboard);
-                if (all.scoreboardData.activeScoreboard != null)
-                    all.scoreboardData.activeScoreboard.removePlayer(all);
+                if (all.scoreboardData.activeScoreboard != null) all.scoreboardData.activeScoreboard.removePlayer(all);
                 sb.addPlayer(all);
-
             }
-
-        });
-        TAB.getInstance().getCPUManager().runTaskLater(duration * 1000, getFeatureName(),
-                "Removing announced Scoreboard", () ->
-                {
-
-                    for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
-
-                        if (!hasScoreboardVisible(all))
-                            continue;
-                        sb.removePlayer(all);
-                        if (previous.get(all) != null)
-                            previous.get(all).addPlayer(all);
-
-                    }
-
-                    announcement = null;
-
-                });
-
+        }, getFeatureName(), "Adding announced Scoreboard"));
+        customThread.executeLater(new TimedCaughtTask(TAB.getInstance().getCpu(), () -> {
+            for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
+                if (!hasScoreboardVisible(all)) continue;
+                sb.removePlayer(all);
+                if (previous.get(all) != null) previous.get(all).addPlayer(all);
+            }
+            announcement = null;
+        }, getFeatureName(), "Removing announced Scoreboard"), duration*1000);
     }
 
     @Override
     @Nullable
     public ScoreboardImpl getActiveScoreboard(@NonNull me.neznamy.tab.api.TabPlayer player) {
-
         ensureActive();
-        return ((TabPlayer) player).scoreboardData.activeScoreboard;
-
+        return ((TabPlayer)player).scoreboardData.activeScoreboard;
     }
 
-    /**
-     * Class storing scoreboard data of players.
-     */
-    public static class PlayerData {
-
-        /** Flag tracking whether this player is under join delay or not */
-        public boolean joinDelayed;
-
-        /** Flag tracking whether player wishes to have scoreboard visible or not */
-        public boolean visible;
-
-        /** Scoreboard currently displayed to player */
-        @Nullable
-        public ScoreboardImpl activeScoreboard;
-
-        /** Forced scoreboard using API */
-        @Nullable
-        public ScoreboardImpl forcedScoreboard;
-
-        /** Scoreboard sent by another plugin (objective name) */
-        @Nullable
-        public String otherPluginScoreboard;
-
+    @NotNull
+    @Override
+    public String getFeatureName() {
+        return "Scoreboard";
     }
 
+    @Override
+    public void onServerChange(@NotNull TabPlayer changed, @NotNull Server from, @NotNull Server to) {
+        if (changed.scoreboardData.otherPluginScoreboard != null) {
+            changed.scoreboardData.otherPluginScoreboard = null;
+            if (changed.scoreboardData.activeScoreboard != null) {
+                changed.getScoreboard().setDisplaySlot(OBJECTIVE_NAME, Scoreboard.DisplaySlot.SIDEBAR);
+            }
+        }
+    }
+
+    @NotNull
+    public Map<String, me.neznamy.tab.api.scoreboard.Scoreboard> getRegisteredScoreboards() {
+        return Collections.unmodifiableMap(registeredScoreboards);
+    }
 }

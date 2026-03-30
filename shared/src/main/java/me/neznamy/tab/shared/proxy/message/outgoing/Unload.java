@@ -10,11 +10,8 @@ public class Unload implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
-
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Unload");
         return out;
-
     }
-
 }

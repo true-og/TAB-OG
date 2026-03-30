@@ -10,16 +10,11 @@ public class UpdateGameMode implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
-
-        gameMode = in.readInt();
-
+       gameMode = in.readInt();
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
-
         player.setGamemode(gameMode);
-
     }
-
 }

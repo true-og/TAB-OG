@@ -1,47 +1,38 @@
 package me.neznamy.tab.shared.platform;
 
-import java.io.File;
 import me.neznamy.tab.shared.GroupManager;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.features.bossbar.BossBarManagerImpl;
+import me.neznamy.tab.shared.chat.component.TabComponent;
+import me.neznamy.tab.shared.features.PerWorldPlayerListConfiguration;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
-import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.TabFeature;
+import me.neznamy.tab.shared.placeholders.expansion.EmptyTabExpansion;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.util.function.BiConsumer;
+
 /**
- * An interface with methods that are called in universal code, but require
- * platform-specific API calls.
+ * An interface with methods that are called in universal code,
+ * but require platform-specific API calls.
  */
 public interface Platform {
 
     /**
      * Detects permission plugin and returns its representing object
      *
-     * @return the interface representing the permission hook
+     * @return  the interface representing the permission hook
      */
-    @NotNull
-    GroupManager detectPermissionPlugin();
+    @NotNull GroupManager detectPermissionPlugin();
 
     /**
-     * Returns bossbar feature.
+     * Creates an instance of {@link me.neznamy.tab.api.placeholder.Placeholder}
+     * to handle this unknown placeholder (typically a PAPI placeholder)
      *
-     * @return bossbar feature
-     */
-    default @NotNull BossBarManagerImpl getBossBar() {
-
-        return new BossBarManagerImpl();
-
-    }
-
-    /**
-     * Creates an instance of {@link me.neznamy.tab.api.placeholder.Placeholder} to
-     * handle this unknown placeholder (typically a PAPI placeholder)
-     *
-     * @param identifier placeholder's identifier
+     * @param   identifier
+     *          placeholder's identifier
      */
     void registerUnknownPlaceholder(@NotNull String identifier);
 
@@ -58,66 +49,57 @@ public interface Platform {
     /**
      * Creates pipeline injection instance and returns it
      *
-     * @return new pipeline injection or null if not available
+     * @return  new pipeline injection or null if not available
      */
-    @Nullable
-    PipelineInjector createPipelineInjector();
-
-    /**
-     * Returns nametag handler when unlimited nametag mode is enabled in config
-     * file.
-     *
-     * @return Nametag feature handler for unlimited name tags
-     */
-    @NotNull
-    NameTag getUnlimitedNameTags();
+    @Nullable PipelineInjector createPipelineInjector();
 
     /**
      * Creates tab expansion instance and returns it
      *
-     * @return Created expansion
+     * @return  Created expansion
      */
-    @NotNull
-    TabExpansion createTabExpansion();
+    default @NotNull TabExpansion createTabExpansion() {
+        return new EmptyTabExpansion();
+    }
 
     /**
-     * Creates RedisSupport feature, registers listeners and returns it
+     * Creates ProxySupport feature, registers listeners and returns it
      *
-     * @return Created instance
+     * @param   plugin
+     *          Proxy plugin to use
+     * @param   channelName
+     *          Channel name to use
+     * @return  Created instance
      */
     @Nullable
-    RedisSupport getRedisSupport();
+    ProxySupport getProxySupport(@NotNull String plugin, @NotNull String channelName);
 
     /**
      * Returns per world player list feature handler.
      *
-     * @return Created feature or null if not available on platform
+     * @param   configuration
+     *          Feature configuration
+     * @return  Created feature or null if not available on platform
      */
-    @Nullable
-    TabFeature getPerWorldPlayerList();
+    @Nullable TabFeature getPerWorldPlayerList(@NotNull PerWorldPlayerListConfiguration configuration);
 
     /**
      * Sends a console message with TAB's prefix using logger if available,
      * otherwise platform's method for sending console message.
      *
-     * @param message Message to send
+     * @param   message
+     *          Message to send
      */
     void logInfo(@NotNull TabComponent message);
 
     /**
-     * Sends a red console message with TAB's prefix using logger with warn type if
-     * available, otherwise platform's method for sending console message.
+     * Sends a red console message with TAB's prefix using logger with warn type if available,
+     * otherwise platform's method for sending console message.
      *
-     * @param message Message to send
+     * @param   message
+     *          Message to send
      */
     void logWarn(@NotNull TabComponent message);
-
-    /**
-     * Returns information about server version, which is displayed in debug command
-     *
-     * @return Server version information
-     */
-    String getServerVersionInfo();
 
     /**
      * Registers event listener for platform's events
@@ -130,40 +112,128 @@ public interface Platform {
     void registerCommand();
 
     /**
+     * Starts metrics
+     */
+    void startMetrics();
+
+    /**
      * Returns plugin's data folder for configuration files
      *
-     * @return plugin's data folder
+     * @return  plugin's data folder
      */
     File getDataFolder();
 
     /**
      * Returns {@code true} if this platform is a proxy, {@code false} if not.
      *
-     * @return {@code true} if this platform is a proxy, {@code false} if not
+     * @return  {@code true} if this platform is a proxy, {@code false} if not
      */
     boolean isProxy();
 
     /**
-     * Converts TAB component into platform's component.
+     * Converts thhe TAB component into platform's component.
      *
-     * @param component Component to convert
-     * @param modern    Whether clients supports RGB or not
-     * @return Converted component
+     * @param   component
+     *          Component to convert
+     * @return  Converted component
      */
-    Object convertComponent(@NotNull TabComponent component, boolean modern);
+    @NotNull
+    Object convertComponent(@NotNull TabComponent component);
 
     /**
-     * Returns {@code true} if the viewer can see the target, {@code false}
-     * otherwise. This includes all vanish, permission & plugin API checks.
+     * Creates new scoreboard instance for given player.
      *
-     * @param viewer Player who is viewing
-     * @param target Player who is being viewed
-     * @return {@code true} if can see, {@code false} if not.
+     * @param   player
+     *          Player to create scoreboard for
+     * @return  Scoreboard implementation for given player
      */
-    default boolean canSee(@NotNull TabPlayer viewer, @NotNull TabPlayer target) {
+    @NotNull
+    Scoreboard createScoreboard(@NotNull TabPlayer player);
 
-        return target.isVanished();
+    /**
+     * Creates new bossbar instance for given player.
+     *
+     * @param   player
+     *          Player to create bossbar for
+     * @return  Bossbar implementation for given player
+     */
+    @NotNull
+    BossBar createBossBar(@NotNull TabPlayer player);
 
+    /**
+     * Creates new tablist instance for given player.
+     *
+     * @param   player
+     *          Player to create tablist for
+     * @return  TabList implementation for given player
+     */
+    @NotNull
+    TabList createTabList(@NotNull TabPlayer player);
+
+    /**
+     * Returns {@code true} if server has a scoreboard implementation, {@code false} if not.
+     *
+     * @return   {@code true} if server has a scoreboard implementation, {@code false} if not
+     */
+    boolean supportsScoreboards();
+
+    /**
+     * Returns {@code true} if server supports listed option (1.19.3+), {@code false} if not.
+     *
+     * @return   {@code true} if server supports listed option (1.19.3+), {@code false} if not
+     */
+    default boolean supportsListed() {
+        return true;
     }
 
+    /**
+     * Returns {@code true} if server supports list order option (1.21.2+), {@code false} if not.
+     *
+     * @return   {@code true} if server supports list order option (1.21.2+), {@code false} if not
+     */
+    default boolean supportsListOrder() {
+        return true;
+    }
+
+    /**
+     * Returns {@code true} if the server is safe from being affected by the packetevents bug with limitations, {@code false} if not.
+     *
+     * @return  {@code true} if server is safe, {@code false} if not
+     */
+    default boolean isSafeFromPacketEventsBug() {
+        return true;
+    }
+
+    /**
+     * Returns the command string used by this platform without "/"
+     * prefix, such as "tab" on backend and "btab" on BungeeCord.
+     *
+     * @return  command string on this platform without "/" prefix
+     */
+    @NotNull
+    String getCommand();
+
+    /**
+     * Registers a custom command that executes the given function
+     * when a player uses it.
+     *
+     * @param   commandName
+     *          Name of the command without "/" prefix
+     * @param   function
+     *          Function to execute when a player uses the command
+     */
+    void registerCustomCommand(@NotNull String commandName, @NotNull BiConsumer<TabPlayer, String[]> function);
+
+    /**
+     * Unregisters all custom commands registered by features.
+     */
+    void unregisterAllCustomCommands();
+
+    /**
+     * Dumps data of the platform.
+     *
+     * @return  Dumped data
+     */
+    @NotNull
+    Object dump();
 }

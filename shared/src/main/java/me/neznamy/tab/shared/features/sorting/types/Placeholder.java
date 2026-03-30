@@ -1,13 +1,17 @@
 package me.neznamy.tab.shared.features.sorting.types;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import me.neznamy.tab.shared.TAB;
+import lombok.AllArgsConstructor;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
+import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.features.sorting.Sorting;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Sorting by a placeholder by values defined in list
@@ -20,75 +24,70 @@ public class Placeholder extends SortingType {
     /**
      * Constructs new instance with given parameters
      *
-     * @param sorting sorting feature
-     * @param options options used by this sorting type
+     * @param   sorting
+     *          Sorting feature
+     * @param   result
+     *          Result of splitting the options string containing the placeholder and its values
      */
-    public Placeholder(Sorting sorting, String options) {
-
-        super(sorting, "PLACEHOLDER", getPlaceholder(options));
-        String[] args = options.split(":");
-        String elements = args[args.length - 1];
-        if (args.length > 1) {
-
-            String[] array = elements.split(",");
-            if (elements.endsWith(",")) {
-
-                // Allow empty string as output
-                array = Arrays.copyOf(array, array.length + 1);
-                array[array.length - 1] = "";
-
-            }
-
-            sortingMap = convertSortingElements(array);
-
-        } else {
-
-            TAB.getInstance().getConfigHelper().startup().incompleteSortingLine("PLACEHOLDER:" + options);
-            sortingMap = new LinkedHashMap<>();
-
-        }
-
+    public Placeholder(Sorting sorting, PlaceholderSplitResult result) {
+        super(sorting, "PLACEHOLDER:" + result.placeholder, result.placeholder);
+        sortingMap = convertSortingElements(result.values);
     }
 
     /**
-     * Returns placeholder identifier used in provided options. This allows support
-     * for placeholders that contain ":", such as conditions or animations.
+     * Splits the given options string into a placeholder and its values.
      *
-     * @param options Configured sorting options in "%placeholder%:values" format
-     * @return Placeholder configured in options
+     * @param   options
+     *          Options string in the format "%placeholder%:value1,value2,...,valueN"
+     * @return  Result containing the placeholder and an array of values
      */
-    private static String getPlaceholder(String options) {
+    @Nullable
+    public static PlaceholderSplitResult splitValue(@NotNull String options) {
+        Pattern pattern = Pattern.compile("(%[^%]+%):(.+)");
+        Matcher matcher = pattern.matcher(options);
 
-        String[] args = options.split(":");
-        if (args.length == 1)
-            return args[0]; // Missing predefined values
-        return options.substring(0, options.length() - args[args.length - 1].length() - 1);
+        if (!matcher.matches()) {
+            TAB.getInstance().getConfigHelper().startup().invalidSortingLine("PLACEHOLDER:" + options, "Invalid format. Expected \"%placeholder%:value1,value2,...,valueN\".");
+            return null;
+        }
 
+        String placeholder = matcher.group(1);
+        String[] values = matcher.group(2).split(",", -1);
+        return new PlaceholderSplitResult(placeholder, values);
     }
 
     @Override
     public String getChars(@NotNull TabPlayer p) {
-
+        if (sortingPlaceholder == null) return "";
         String output = EnumChatFormat.color(setPlaceholders(p));
-        p.sortingData.teamNameNote += "\n-> " + sortingPlaceholder.getIdentifier() + " returned \"&e" + output + "&r\"";
         int position;
         String cleanOutput = output.trim().toLowerCase(Locale.US);
         if (!sortingMap.containsKey(cleanOutput)) {
-
-            TAB.getInstance().getConfigHelper().runtime().valueNotInPredefinedValues(sortingPlaceholder.getIdentifier(),
-                    sortingMap.keySet(), cleanOutput, p);
-            position = sortingMap.size() + 1;
-            p.sortingData.teamNameNote += "&c (not in list)&r. ";
-
+            TAB.getInstance().getConfigHelper().runtime().valueNotInPredefinedValues(sortingPlaceholder.getIdentifier(), sortingMap.keySet(), cleanOutput, p);
+            position = sortingMap.size()+1;
         } else {
-
             position = sortingMap.get(cleanOutput);
-            p.sortingData.teamNameNote += "&r &a(#" + position + " in list). &r";
-
         }
-
         return String.valueOf((char) (position + 47));
-
     }
 
+    @Override
+    @NotNull
+    public String getReturnedValue(@NotNull TabPlayer p) {
+        if (sortingPlaceholder == null) return "<INVALID>";
+        String output = EnumChatFormat.color(setPlaceholders(p));
+        String cleanOutput = output.trim().toLowerCase(Locale.US);
+        if (!sortingMap.containsKey(cleanOutput)) {
+            return output + " (not in list)";
+        } else {
+            return output + " (#" + sortingMap.get(cleanOutput) + " in list)";
+        }
+    }
+
+    @AllArgsConstructor
+    public static class PlaceholderSplitResult {
+
+        @NotNull private final String placeholder;
+        @NotNull private final String[] values;
+    }
 }

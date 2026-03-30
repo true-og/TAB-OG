@@ -1,263 +1,141 @@
 package me.neznamy.tab.shared.placeholders.conditions;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Getter;
-import lombok.NonNull;
-import me.neznamy.tab.api.placeholder.Placeholder;
+import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
+import me.neznamy.tab.shared.placeholders.PlaceholderReference;
+import me.neznamy.tab.shared.placeholders.types.RelationalPlaceholderImpl;
+import me.neznamy.tab.shared.placeholders.types.TabPlaceholder;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 /**
- * The main condition class. It allows users to configure different condition
- * types that must be met in order to display specified text or make a condition
- * requirement for a visual to be displayed.
+ * The main condition class. It allows users to configure different
+ * condition types that must be met in order to display specified
+ * text or make a condition requirement for a visual to be displayed.
  */
+@RequiredArgsConstructor
+@Getter
 public class Condition {
 
-    /** All conditions defined in configuration including anonymous conditions */
-    private static Map<String, Condition> registeredConditions = new HashMap<>();
-
-    /** All supported sub-condition types */
-    @Getter
-    private static final Map<String, Function<String, Function<TabPlayer, Boolean>>> conditionTypes = new LinkedHashMap<String, Function<String, Function<TabPlayer, Boolean>>>() {
-
-        {
-
-            put(">=", line -> new NumericCondition(line.split(">="), (left, right) -> left >= right)::isMet);
-            put(">", line -> new NumericCondition(line.split(">"), (left, right) -> left > right)::isMet);
-            put("<=", line -> new NumericCondition(line.split("<="), (left, right) -> left <= right)::isMet);
-            put("<-", line -> new StringCondition(line.split("<-"), String::contains)::isMet);
-            put("<", line -> new NumericCondition(line.split("<"), (left, right) -> left < right)::isMet);
-            put("|-", line -> new StringCondition(line.split("\\|-"), String::startsWith)::isMet);
-            put("-|", line -> new StringCondition(line.split("-\\|"), String::endsWith)::isMet);
-            put("!=", line -> new StringCondition(line.split("!="), (left, right) -> !left.equals(right))::isMet);
-            put("=", line -> new StringCondition(line.split("="), String::equals)::isMet);
-            put("permission:", line -> {
-
-                String node = line.split(":")[1];
-                return p -> p.hasPermission(node);
-
-            });
-
-        }
-
-    };
-
     /** Name of this condition defined in configuration */
-    @Getter
+    @NotNull
     private final String name;
 
-    /** All defined sub-conditions inside this conditions */
-    protected final List<Function<TabPlayer, Boolean>> subConditions = new ArrayList<>();
+    /** All defined expressions inside this condition */
+    @NotNull
+    protected final List<ConditionalExpression> expressions;
 
     /** Condition type, {@code true} for AND type and {@code false} for OR type */
     private final boolean type;
 
     /** Text to display if condition passed */
+    @NotNull
     private final String yes;
 
     /** Text to display if condition failed */
+    @NotNull
     private final String no;
 
     /**
-     * Refresh interval of placeholder created from this condition. It is calculated
-     * based on nested placeholders used in sub-conditions.
+     * Refresh interval of placeholder created from this condition.
+     * It is calculated based on nested placeholders used in sub-conditions.
      */
-    @Getter
     private int refresh = -1;
 
     /** List of all placeholders used inside this condition */
-    private final List<String> placeholdersInConditions = new ArrayList<>();
+    @NotNull
+    private final List<PlaceholderReference> placeholdersInConditions = new ArrayList<>();
+
+    @Nullable
+    private TabPlaceholder placeholder;
+
+    @Nullable
+    private RelationalPlaceholderImpl relationalPlaceholder;
 
     /**
-     * Constructs new instance with given parameters and registers this condition to
-     * list as well as the placeholder.
+     * Constructs new instance with given definition and registers
+     * this condition to list as well as the placeholder.
      *
-     * @param type       type of condition, {@code true} for AND type and
-     *                   {@code false} for OR type
-     * @param name       name of condition
-     * @param conditions list of condition lines
-     * @param yes        value to return if condition is met
-     * @param no         value to return if condition is not met
+     * @param   definition
+     *          Condition definition from configuration
      */
-    public Condition(boolean type, @NonNull String name, @NonNull List<String> conditions, @Nullable String yes,
-            @Nullable String no)
-    {
-
-        this.type = type;
-        this.name = name;
-        this.yes = yes;
-        this.no = no;
-        for (String line : conditions) {
-
-            Function<TabPlayer, Boolean> condition = compile(line);
-            if (condition != null) {
-
-                subConditions.add(condition);
-
-            } else {
-
-                TAB.getInstance().getConfigHelper().startup().invalidConditionPattern(name, line);
-
+    public Condition(@NotNull ConditionsSection.ConditionDefinition definition) {
+        type = definition.isType();
+        name = definition.getName();
+        expressions = definition.getConditions().stream().map(expressionString -> {
+            ConditionalExpression expression = ConditionalExpression.compile(expressionString.trim());
+            if (expression == null) {
+                TAB.getInstance().getConfigHelper().startup().startupWarn("Line \"" + expressionString + "\" is not a valid conditional expression.");
             }
-
-        }
-
-        PlaceholderManagerImpl pm = TAB.getInstance().getPlaceholderManager();
-        for (String subCondition : conditions) {
-
-            if (subCondition.startsWith("permission:")) {
-
-                int permissionRefresh = TAB.getInstance().getConfiguration().getPermissionRefreshInterval();
-                if (refresh > permissionRefresh || refresh == -1)
-                    refresh = permissionRefresh;
-
-            } else {
-
-                placeholdersInConditions.addAll(pm.detectPlaceholders(subCondition));
-
-            }
-
-        }
-
-        if (yes != null)
-            placeholdersInConditions.addAll(pm.detectPlaceholders(yes));
-        if (no != null)
-            placeholdersInConditions.addAll(pm.detectPlaceholders(no));
-        registeredConditions.put(name, this);
-
+            return expression;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        yes = definition.getYes();
+        no = definition.getNo();
+        analyzeContent();
     }
 
     /**
-     * Configures refresh interval and registers nested placeholders
-     */
-    public void finishSetup() {
-
-        for (String placeholder : placeholdersInConditions) {
-
-            TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholder)
-                    .addParent(TabConstants.Placeholder.condition(name));
-            Placeholder pl = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholder);
-            if (pl.getRefresh() < refresh && pl.getRefresh() != -1) {
-
-                refresh = pl.getRefresh();
-
-            }
-
-        }
-
-        TAB.getInstance().getPlaceholderManager().addUsedPlaceholders(placeholdersInConditions);
-
-    }
-
-    /**
-     * Returns text for player based on if condition is met or not
+     * Constructs new instance from a condition string in short format.
+     * This constructor is used for anonymous conditions only.
      *
-     * @param p player to check condition for
-     * @return yes or no value depending on if condition passed or not
+     * @param   shortFormat
+     *          Condition in short format
      */
-    public String getText(TabPlayer p) {
-
-        return isMet(p) ? yes : no;
-
-    }
-
-    /**
-     * Returns {@code true} if condition is met for player, {@code false} if not
-     *
-     * @param p player to check conditions for
-     * @return {@code true} if met, {@code false} if not
-     */
-    public boolean isMet(TabPlayer p) {
-
-        if (type) {
-
-            for (Function<TabPlayer, Boolean> condition : subConditions) {
-
-                if (!condition.apply(p))
-                    return false;
-
-            }
-
-            return true;
-
+    public Condition(@NotNull String shortFormat) {
+        name = "AnonymousCondition[" + shortFormat + "]";
+        yes = "true";
+        no = "false";
+        List<String> conditions;
+        if (shortFormat.contains(";")) {
+            type = true;
+            conditions = Arrays.asList(shortFormat.split(";"));
         } else {
-
-            for (Function<TabPlayer, Boolean> condition : subConditions) {
-
-                if (condition.apply(p))
-                    return true;
-
-            }
-
-            return false;
-
+            type = false;
+            conditions = splitString(shortFormat);
         }
-
+        expressions = conditions.stream().map(expressionString -> {
+            ConditionalExpression expression = ConditionalExpression.compile(expressionString.trim());
+            if (expression == null) {
+                TAB.getInstance().getConfigHelper().startup().startupWarn("Line \"" + expressionString + "\" is not a valid conditional expression.");
+            }
+            return expression;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        analyzeContent();
     }
 
-    /**
-     * Returns condition from given string. If the string is name of a condition,
-     * that condition is returned. If it's a condition pattern, it is compiled and
-     * returned. If the string is null, null is returned.
-     *
-     * @param string condition name or pattern
-     * @return condition from string
-     */
-    public static Condition getCondition(String string) {
-
-        if (string == null || string.isEmpty())
-            return null;
-        if (string.equals("true"))
-            return TrueCondition.INSTANCE;
-        if (string.equals("false"))
-            return FalseCondition.INSTANCE;
-        if (registeredConditions.containsKey(string)) {
-
-            return registeredConditions.get(string);
-
-        } else {
-
-            boolean type;
-            List<String> conditions;
-            if (string.contains(";")) {
-
-                type = true;
-                conditions = Arrays.asList(string.split(";"));
-
+    private void analyzeContent() {
+        for (ConditionalExpression expression : expressions) {
+            if (expression instanceof Permission || expression instanceof NotPermission) {
+                int permissionRefresh = TAB.getInstance().getConfiguration().getConfig().getPermissionRefreshInterval();
+                if (refresh > permissionRefresh || refresh == -1) refresh = permissionRefresh;
             } else {
-
-                type = false;
-                conditions = splitString(string);
-
+                ComparatorExpression comparator = (ComparatorExpression) expression;
+                placeholdersInConditions.addAll(Arrays.stream(comparator.getLeftSide().getPlaceholders()).map(ConditionPlaceholder::getRealPlaceholder).collect(Collectors.toList()));
+                placeholdersInConditions.addAll(Arrays.stream(comparator.getRightSide().getPlaceholders()).map(ConditionPlaceholder::getRealPlaceholder).collect(Collectors.toList()));
             }
-
-            Condition c = new Condition(type, "AnonymousCondition[" + string + "]", conditions, "true", "false");
-            c.finishSetup();
-            TAB.getInstance().getPlaceholderManager().registerPlayerPlaceholder(
-                    TabConstants.Placeholder.condition(c.name), c.refresh, p -> c.getText((TabPlayer) p));
-            return c;
-
         }
-
     }
 
     /**
      * Splits string using `|` symbol except cases where it is used as |- or -|.
      * This method was 100% made by ChatGPT!
      *
-     * @param input String to split
-     * @return Split string
+     * @param   input
+     *          String to split
+     * @return  Split string
      */
-    private static List<String> splitString(@NotNull String input) {
-
+    private List<String> splitString(@NotNull String input) {
         List<String> result = new ArrayList<>();
 
         // Define a regular expression pattern to match the desired delimiter
@@ -268,61 +146,170 @@ public class Condition {
         int start = 0;
 
         while (matcher.find()) {
-
             int end = matcher.start();
             result.add(input.substring(start, end));
             start = matcher.end();
-
         }
 
         // Add the remaining part of the string
         result.add(input.substring(start));
 
         return result;
-
     }
 
     /**
-     * Clears registered condition map on plugin reload
+     * Configures refresh interval and registers nested placeholders
      */
-    public static void clearConditions() {
-
-        registeredConditions = new HashMap<>();
-
-    }
-
-    /**
-     * Marks all placeholders used in the condition as used and registers them.
-     * Using a separate method to avoid premature registration of nested conditional
-     * placeholders before they are registered properly.
-     */
-    public static void finishSetups() {
-
-        registeredConditions.values().forEach(Condition::finishSetup);
-
-    }
-
-    /**
-     * Compiles condition from condition line. This includes detection what kind of
-     * condition it is and creating it.
-     *
-     * @param line condition line
-     * @return compiled condition or null if no valid pattern was found
-     */
-    private static Function<TabPlayer, Boolean> compile(String line) {
-
-        for (Map.Entry<String, Function<String, Function<TabPlayer, Boolean>>> entry : conditionTypes.entrySet()) {
-
-            if (line.contains(entry.getKey())) {
-
-                return entry.getValue().apply(line);
-
+    public void finishSetup() {
+        for (PlaceholderReference placeholder : placeholdersInConditions) {
+            if (placeholder.getRefresh() != -1 && (placeholder.getRefresh() < refresh || refresh == -1)) {
+                refresh = placeholder.getRefresh();
             }
-
         }
-
-        return null;
-
+        PlaceholderManagerImpl manager = TAB.getInstance().getPlaceholderManager();
+        String identifier = getPlaceholderIdentifier();
+        String relIdentifier = getRelationalPlaceholderIdentifier();
+        if (hasRelationalContent()) {
+            relationalPlaceholder = manager.registerRelationalPlaceholder(
+                    relIdentifier,
+                    refresh,
+                    (viewer, target) -> getText((TabPlayer) viewer, (TabPlayer) target)
+            );
+            placeholder = manager.registerPlayerPlaceholder(
+                    identifier,
+                    -1,
+                    p -> "<This is a relational condition, use " + relIdentifier.substring(1, relIdentifier.length()-1) + ">"
+            );
+        } else {
+            relationalPlaceholder = manager.registerRelationalPlaceholder(
+                    relIdentifier,
+                    -1,
+                    (viewer, target) -> "<This is not a relational condition, use " + identifier.substring(1, identifier.length()-1) + ">"
+            );
+            placeholder = manager.registerPlayerPlaceholder(
+                    identifier,
+                    refresh,
+                    p -> getText((TabPlayer) p, (TabPlayer) p)
+            );
+        }
+        for (PlaceholderReference reference : placeholdersInConditions) {
+            TabPlaceholder placeholder = reference.getHandle();
+            placeholder.addParent(this.placeholder);
+            if (hasRelationalContent()) {
+                placeholder.addParent(relationalPlaceholder);
+            }
+            this.placeholder.addChild(placeholder);
+            relationalPlaceholder.addChild(placeholder);
+        }
+        TAB.getInstance().getPlaceholderManager().addUsedPlaceholderReferences(placeholdersInConditions);
     }
 
+    /**
+     * Returns text for player based on if condition is met or not
+     *
+     * @param   viewer
+     *          Viewer (relational conditions only)
+     * @param   target
+     *          Target player to check condition for
+     * @return  yes or no value depending on if condition passed or not
+     */
+    @NotNull
+    public String getText(@NotNull TabPlayer viewer, @NotNull TabPlayer target) {
+        return isMet(viewer, target) ? yes : no;
+    }
+
+    /**
+     * Returns {@code true} if condition is met for player, {@code false} if not
+     *
+     * @param   player
+     *          Player to check condition for
+     * @return  {@code true} if met, {@code false} if not
+     */
+    public boolean isMet(@NotNull TabPlayer player) {
+        return isMet(player, player);
+    }
+
+    /**
+     * Returns {@code true} if condition is met for player, {@code false} if not
+     *
+     * @param   viewer
+     *          Viewer (relational conditions only)
+     * @param   target
+     *          Target player to check condition for
+     * @return  {@code true} if met, {@code false} if not
+     */
+    public boolean isMet(@NotNull TabPlayer viewer, @NotNull TabPlayer target) {
+        if (type) {
+            for (ConditionalExpression condition : expressions) {
+                if (!condition.isMet(viewer, target)) return false;
+            }
+            return true;
+        } else {
+            for (ConditionalExpression condition : expressions) {
+                if (condition.isMet(viewer, target)) return true;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Inverts the condition by inverting each individual expression
+     * and switching the overall condition type (AND to OR, OR to AND).
+     *
+     * @return A new Condition instance representing the inverted condition
+     */
+    @NotNull
+    public Condition invert() {
+        return new Condition(new ConditionsSection.ConditionDefinition(
+                "inverted:" + name,
+                expressions.stream().map(expr -> expr.invert().toShortFormat()).collect(Collectors.toList()),
+                !type,
+                yes,
+                no
+        ));
+    }
+
+    /**
+     * Returns a short format representation of the entire condition,
+     * combining the short formats of all individual expressions
+     * with the appropriate logical operator based on the condition type.
+     *
+     * @return A string representing the entire condition in short format
+     */
+    @NotNull
+    public String toShortFormat() {
+        return expressions.stream().map(ConditionalExpression::toShortFormat).collect(Collectors.joining(type ? ";" : "|"));
+    }
+
+    /**
+     * Returns the placeholder identifier for this condition.
+     *
+     * @return The placeholder identifier in the format "%condition:name%"
+     */
+    @NotNull
+    public String getPlaceholderIdentifier() {
+        return "%condition:" + name + "%";
+    }
+
+    /**
+     * Returns the relational placeholder identifier for this condition.
+     *
+     * @return The relational placeholder identifier in the format "%rel_condition:name%"
+     */
+    @NotNull
+    public String getRelationalPlaceholderIdentifier() {
+        return "%rel_condition:" + name + "%";
+    }
+
+    /**
+     * Checks if this condition contains any relational content.
+     *
+     * @return {@code true} if the condition has relational content, {@code false} otherwise
+     */
+    public boolean hasRelationalContent() {
+        for (ConditionalExpression expression : expressions) {
+            if (expression.hasRelationalContent()) return true;
+        }
+        return false;
+    }
 }

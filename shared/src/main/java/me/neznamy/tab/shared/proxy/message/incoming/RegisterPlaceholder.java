@@ -11,16 +11,11 @@ public class RegisterPlaceholder implements IncomingMessage {
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
-
         identifier = in.readUTF();
-
     }
 
     @Override
     public void process(@NotNull ProxyTabPlayer player) {
-
         TAB.getInstance().getPlaceholderManager().addUsedPlaceholder(identifier);
-
     }
-
 }

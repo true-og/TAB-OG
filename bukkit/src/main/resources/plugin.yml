@@ -1,17 +1,14 @@
 main: me.neznamy.tab.platforms.bukkit.BukkitTAB
-name: TAB-OG
-version: '${version}'
-description: \"That\" TAB plugin.
+name: @name@
+version: @version@
+description: @description@
 api-version: 1.13 # Defining to avoid legacy plugin warn
 load: POSTWORLD
-authors: [NEZNAMY, NotAlexNoyle]
-website: "https://github.com/true-og/TAB-OG"
-depend: []
-softdepend: [PlaceholderAPI, LuckPerms, LibsDisguises, ViaVersion, ViaRewind, Vault]
-loadbefore: []
+author: @author@
+website: "@website@"
+softdepend: [PlaceholderAPI, LuckPerms, LibsDisguises, ViaVersion, ViaRewind, floodgate, Vault]
 prefix: TAB
-libraries: []
-folia-supported: false
+folia-supported: true
 commands:
   tab:
     description: Plugin's main command
@@ -28,8 +25,8 @@ permissions:
   tab.cpu:
     description: Allows player to run /tab cpu
     default: op
-  tab.debug:
-    description: Allows player to run /tab debug [player]
+  tab.dump:
+    description: Allows player to run /tab dump <player>
     default: op
   tab.groupinfo:
     description: Allows player to run /tab group <group>
@@ -50,7 +47,7 @@ permissions:
     description: Allows player to change property using command
     default: op
   tab.announce.bar:
-    description: Allows player to run /tab announce bar
+    description: Allows player to run /tab bossbar announce
     default: op
   tab.bossbar.toggle:
     description: Allows player to run /tab bossbar
@@ -69,12 +66,6 @@ permissions:
     default: op
   tab.nametag.toggle.other:
     description: Allows player to run /tab nametag toggle [other player]
-    default: op
-  tab.nametag.preview:
-    description: Allows player to run /tab nametag preview
-    default: op
-  tab.nametag.preview.other:
-    description: Allows player to run /tab nametag preview [other player]
     default: op
   tab.announce.scoreboard:
     description: Allows player to run /tab scoreboard announce

@@ -5,6 +5,9 @@ import com.google.common.io.ByteStreams;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Plugin message to update placeholder value in TAB's expansion in bridge.
+ */
 @AllArgsConstructor
 @SuppressWarnings("UnstableApiUsage")
 public class ExpansionPlaceholder implements OutgoingMessage {
@@ -15,13 +18,10 @@ public class ExpansionPlaceholder implements OutgoingMessage {
     @Override
     @NotNull
     public ByteArrayDataOutput write() {
-
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Expansion");
         out.writeUTF(placeholder);
         out.writeUTF(value);
         return out;
-
     }
-
 }

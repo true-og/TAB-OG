@@ -2,19 +2,17 @@
 header-footer:
   enabled: true
   header:
-    - "&B-----&d-----&f=-=-=-=-=-=-=&d-----&b-----"
-    - "&aTrue&cOG &4♥ &etrueog.net &4♥ &etrue-og.net"
-    - "&B-----&d-----&f=-=-=-=-=-=-=&d-----&b-----"
+    - "&B---------&d---------&f=-=-=-=-=-=-=&d---------&b---------"
+    - "&aTrue&cOG &eNetwork &4♥ &e1.19.4 &4♥ &etrueog.net &4♥ &etrue-og.net"
+    - "&B---------&d---------&f=-=-=-=-=-=-=&d---------&b---------"
     - ""
     #- ""
     #- ""
   footer:
-    #- ""
-    #- ""
-    - ""
-    - "%animation:RightToLeft% &2%online%&7/&b200 &6Players Online %animation:LeftToRight%"
-    - "&B1m TPS: &r%server_tps_1% &B5m TPS: &r%server_tps_5% &7| &6Used RAM: &r%server_ram_used% &7| &2Total RAM: &r%server_ram_max%"
-    #- ""
+  - ''
+  - '&r%animation:left-to-right% &bPlayers Online: &a%essentials_safe_online%/%server_max_players% &r%animation:right-to-left%'
+  - '&e1m TPS: &c%server_tps_1% &e5m TPS: &c%server_tps_5% &7| &eUsed RAM: &2%server_ram_used%MB &7| &eTotal RAM: &6%server_ram_max%MB'
+
   disable-condition: '%world%=disabledworld'
   per-world:
     world1:
@@ -56,10 +54,10 @@ scoreboard-teams:
     disable-on-boats: true
     disable-condition: '%world%=disabledworld'
     dynamic-lines:
-      - abovename
-      - nametag #the original one, combination of tagprefix + customtagname + tagsuffix
-      - belowname
-      - another
+    - abovename
+    - myCustomLine
+    - customtabname
+    - belowname
     static-lines:
       myCustomLine: 0.66
 
@@ -67,21 +65,21 @@ scoreboard-teams:
 playerlist-objective:
   enabled: true
   value: "%ping%"
-  fancy-value: "&7Ping: %ping%"
+  fancy-value: "&7Ping: %player_ping%"
   disable-condition: '%world%=disabledworld'
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Belowname
 belowname-objective:
-  enabled: false
+  enabled: true
   number: "%health%"
   text: "&cHealth"
   fancy-display-players: "&c%health%"
-  fancy-display-default: "NPC"
+  fancy-display-default: "&4Health"
   disable-condition: '%world%=disabledworld'
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Spectator-fix
 prevent-spectator-effect:
-  enabled: false
+  enabled: true
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Bossbar
 bossbar:
@@ -98,14 +96,14 @@ bossbar:
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard
 scoreboard:
-  enabled: true
+  enabled: false
   toggle-command: /sb
   remember-toggle-choice: true
   hidden-by-default: false
   use-numbers: false
   static-number: 0
   delay-on-join-milliseconds: 0
-  respect-other-plugins: false
+  respect-other-plugins: true
   scoreboards:
     scoreboard:
       title: "&a&lTrue&c&lOG &eNetwork"
@@ -218,12 +216,12 @@ debug: false
 
 # https://github.com/NEZNAMY/TAB/wiki/MySQL
 mysql:
-  enabled: true
+  enabled: false
   host: localhost
   port: 3306
   database: tab
-  username: REDACTED
-  password: REDACTED
+  username: ^{MARIADB_USER}
+  password: ^{MARIADB_PASSWORD}
   useSSL: true
 
 ########################################################################
@@ -232,20 +230,20 @@ mysql:
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Per-world-playerlist
 per-world-playerlist:
-  enabled: false
+  enabled: true
   # players with tab.staff will always see all players
   allow-bypass-permission: false
   # players in these worlds will always see all players
   ignore-effect-in-worlds:
-    - ignoredworld
-    - build
+    - none
   shared-playerlist-world-groups:
     lobby:
-      - lobby1
-      - lobby2
+      - world
+      - world_nether
+      - world_the_end
     minigames:
-      - paintball
-      - bedwars
+      - THB-1
+      - Ancient_Plateau
 
 #####################################################################
 # PROXY ONLY - THE FOLLOWING SECTION IS ONLY FOR PROXY INSTALLATION #

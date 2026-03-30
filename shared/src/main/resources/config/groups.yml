@@ -12,12 +12,11 @@ example_group:
 
  # default settings for all groups, all groups will take properties from this section unless player's primary group overrides a specific setting
 _DEFAULT_:
-  tabprefix: "%luckperms-prefix%"
-  tagprefix: "%luckperms-prefix%"
-  customtabname: "%player%"
-  customtagname: "%player%" # don't forget to enable unlimited nametag mode to make this one work
-  tabsuffix: "%luckperms-suffix%"
-  tagsuffix: "%luckperms-suffix%"
+  tabprefix: '&4&l%afkplus_status%%luckperms-prefix% '
+  tabsuffix: ' &8[%simpleclans_clan_color_tag%&8]'
+  tagprefix: '&4&l%afkplus_status%%luckperms-prefix% '
+  tagsuffix: ' &8[%simpleclans_clan_color_tag%&8]'
+
 
 per-world:
   world1:

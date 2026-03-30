@@ -35,7 +35,6 @@ public class VelocityEventListener implements EventListener<Player> {
      */
     @Subscribe
     public void onQuit(@NotNull DisconnectEvent e) {
-        if (TAB.getInstance().isPluginDisabled()) return;
         // Check if the player was actually connected to the server in the first place to avoid processing
         // disconnect of an existing player who is still there (because players are mapped by UUID in TAB)
         UUID id = players.remove(e.getPlayer());

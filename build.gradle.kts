@@ -1,4 +1,5 @@
 plugins {
+    eclipse
     id("tab.parent")
 }
 

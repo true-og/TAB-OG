@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "me.neznamy"
-    version = "6.0.0-SNAPSHOT"
+    version = "4.2.0"
     description = "An all-in-one solution that works"
 
     ext.set("id", "tab")
@@ -32,4 +32,14 @@ subprojects {
         in specialPaths -> plugins.apply("tab.standard-conventions")
         else -> plugins.apply("tab.base-conventions")
     }
+}
+
+val copyShadowJar by tasks.registering(Copy::class) {
+    dependsOn(":jar:shadowJar")
+    from(project(":jar").tasks.named("shadowJar"))
+    into(layout.buildDirectory.dir("libs"))
+}
+
+tasks.register("build") {
+    dependsOn(copyShadowJar)
 }

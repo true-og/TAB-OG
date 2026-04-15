@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.api.tablist.layout.Layout;
 import me.neznamy.tab.api.tablist.layout.LayoutManager;
 import me.neznamy.tab.shared.Property;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.layout.LayoutConfiguration.LayoutDefinition;
-import me.neznamy.tab.shared.features.layout.impl.LayoutBase;
 import me.neznamy.tab.shared.features.layout.impl.FakeEntryLayout;
+import me.neznamy.tab.shared.features.layout.impl.LayoutBase;
 import me.neznamy.tab.shared.features.layout.impl.common.FixedSlot;
 import me.neznamy.tab.shared.features.layout.pattern.LayoutPattern;
 import me.neznamy.tab.shared.features.pingspoof.PingSpoof;
@@ -25,7 +26,7 @@ import java.util.Map.Entry;
 
 @Getter
 public class LayoutManagerImpl extends RefreshableFeature implements LayoutManager, JoinListener, QuitListener, VanishListener, Loadable,
-        UnLoadable, TabListClearListener {
+        UnLoadable, TabListClearListener, Dumpable {
 
     private final LayoutConfiguration configuration;
     private final LayoutSkinManager skinManager;
@@ -135,7 +136,7 @@ public class LayoutManagerImpl extends RefreshableFeature implements LayoutManag
 
     @Nullable
     private LayoutPattern getHighestLayout(@NotNull TabPlayer p) {
-        if (p.getVersion().getMinorVersion() < 8 || p.isBedrockPlayer()) return null; // Ignore these players entirely
+        if (p.getVersion().getNetworkId() < ProtocolVersion.V1_8.getNetworkId() || p.isBedrockPlayer()) return null; // Ignore these players entirely
         if (p.layoutData.forcedLayout != null) return p.layoutData.forcedLayout;
         for (LayoutPattern pattern : layouts.values()) {
             if (pattern.isConditionMet(p)) return pattern;
@@ -176,8 +177,14 @@ public class LayoutManagerImpl extends RefreshableFeature implements LayoutManag
     @Override
     @NotNull
     public Layout createNewLayout(@NonNull String name) {
+        return createNewLayout(name, 80);
+    }
+
+    @Override
+    @NotNull
+    public Layout createNewLayout(@NonNull String name, int slotCount) {
         ensureActive();
-        return new LayoutPattern(this, new LayoutDefinition(name, null, null, 80, Collections.emptyList(), new LinkedHashMap<>()));
+        return new LayoutPattern(this, new LayoutDefinition(name, null, null, slotCount, Collections.emptyList(), new LinkedHashMap<>()));
     }
 
     @Override
@@ -208,6 +215,26 @@ public class LayoutManagerImpl extends RefreshableFeature implements LayoutManag
     @Override
     public String getFeatureName() {
         return "Layout";
+    }
+
+    @Override
+    @NotNull
+    public Object dump(@NotNull TabPlayer player) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("configuration", configuration.getSection().getMap());
+        map.put("chain", new LinkedHashMap<String, Object>() {{
+            for (LayoutPattern pattern : layouts.values()) {
+               put(pattern.getName(), pattern.dump(player, player.layoutData.currentLayout == null ? null : player.layoutData.currentLayout.view.getPattern()));
+            }
+        }});
+        if (player.layoutData.currentLayout != null) {
+            map.put("currently displayed layout", new LinkedHashMap<String, Object>() {{
+                put("name", player.layoutData.currentLayout.view.getPattern().getName());
+            }});
+        } else {
+            map.put("currently displayed layout", null);
+        }
+        return map;
     }
 
     /**

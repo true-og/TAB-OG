@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public enum ProtocolVersion {
 
     UNKNOWN,
+    V26_1    (775),
     V1_21_11 (774),
     V1_21_10 (773),
     V1_21_9 (773),
@@ -109,7 +110,11 @@ public enum ProtocolVersion {
      */
     ProtocolVersion(int networkId) {
         this.networkId = networkId;
-        minorVersion = Integer.parseInt(toString().split("_")[1]);
+        if (toString().startsWith("V1_")) {
+            minorVersion = Integer.parseInt(toString().split("_")[1]);
+        } else {
+            minorVersion = Integer.parseInt(toString().split("_")[0].substring(1));
+        }
         friendlyName = toString().substring(1).replace("_", ".");
     }
 
@@ -120,16 +125,6 @@ public enum ProtocolVersion {
         networkId = 999;
         minorVersion = 99;
         friendlyName = "Unknown";
-    }
-
-    /**
-     * Returns {@code true} if this version supports RGB codes,
-     * {@code false} if not.
-     *
-     * @return {@code true} if supports, {@code false} if not
-     */
-    public boolean supportsRGB() {
-        return minorVersion >= 16;
     }
 
     /**

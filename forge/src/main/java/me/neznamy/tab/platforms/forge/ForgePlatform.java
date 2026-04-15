@@ -6,10 +6,12 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.logging.LogUtils;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import me.neznamy.tab.platforms.forge.hook.PlaceholderAPIHook;
 import me.neznamy.tab.shared.ProjectVariables;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.backend.BackendPlatform;
+import me.neznamy.tab.shared.chat.TabClickEvent;
 import me.neznamy.tab.shared.chat.TabStyle;
 import me.neznamy.tab.shared.chat.component.TabComponent;
 import me.neznamy.tab.shared.chat.component.TabKeybindComponent;
@@ -34,14 +36,15 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.forgespi.language.IModInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.net.URI;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -102,12 +105,6 @@ public record ForgePlatform(MinecraftServer server) implements BackendPlatform {
     }
 
     @Override
-    @NotNull
-    public String getServerVersionInfo() {
-        return "[Forge] " + SharedConstants.getCurrentVersion().name();
-    }
-
-    @Override
     public void registerListener() {
         new ForgeEventListener().register();
     }
@@ -155,6 +152,10 @@ public record ForgePlatform(MinecraftServer server) implements BackendPlatform {
                 .withObfuscated(modifier.getObfuscated())
                 .withFont(modifier.getFont() == null ? null : new FontDescription.Resource(Identifier.parse(modifier.getFont())));
         if (modifier.getShadowColor() != null) style = style.withShadowColor(modifier.getShadowColor());
+
+        if (modifier.getClickEvent() != null) {
+            style = style.withClickEvent(convertClickEvent(modifier.getClickEvent()));
+        }
         nmsComponent.setStyle(style);
 
         // Extra
@@ -178,6 +179,27 @@ public record ForgePlatform(MinecraftServer server) implements BackendPlatform {
         } else {
             throw new IllegalStateException("Player head component does not have id, name or skin set");
         }
+    }
+
+    @SneakyThrows
+    @Nullable
+    private ClickEvent convertClickEvent(@NotNull TabClickEvent event) {
+        String value = event.getValue();
+        switch (event.getAction()) {
+            case OPEN_URL:
+                return new ClickEvent.OpenUrl(new URI(value));
+            case OPEN_FILE:
+                return new ClickEvent.OpenFile(value);
+            case RUN_COMMAND:
+                return new ClickEvent.RunCommand(value);
+            case SUGGEST_COMMAND:
+                return new ClickEvent.SuggestCommand(value);
+            case CHANGE_PAGE:
+                return new ClickEvent.ChangePage(Integer.parseInt(value));
+            case COPY_TO_CLIPBOARD:
+                return new ClickEvent.CopyToClipboard(value);
+        }
+        return null;
     }
 
     @Override
@@ -238,5 +260,21 @@ public record ForgePlatform(MinecraftServer server) implements BackendPlatform {
     @Override
     public double getMSPT() {
         return (float) server.getAverageTickTimeNanos() / 1000000;
+    }
+
+    @Override
+    @NotNull
+    public Object dump() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("server-type", "Forge");
+        map.put("server-name", "Forge");
+        map.put("server-version", SharedConstants.getCurrentVersion().name());
+        map.put("tab-version", ProjectVariables.PLUGIN_VERSION);
+        Map<String, Object> mods = new LinkedHashMap<>();
+        for (IModInfo mod : ModList.get().getMods()) {
+            mods.put(mod.getModId(), mod.getVersion().toString());
+        }
+        map.put("mods", mods);
+        return map;
     }
 }

@@ -7,6 +7,7 @@ import me.neznamy.tab.platforms.bungeecord.injection.BungeePipelineInjector;
 import me.neznamy.tab.platforms.bungeecord.tablist.BungeeTabList1193;
 import me.neznamy.tab.platforms.bungeecord.tablist.BungeeTabList17;
 import me.neznamy.tab.platforms.bungeecord.tablist.BungeeTabList18;
+import me.neznamy.tab.shared.ProjectVariables;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
@@ -39,6 +40,7 @@ import net.md_5.bungee.api.chat.player.Profile;
 import net.md_5.bungee.api.chat.player.Property;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -101,12 +103,6 @@ public class BungeePlatform extends ProxyPlatform {
     @Override
     public void logWarn(@NotNull TabComponent message) {
         plugin.getLogger().warning("§c" + message.toLegacyText());
-    }
-
-    @Override
-    @NotNull
-    public String getServerVersionInfo() {
-        return "[BungeeCord] " + plugin.getProxy().getName() + " - " + plugin.getProxy().getVersion();
     }
 
     @Override
@@ -231,7 +227,7 @@ public class BungeePlatform extends ProxyPlatform {
         // Component style
         TabStyle modifier = component.getModifier();
         if (modifier.getColor() != null) {
-            if (version.getMinorVersion() >= 16) {
+            if (version.getNetworkId() >= ProtocolVersion.V1_16.getNetworkId()) {
                 bComponent.setColor(ChatColor.of("#" + modifier.getColor().getHexCode()));
             } else {
                 bComponent.setColor(ChatColor.of(modifier.getColor().getLegacyColor().name()));
@@ -250,6 +246,13 @@ public class BungeePlatform extends ProxyPlatform {
         bComponent.setUnderlined(modifier.getUnderlined());
         bComponent.setFont(modifier.getFont());
 
+        if (modifier.getClickEvent() != null) {
+            bComponent.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.valueOf(modifier.getClickEvent().getAction().name()),
+                    modifier.getClickEvent().getValue()
+            ));
+        }
+
         // Extra
         for (TabComponent extra : component.getExtra()) {
             bComponent.addExtra(createComponent(extra, version));
@@ -267,7 +270,7 @@ public class BungeePlatform extends ProxyPlatform {
     @Override
     @NotNull
     public BossBar createBossBar(@NotNull TabPlayer player) {
-        if (player.getVersion().getMinorVersion() >= 9) {
+        if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_9.getNetworkId()) {
             return new BungeeBossBar((BungeeTabPlayer) player);
         } else {
             return new DummyBossBar();
@@ -324,5 +327,21 @@ public class BungeePlatform extends ProxyPlatform {
         for (Command cmd : customCommands) {
             ProxyServer.getInstance().getPluginManager().unregisterCommand(cmd);
         }
+    }
+
+    @Override
+    @NotNull
+    public Object dump() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("server-type", "BungeeCord");
+        map.put("server-name", plugin.getProxy().getName());
+        map.put("server-version", plugin.getProxy().getVersion());
+        map.put("tab-version", ProjectVariables.PLUGIN_VERSION);
+        Map<String, Object> plugins = new LinkedHashMap<>();
+        for (Plugin p : plugin.getProxy().getPluginManager().getPlugins()) {
+            plugins.put(p.getDescription().getName(), p.getDescription().getVersion());
+        }
+        map.put("plugins", plugins);
+        return map;
     }
 }

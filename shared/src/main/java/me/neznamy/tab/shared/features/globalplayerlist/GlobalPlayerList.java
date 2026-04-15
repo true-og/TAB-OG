@@ -1,6 +1,7 @@
 package me.neznamy.tab.shared.features.globalplayerlist;
 
 import lombok.Getter;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.chat.component.TabComponent;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
@@ -42,7 +43,7 @@ public class GlobalPlayerList extends RefreshableFeature implements JoinListener
         this.configuration = configuration;
         TAB.getInstance().getDataManager().applyConfiguration(configuration);
         for (Map.Entry<String, List<String>> entry : configuration.getSharedServers().entrySet()) {
-            TAB.getInstance().getPlaceholderManager().registerInternalServerPlaceholder(TabConstants.Placeholder.globalPlayerListGroup(entry.getKey()), 1000, () -> {
+            TAB.getInstance().getPlaceholderManager().registerServerPlaceholder(TabConstants.Placeholder.globalPlayerListGroup(entry.getKey()), 1000, () -> {
                 if (onlinePlayers == null) return "0"; // Not loaded yet
                 int count = 0;
                 for (TabPlayer player : onlinePlayers.getPlayers()) {
@@ -119,6 +120,7 @@ public class GlobalPlayerList extends RefreshableFeature implements JoinListener
     public void onQuit(@NotNull TabPlayer disconnectedPlayer) {
         onlinePlayers.removePlayer(disconnectedPlayer);
         for (TabPlayer all : onlinePlayers.getPlayers()) {
+            if (disconnectedPlayer.server == all.server) continue; // Already removed by server itself
             all.getTabList().removeEntry(disconnectedPlayer.getTablistId());
         }
     }
@@ -181,7 +183,7 @@ public class GlobalPlayerList extends RefreshableFeature implements JoinListener
                 true,
                 configuration.isUpdateLatency() ? p.getPing() : 0,
                 configuration.isOthersAsSpectators() || (configuration.isVanishedAsSpectators() && p.isVanished()) ? 3 : p.getGamemode(),
-                viewer.getVersion().getMinorVersion() >= 8 ? format : null,
+                viewer.getVersion().getNetworkId() >= ProtocolVersion.V1_8.getNetworkId() ? format : null,
                 0,
                 true
         );

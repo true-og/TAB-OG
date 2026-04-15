@@ -9,7 +9,7 @@ tasks.withType<Zip>().configureEach {
 
 tasks {
     shadowJar {
-        archiveFileName.set("TAB-${project.name}-${project.version}.jar")
+        archiveFileName.set("${rootProject.name}-${project.name}-${project.version}.jar")
         relocate("org.bstats", "me.neznamy.tab.libs.org.bstats")
         relocate("org.json.simple", "me.neznamy.tab.libs.org.json.simple")
         relocate("net.kyori.event", "me.neznamy.tab.libs.net.kyori.event")
@@ -20,5 +20,7 @@ tasks {
         relocate("org.json", "me.neznamy.tab.libs.org.json")
         relocate("com.rabbitmq", "me.neznamy.tab.libs.com.rabbitmq")
         relocate("com.saicone.delivery4j", "me.neznamy.tab.libs.com.saicone.delivery4j")
+        relocate("com.mysql", "me.neznamy.tab.libs.com.mysql")
+        relocate("com.google.protobuf", "me.neznamy.tab.libs.com.google.protobuf")
     }
 }

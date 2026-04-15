@@ -8,7 +8,6 @@ Starting with 6.0.0, support for old unused Bukkit versions will start disappear
 
 # Fork-specific targets
 
-- Based on latest TAB v4.
 - Purpur 1.19.4 server target.
 - GraalVM 17 toolchain.
 - Clients from 1.8 through 1.21.11 supported via merged upstream compatibility layers.

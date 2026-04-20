@@ -3,8 +3,15 @@
 TAB-OG is a soft fork of [TAB](https://github.com/NEZNAMY/TAB) maintained for [TrueOG Network](https://true-og.net/).
 
 # About
-This fork is based on archived source code of the latest release with full MC 1.x support on Bukkit and backporting services on modded platforms - 5.5.0.  
-Starting with 6.0.0, upstream TAB dropped support for old Bukkit versions and modded platforms only support MC 26+ without offering backport services to 1.x.
+TAB-OG keeps the TrueOG-focused packaging and compatibility model while merging upstream TAB changes through commit `93cfd74` (`[Bukkit] Refactor NMS implementation finding`, April 3, 2026).
+
+This fork does not try to mirror upstream TAB's full platform matrix. It intentionally stays on the reduced TrueOG build:
+- Bukkit/Purpur 1.19.4
+- BungeeCord
+- Velocity
+- A single universal shaded JAR
+
+The project version is `5.9.9` to make it clear this is a forked release line, not upstream TAB `6.x`.
 
 # Differences from upstream TAB
 
@@ -14,6 +21,11 @@ Starting with 6.0.0, upstream TAB dropped support for old Bukkit versions and mo
 - **Removed platforms**: Fabric, Forge, and NeoForge are not included.
 - Produces a single universal JAR containing Bukkit, BungeeCord, and Velocity.
 - Compatible with Vanish-OG.
+
+### Upstream sync level
+- Includes upstream changes through commit `93cfd74`.
+- Keeps recent upstream fixes that apply to the retained Bukkit/BungeeCord/Velocity modules.
+- Does not adopt upstream's Java 21+ modded build toolchain or its broader server-version matrix.
 
 ### MiniMessage mixed syntax
 Legacy color codes (`&a`, `§x` hex) and TAB's `#RRGGBB` format are automatically converted into MiniMessage tags when the server has MiniMessage available. You can freely mix `&c` legacy codes with `<gradient:#FF0000:#00FF00>` MiniMessage syntax in all text fields (header/footer, nametags, scoreboard, etc.) without manual conversion.

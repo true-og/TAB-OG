@@ -21,7 +21,7 @@ Legacy color codes (`&a`, `§x` hex) and TAB's `#RRGGBB` format are automaticall
 Enabled by default via `components.minimessage-support: true` in config.
 
 ### Vanish-OG compatibility
-TAB-OG detects vanished players via the standard `"vanished"` player metadata key. Any vanish plugin that sets this metadata (including [Vanish-OG](https://github.com/true-og/Vanish-OG)) is automatically supported without needing an explicit hook or the PremiumVanish API. Vanished players are excluded from nametag team packets, tab list formatting, and sorting for viewers who cannot see them.
+[Vanish-OG](https://github.com/true-og/Vanish-OG) registers a `VanishIntegration` handler with TAB's API (`me.neznamy.tab.api.integration.VanishIntegration`) on plugin enable, so TAB consults Vanish-OG's state manager directly via `canSee()` / `isVanished()` instead of relying on the `"vanished"` player metadata key. This avoids the join-time race where Forge clients crashed because TAB evaluated tab-list visibility before metadata was set. Vanished players are excluded from nametag team packets, tab list formatting, and sorting for viewers who cannot see them. The legacy `"vanished"` metadata path still works as a fallback for other vanish plugins that set it.
 
 ### Config defaults
 - `proxy-support.enabled` defaults to `true` with type `PLUGIN` (RedisBungee).

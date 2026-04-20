@@ -3,26 +3,36 @@
 TAB-OG is a soft fork of [TAB](https://github.com/NEZNAMY/TAB) maintained for [TrueOG Network](https://true-og.net/).
 
 # About
-This fork is based on is an archived source code of the latest release with full MC 1.x support on Bukkit and backporting services on modded platforms - 5.5.0.  
-Starting with 6.0.0, support for old unused Bukkit versions will start disappearing and modded platforms will only support MC 26+ without offering backport services to 1.x.
+This fork is based on archived source code of the latest release with full MC 1.x support on Bukkit and backporting services on modded platforms - 5.5.0.  
+Starting with 6.0.0, upstream TAB dropped support for old Bukkit versions and modded platforms only support MC 26+ without offering backport services to 1.x.
 
-# Fork-specific targets
+# Differences from upstream TAB
 
-- Purpur 1.19.4 server target.
-- GraalVM 17 toolchain.
-- Clients from 1.8 through 1.21.11 supported via merged upstream compatibility layers.
+### Platform support
+- **Server**: Purpur 1.19.4 only.
+- **Clients**: 1.8 through 1.21.11 via ViaVersion/ViaBackwards/ViaRewind.
+- **Removed platforms**: Fabric, Forge, and NeoForge are not included.
+- Produces a single universal JAR containing Bukkit, BungeeCord, and Velocity.
+- Compatible with Vanish-OG.
 
-# About TAB
-TAB aims to be a superior all-in-one minecraft plugin for displaying information that outperforms all
-similar plugins in terms of features, performance and compatibility.
-More information can be found at [Why TAB?](https://github.com/NEZNAMY/TAB/wiki/Why-TAB%3F) wiki page.
+### MiniMessage mixed syntax
+Legacy color codes (`&a`, `§x` hex) and TAB's `#RRGGBB` format are automatically converted into MiniMessage tags when the server has MiniMessage available. You can freely mix `&c` legacy codes with `<gradient:#FF0000:#00FF00>` MiniMessage syntax in all text fields (header/footer, nametags, scoreboard, etc.) without manual conversion.
+
+Enabled by default via `components.minimessage-support: true` in config.
+
+### Vanish-OG compatibility
+TAB-OG detects vanished players via the standard `"vanished"` player metadata key. Any vanish plugin that sets this metadata (including [Vanish-OG](https://github.com/true-og/Vanish-OG)) is automatically supported without needing an explicit hook or the PremiumVanish API. Vanished players are excluded from nametag team packets, tab list formatting, and sorting for viewers who cannot see them.
+
+### Config defaults
+- `proxy-support.enabled` defaults to `true` with type `PLUGIN` (RedisBungee).
+- `components.minimessage-support` defaults to `true`.
+- `components.disable-shadow-for-heads` defaults to `true`.
 
 # Compiling
 Compilation requires GraalVM JDK 17.
 To compile the plugin, run `./gradlew build` from the terminal.
 Once the plugin compiles, grab the jar from `/jar/build/libs/` folder.
-The universal jar contains the merged Bukkit, BungeeCord and Velocity modules used by this fork.
 
 # Documentation
-You can find everything about TAB on its [Wiki](https://github.com/NEZNAMY/TAB/wiki). This includes a detailed description
+Upstream TAB documentation is available on its [Wiki](https://github.com/NEZNAMY/TAB/wiki). This includes a detailed description
 of all features, as well as information regarding compatibility or limitations of each feature.

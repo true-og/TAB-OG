@@ -72,8 +72,13 @@ public class TabStyle {
         // only clamps ordinal 21 to byte -1, so 16-20 reach 1.8 clients as a
         // byte the client's EnumChatFormatting.getValueByIndex cannot resolve,
         // storing null chatFormat on the team and NPEing at render time in
-        // GuiIngameForge when the overlay dereferences getChatFormat().
+        // GuiIngameForge when the overlay dereferences getChatFormat(). Fall
+        // back to WHITE (ordinal 15) rather than RESET (21): WHITE survives
+        // ViaBackwards unchanged as byte 15 and matches the vanilla default
+        // team color, while RESET on 1.8 via ViaBackwards lands as byte -1
+        // which some client-side tablist overlays treat as "strip this entry"
+        // depending on mods present.
         if (color != null) return color.getLegacyColor();
-        return EnumChatFormat.RESET;
+        return EnumChatFormat.WHITE;
     }
 }

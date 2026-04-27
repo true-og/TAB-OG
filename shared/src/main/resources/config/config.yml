@@ -183,7 +183,6 @@ placeholder-refresh-intervals:
   "%server_unique_joins%": 5000
   "%player_health%": 200
   "%player_ping%": 1000
-  "%vault_prefix%": 1000
   "%rel_factionsuuid_relation_color%": 1000
 
 # assigning groups by permission nodes instead of taking them from permission plugin

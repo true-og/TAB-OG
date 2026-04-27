@@ -4,7 +4,6 @@ import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
-import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
  * of only using the integrated OP level.
  */
 public class LuckPermsAPIHook {
-
-    /** Flag tracking presence of LuckPerms API */
-    private static final boolean luckPerms = ModList.get().isLoaded("luckperms");
 
     /**
      * Checks for permission and returns the result.
@@ -27,6 +23,6 @@ public class LuckPermsAPIHook {
      */
     public static boolean hasPermission(@NotNull CommandSourceStack source, @NotNull String permission) {
         if (source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.OWNERS))) return true;
-        return luckPerms && LuckPermsProvider.get().getUserManager().getUser(source.getPlayer().getUUID()).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        return LuckPermsProvider.get().getUserManager().getUser(source.getPlayer().getUUID()).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
     }
 }

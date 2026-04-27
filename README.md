@@ -9,9 +9,11 @@ Differences from upstream TAB:
 - Uses the forked version line `5.9.9` instead of upstream TAB `6.x`.
 - Targets the TrueOG server environment: Purpur 1.19.4 with 1.8 through 1.21.11
   clients through ViaVersion, ViaBackwards, and ViaRewind.
-- Builds only Bukkit, BungeeCord, Velocity, and Bukkit `v1_19_R3`.
-- Removes Fabric, Forge, NeoForge, Paper-version modules, and older/newer Bukkit
+- Builds only BungeeCord, Velocity, and Bukkit `v1_19_R3`.
+- Removes Fabric, Forge, NeoForge, unused Paper-version modules, and older/newer Bukkit
   NMS modules from the build.
+- Removed Vault, doubled down on LuckPerms API `5.5` for permission groups,
+  prefixes, suffixes, and weights.
 - Requires GraalVM JDK 17 and does not adopt upstream's newer-Java modded build
   toolchain.
 - Produces one universal shaded plugin JAR named `TAB-OG-5.9.9.jar`.
@@ -22,10 +24,8 @@ Differences from upstream TAB:
   in text fields when MiniMessage support is available.
 - Ships TrueOG-focused default config values for header/footer, scoreboard,
   layout, sorting groups, bossbar, below-name health, global playerlist,
-  collision, MiniMessage, packet-events compensation, and Bukkit permission
-  forwarding.
-- Disables proxy support by default while leaving `type: PLUGIN` configured for
-  RedisBungee-style setups.
+  collision, MiniMessage, packet-events compensation, LuckPerms placeholders,
+  and Bukkit permission forwarding.
 - Clears sample MySQL, Redis, and RabbitMQ credentials instead of shipping
   placeholder passwords.
 - Removes upstream GitHub issue templates, generated marketplace description
@@ -34,3 +34,6 @@ Differences from upstream TAB:
 
 Compile with `./gradlew build`; the universal plugin JAR is written to
 `jar/build/libs/`.
+
+Install LuckPerms alongside TAB-OG. Bukkit, BungeeCord, and Velocity metadata
+declare LuckPerms as a required dependency.

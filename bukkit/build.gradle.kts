@@ -3,9 +3,6 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
-        exclude("org.bukkit", "bukkit")
-    }
     compileOnly("LibsDisguises:LibsDisguises:10.0.21") {
         exclude("org.spigotmc", "spigot")
         exclude("org.spigotmc", "spigot-api")

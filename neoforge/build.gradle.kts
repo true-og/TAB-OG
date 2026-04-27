@@ -44,7 +44,7 @@ dependencies {
     mappings(loom.officialMojangMappings())
     neoForge("net.neoforged:neoforge:${neoforgeApiVersions[minecraftVersion]}")
     api(projects.shared)
-    compileOnly("net.luckperms:api:5.4")
+    compileOnly("net.luckperms:api:5.5") // Import LuckPerms API.
 }
 
 loom.neoForge.accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))

@@ -18,10 +18,7 @@ public interface BackendPlatform extends Platform {
 
     @Override
     @NotNull default GroupManager detectPermissionPlugin() {
-        if (LuckPermsHook.getInstance().isInstalled()) {
-            return new GroupManager("LuckPerms", LuckPermsHook.getInstance().getGroupFunction());
-        }
-        return new GroupManager("None", p -> TabConstants.NO_GROUP);
+        return new GroupManager("LuckPerms", LuckPermsHook.getInstance().getGroupFunction());
     }
 
     @Override

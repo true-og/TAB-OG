@@ -25,11 +25,10 @@ public abstract class ProxyPlatform implements Platform {
 
     @Override
     public @NotNull GroupManager detectPermissionPlugin() {
-        if (LuckPermsHook.getInstance().isInstalled() &&
-                !TAB.getInstance().getConfiguration().getConfig().isBukkitPermissions()) {
+        if (!TAB.getInstance().getConfiguration().getConfig().isBukkitPermissions()) {
             return new GroupManager("LuckPerms", LuckPermsHook.getInstance().getGroupFunction());
         }
-        return new GroupManager("Vault through Bridge", TabPlayer::getGroup);
+        return new GroupManager("LuckPerms through Bridge", TabPlayer::getGroup);
     }
 
     @Override

@@ -25,10 +25,8 @@ import me.neznamy.tab.shared.chat.component.TabTextComponent;
 import me.neznamy.tab.shared.chat.component.TabTranslatableComponent;
 import me.neznamy.tab.shared.chat.component.object.TabObjectComponent;
 import me.neznamy.tab.shared.features.PerWorldPlayerListConfiguration;
-import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
 import me.neznamy.tab.shared.features.types.TabFeature;
-import me.neznamy.tab.shared.hook.LuckPermsHook;
 import me.neznamy.tab.shared.placeholders.expansion.EmptyTabExpansion;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import me.neznamy.tab.shared.placeholders.types.PlayerPlaceholderImpl;
@@ -40,8 +38,6 @@ import me.neznamy.tab.shared.platform.impl.AdventureBossBar;
 import me.neznamy.tab.shared.platform.impl.DummyBossBar;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import net.kyori.adventure.audience.Audience;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -53,7 +49,6 @@ import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -200,22 +195,6 @@ public class BukkitPlatform implements BackendPlatform {
         for (Player p : getOnlinePlayers()) {
             TAB.getInstance().addPlayer(new BukkitTabPlayer(this, p));
         }
-    }
-
-    @Override
-    public void registerPlaceholders() {
-        PlaceholderManagerImpl manager = TAB.getInstance().getPlaceholderManager();
-        manager.registerServerPlaceholder("%vault-prefix%", -1, () -> "");
-        manager.registerServerPlaceholder("%vault-suffix%", -1, () -> "");
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            RegisteredServiceProvider<Chat> rspChat = Bukkit.getServicesManager().getRegistration(Chat.class);
-            if (rspChat != null) {
-                Chat chat = rspChat.getProvider();
-                manager.registerPlayerPlaceholder("%vault-prefix%", p -> chat.getPlayerPrefix((Player) p.getPlayer()));
-                manager.registerPlayerPlaceholder("%vault-suffix%", p -> chat.getPlayerSuffix((Player) p.getPlayer()));
-            }
-        }
-        BackendPlatform.super.registerPlaceholders();
     }
 
     @Override
@@ -407,21 +386,6 @@ public class BukkitPlatform implements BackendPlatform {
             knownCommands.remove(command.getName() + ":" + command.getName());
             command.unregister(commandMap);
         }
-    }
-
-    @Override
-    @NotNull
-    public GroupManager detectPermissionPlugin() {
-        if (LuckPermsHook.getInstance().isInstalled()) {
-            return new GroupManager("LuckPerms", LuckPermsHook.getInstance().getGroupFunction());
-        }
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            RegisteredServiceProvider<Permission> provider = Bukkit.getServicesManager().getRegistration(Permission.class);
-            if (provider != null && !provider.getProvider().getName().equals("SuperPerms")) {
-                return new GroupManager(provider.getProvider().getName(), p -> provider.getProvider().getPrimaryGroup((Player) p.getPlayer()));
-            }
-        }
-        return new GroupManager("None", p -> TabConstants.NO_GROUP);
     }
 
     @Override

@@ -61,18 +61,24 @@ public class TabStyle {
 
     /**
      * Converts this style to EnumChatFormat for determining team color.
-     * Magic codes are preferred, since that is how they are defined in configuration as well.
      *
      * @return  EnumChatFormat to show to represent this style
      */
     @NotNull
     public EnumChatFormat toEnumChatFormat() {
-        if (Boolean.TRUE == bold) return EnumChatFormat.BOLD;
-        if (Boolean.TRUE == italic) return EnumChatFormat.ITALIC;
-        if (Boolean.TRUE == underlined) return EnumChatFormat.UNDERLINE;
-        if (Boolean.TRUE == strikethrough) return EnumChatFormat.STRIKETHROUGH;
-        if (Boolean.TRUE == obfuscated) return EnumChatFormat.OBFUSCATED;
+        // Scoreboard team color slot only accepts ordinals 0-15 (colors) or 21
+        // (RESET). Format codes 16-20 (OBFUSCATED/BOLD/STRIKETHROUGH/UNDERLINE/
+        // ITALIC) are protocol-invalid as team colors: ViaBackwards 1.13->1.12
+        // only clamps ordinal 21 to byte -1, so 16-20 reach 1.8 clients as a
+        // byte the client's EnumChatFormatting.getValueByIndex cannot resolve,
+        // storing null chatFormat on the team and NPEing at render time in
+        // GuiIngameForge when the overlay dereferences getChatFormat(). Fall
+        // back to WHITE (ordinal 15) rather than RESET (21): WHITE survives
+        // ViaBackwards unchanged as byte 15 and matches the vanilla default
+        // team color, while RESET on 1.8 via ViaBackwards lands as byte -1
+        // which some client-side tablist overlays treat as "strip this entry"
+        // depending on mods present.
         if (color != null) return color.getLegacyColor();
-        return EnumChatFormat.RESET;
+        return EnumChatFormat.WHITE;
     }
 }

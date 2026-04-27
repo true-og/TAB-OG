@@ -106,6 +106,7 @@ public class ScoreRefresher extends RefreshableFeature implements CustomThreaded
      */
     @Nullable
     public TabComponent getNumberFormat(@NotNull TabPlayer player) {
+        if (numberFormat == null) return null;
         return cache.get(player.scoreboardData.numberFormatProperties.get(line).updateAndGet());
     }
 

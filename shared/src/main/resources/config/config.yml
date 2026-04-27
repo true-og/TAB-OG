@@ -10,19 +10,20 @@ header-footer:
         - "Test footer in world 'test'"
     default:
       header:
-        - "<#FFFFFF>&m                                                </#FFFF00>"
-        - "&3&lServer name"
-        - "&r&7&l>> %animation:Welcome%&3 &l%player%&7&l! &7&l<<"
-        - "&r&7Online players: &f%online%"
-        - "&6Online staff: &e%staffonline%"
+        - "&B---------------=-=-=-=-=-=-=---------------"
+        - "&a&lTrue&c&lOG&r &eNetwork &4♥ &etrueog.net &4♥ &etrue-og.net"
+        - "&B---------------=-=-=-=-=-=-=---------------"
         - ""
       footer:
-        - "%animation:time%"
-        - "&2Ping: %ping%"
-        - "&7&l Used memory: %memory-used% MB / %memory-max% MB"
+        #- ""
+        #- ""
+        - "&5Purpur 1.19.4"
         - ""
-        - "&r&7Visit our webpage %animation:web%"
-        - "<#FFFFFF>&m                                                </#FFFF00>"
+        - "&c&m----&6&m----&e&m----&2&m----&9&m----&5&m----&r"
+        - "%animation:right-to-left% &6Players Online: &a%online%&7/&6200 %animation:left-to-right%"
+        - "&6Staff Online: &a%staffonline%"
+        - '&B1m TPS: &r%{server_tps_1}% &B5m TPS: &r{%server_tps_5%} &7| &6Used RAM: &r${%server_ram_used%} &7| &2Total RAM: &r%${server_ram_max}%'
+        #- ""
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Tablist-name-formatting
 tablist-name-formatting:
@@ -32,11 +33,11 @@ tablist-name-formatting:
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Nametags
 scoreboard-teams:
   enabled: true
-  enable-collision: true
+  enable-collision: false
   invisible-nametags: false
   # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
   sorting-types:
-    - "GROUPS:owner,admin,mod,helper,builder,vip,default"
+    - "GROUPS:admin,moderator,developer,builder,helper,tester,youtube,og-master,og-pro,og,default"
     - "PLACEHOLDER_A_TO_Z:%player%"
   case-sensitive-sorting: true
   can-see-friendly-invisibles: false
@@ -53,7 +54,7 @@ playerlist-objective:
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Belowname
 belowname-objective:
-  enabled: false
+  enabled: true
   value: "%health%"
   fancy-value: "&c%health%"
   fancy-value-default: "NPC"
@@ -75,34 +76,18 @@ bossbar:
       style: "PROGRESS" # for 1.9+: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
       color: "%animation:barcolors%" # for 1.9+: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW
       progress: "100" # in %
-      text: "&fWebsite: &bwww.domain.com"
+      text: "&fWebsite: &bwww.true-og.net"
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard
 scoreboard:
   enabled: false
   toggle-command: /sb
-  remember-toggle-choice: false
+  remember-toggle-choice: true
   hidden-by-default: false
   delay-on-join-milliseconds: 0
   scoreboards:
-    scoreboard-1.20.3+:
-      title: "<#E0B11E>MyServer</#FF0000>"
-      display-condition: "%player-version-id%>=765;%bedrock%=false" # Only display it to players using 1.20.3+ AND NOT bedrock edition
-      lines:
-        - "&7%date%"
-        - "%animation:MyAnimation1%"
-        - "&6Online:"
-        - "* &eOnline&7:||%online%"
-        - "* &eCurrent World&7:||%worldonline%"
-        - "* &eStaff&7:||%staffonline%"
-        - ""
-        - "&6Personal Info:"
-        - "* &bRank&7:||%group%"
-        - "* &bPing&7:||%ping%&8ms"
-        - "* &bWorld&7:||%world%"
-        - "%animation:MyAnimation1%"
     scoreboard:
-      title: "<#E0B11E>MyServer</#FF0000>"
+      title: "<#E0B11E>TrueOG</#FF0000>"
       lines:
         - "&7%date%"
         - "%animation:MyAnimation1%"
@@ -130,21 +115,21 @@ layout:
       slot-count: 80
       fixed-slots:
         - '1|&3Website&f:'
-        - '2|&bmyserver.net'
+        - '2|&btrue-og.net'
         - '3|&8&m                       '
         - '4|&3Name&f:'
         - '5|&b%player%'
         - '7|&3Rank&f:'
-        - '8|Rank: %group%'
+        - '8|&b%group%'
         - '10|&3World&f:'
         - '11|&b%world%'
         - '13|&3Time&f:'
         - '14|&b%time%'
-        - '21|&3Teamspeak&f:'
-        - '22|&bts.myserver.net'
+        - '21|&3Online&f:'
+        - '22|&b%online%'
         - '23|&8&m                       '
-        - '41|&3Store&f:'
-        - '42|&bshop.myserver.net'
+        - '41|&3Ping&f:'
+        - '42|&b%ping%&7ms'
         - '43|&8&m                       '
       groups:
         staff:
@@ -162,21 +147,13 @@ ping-spoof:
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Global-playerlist
 global-playerlist:
-  enabled: false
+  enabled: true
   display-others-as-spectators: false
   display-vanished-players-as-spectators: true
   isolate-unlisted-servers: false
   update-latency: false
-  spy-servers:
-    - spyserver1
-    - spyserver2
-  server-groups:
-    lobbies:
-      - lobby1
-      - lobby2
-    group2:
-      - server1
-      - server2
+  spy-servers: []
+  server-groups: {}
 
 placeholders:
   date-format: "dd.MM.yyyy"
@@ -224,7 +201,7 @@ primary-group-finding-list:
 # Refresh interval (in milliseconds) of:
 # - Permission checks in conditions / sorting
 # - Group retrieving from permission plugin for sorting / per-group properties
-permission-refresh-interval: 1000
+permission-refresh-interval: 500
 
 # Unlocks extra console messages
 debug: false
@@ -235,13 +212,13 @@ mysql:
   host: 127.0.0.1
   port: 3306
   database: tab
-  username: user
-  password: password
+  username: ""
+  password: ""
   useSSL: true
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Multi-server-support
 proxy-support:
-  enabled: true
+  enabled: false
   channel-name-suffix: "TAB"
   # Supported types: PLUGIN, REDIS, RABBITMQ
   type: PLUGIN
@@ -250,10 +227,10 @@ proxy-support:
     # If enabled and compatible plugin is found, hook is enabled to work with proxied players
     name: RedisBungee
   redis:
-    url: 'redis://:password@localhost:6379/0'
+    url: ''
   rabbitmq:
     exchange: 'plugin'
-    url: 'amqp://guest:guest@localhost:5672/%2F'
+    url: ''
 
 components:
   minimessage-support: true
@@ -275,22 +252,16 @@ per-world-playerlist:
   ignore-effect-in-worlds:
     - ignoredworld
     - build
-  shared-playerlist-world-groups:
-    lobby:
-      - lobby1
-      - lobby2
-    minigames:
-      - paintball
-      - bedwars
+  shared-playerlist-world-groups: {}
 
-compensate-for-packetevents-bug: false
+compensate-for-packetevents-bug: true
 
 #####################################################################
 # PROXY ONLY - THE FOLLOWING SECTION IS ONLY FOR PROXY INSTALLATION #
 #####################################################################
 
 # Take permissions and groups from backend server instead of proxy
-use-bukkit-permissions-manager: false
+use-bukkit-permissions-manager: true
 
 # Sometimes server might be using offline uuids in tablist instead of online, such as disabling waterfall's tablist rewrite option
 # If you experience tablist formatting not working, toggle this option (set it to opposite value)

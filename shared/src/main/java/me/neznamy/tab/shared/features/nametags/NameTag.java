@@ -104,9 +104,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     @NotNull
     private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
         if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            char lastColor = findLastLegacyColor(prefix);
-            String tail = lastColor != 0 ? " §" + lastColor : " ";
-            return "§l §r" + prefix + tail;
+            return "§l §r" + prefix + "ㅤ";
         }
         return prefix;
     }

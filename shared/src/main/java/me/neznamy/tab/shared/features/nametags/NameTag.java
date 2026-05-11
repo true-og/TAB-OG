@@ -55,6 +55,22 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     }
 
     /**
+     * Finds the rightmost legacy color code (§0-9, §a-f) and returns its character.
+     * Returns 0 if none found.
+     */
+    private static char findLastLegacyColor(@NotNull String input) {
+        for (int i = input.length() - 2; i >= 0; i--) {
+            if (input.charAt(i) == '§') {
+                char c = Character.toLowerCase(input.charAt(i + 1));
+                if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+                    return c;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Tracks bold state through legacy color codes and reports whether the last visible
      * (non-control) character would render bold.
      */
@@ -88,7 +104,9 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     @NotNull
     private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
         if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            return "§l §r" + prefix + " ";
+            char lastColor = findLastLegacyColor(prefix);
+            String tail = lastColor != 0 ? " §" + lastColor : " ";
+            return "§l §r" + prefix + tail;
         }
         return prefix;
     }

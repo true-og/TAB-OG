@@ -16,7 +16,7 @@ dependencies {
     api("com.mysql:mysql-connector-j:9.6.0")
     compileOnlyApi("com.viaversion:viaversion-api:5.2.1")
     compileOnlyApi("io.netty:netty-all:4.1.90.Final")
-    compileOnlyApi("net.luckperms:api:5.4")
+    compileOnlyApi("net.luckperms:api:5.5") // Import LuckPerms API.
     compileOnlyApi("com.google.guava:guava:31.1-jre")
     compileOnlyApi("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnlyApi("net.kyori:adventure-api:4.25.0-SNAPSHOT")

@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Getter
@@ -40,6 +41,74 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     private final StringToComponentCache prefixCache = new StringToComponentCache("NameTag prefix", 1000);
     private final StringToComponentCache lastColorCache = new LastColorCache("NameTag last prefix color", 1000);
     private final StringToComponentCache suffixCache = new StringToComponentCache("NameTag suffix", 1000);
+    private static final Pattern TRAILING_FORMAT_OR_SPACE =
+            Pattern.compile("([\\s\\p{Z}\\p{Cf}]|§[0-9a-fk-orxA-FK-ORX])+$");
+
+    /**
+     * Strips trailing whitespace (ASCII + Unicode separators), zero-width / format characters
+     * (e.g. NBSP {@code U+00A0}, ZWSP {@code U+200B}, BOM {@code U+FEFF}), and trailing legacy
+     * format codes (e.g. {@code §r}, {@code §7}) repeatedly.
+     */
+    @NotNull
+    public static String stripTrailingFormat(@NotNull String input) {
+        return TRAILING_FORMAT_OR_SPACE.matcher(input).replaceAll("");
+    }
+
+    /**
+     * Tracks bold state through legacy color codes and reports whether the last visible
+     * (non-control) character would render bold.
+     */
+    private static boolean lastVisibleCharIsBold(@NotNull String input) {
+        boolean bold = false;
+        boolean lastVisibleWasBold = false;
+        int len = input.length();
+        for (int i = 0; i < len; i++) {
+            char c = input.charAt(i);
+            if (c == '§' && i + 1 < len) {
+                char code = Character.toLowerCase(input.charAt(i + 1));
+                if (code == 'l') {
+                    bold = true;
+                } else if (code == 'r' || (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f')) {
+                    bold = false;
+                }
+                i++;
+            } else {
+                lastVisibleWasBold = bold;
+            }
+        }
+        return lastVisibleWasBold;
+    }
+
+    /**
+     * On 1.8-1.12 clients, bold prefixes render with extra trailing pixel advance per bold char.
+     * Adds a leading bold space (then reset) and a trailing NBSP (U+00A0, inherits prefix bold)
+     * so visible separators exist left of prefix and between prefix and player name. NBSP is used
+     * for the trailing position because ViaBackwards strips trailing ASCII whitespace from team
+     * prefix during legacy team packet conversion; NBSP survives the strip. No-op on 1.13+
+     * viewers and on prefixes whose last visible character is not bold.
+     */
+    @NotNull
+    private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
+        if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
+            return "§l §r" + prefix + "⠀";
+        }
+        return prefix;
+    }
+
+    /**
+     * Pairs with {@link #compensateLegacyBoldPrefix}. Appends bold NBSP at end of suffix on
+     * 1.8-1.12 clients when prefix has bold trailing render, so right side matches the leading
+     * padding. NBSP rather than regular space avoids ViaBackwards's trailing-whitespace strip on
+     * the suffix string. No-op on 1.13+ viewers and when prefix is not bold-tail.
+     */
+    @NotNull
+    private static String compensateLegacyBoldSuffix(@NotNull TabPlayer viewer, @NotNull String suffix, @NotNull String prefix) {
+        if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
+            return suffix + "§l⠀";
+        }
+        return suffix;
+    }
+
     private final VisibilityRefresher visibilityRefresher;
     private final CollisionManager collisionManager;
     private final int teamOptions;
@@ -156,8 +225,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
                 if (proxied.getNametag() == null) continue; // This proxy player is not loaded yet
                 connectedPlayer.getScoreboard().registerTeam(
                         proxied.getNametag().getResolvedTeamName(),
-                        prefixCache.get(proxied.getNametag().getPrefix()),
-                        suffixCache.get(proxied.getNametag().getSuffix()),
+                        prefixCache.get(compensateLegacyBoldPrefix(connectedPlayer, proxied.getNametag().getPrefix())),
+                        suffixCache.get(compensateLegacyBoldSuffix(connectedPlayer, stripTrailingFormat(proxied.getNametag().getSuffix()), proxied.getNametag().getPrefix())),
                         proxied.getNametag().getNameVisibility(),
                         CollisionRule.ALWAYS,
                         Collections.singletonList(proxied.getNickname()),
@@ -254,8 +323,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().updateTeam(
                     player.teamData.teamName,
-                    prefixCache.get(player.teamData.prefix.getFormat(viewer)),
-                    suffixCache.get(player.teamData.suffix.getFormat(viewer)),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.teamData.prefix.getFormat(viewer))),
+                    suffixCache.get(compensateLegacyBoldSuffix(viewer, stripTrailingFormat(player.teamData.suffix.getFormat(viewer)), player.teamData.prefix.getFormat(viewer))),
                     lastColorCache.get(player.teamData.prefix.getFormat(viewer)).getLastStyle().toEnumChatFormat()
             );
         }
@@ -336,8 +405,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         if (!viewer.canSee(p) && p != viewer) return;
         viewer.getScoreboard().registerTeam(
                 p.teamData.teamName,
-                prefixCache.get(p.teamData.prefix.getFormat(viewer)),
-                suffixCache.get(p.teamData.suffix.getFormat(viewer)),
+                prefixCache.get(compensateLegacyBoldPrefix(viewer, p.teamData.prefix.getFormat(viewer))),
+                suffixCache.get(compensateLegacyBoldSuffix(viewer, stripTrailingFormat(p.teamData.suffix.getFormat(viewer)), p.teamData.prefix.getFormat(viewer))),
                 getTeamVisibility(p, viewer) ? NameVisibility.ALWAYS : NameVisibility.NEVER,
                 p.teamData.getCollisionRule() ? CollisionRule.ALWAYS : CollisionRule.NEVER,
                 Collections.singletonList(p.getNickname()),
@@ -495,8 +564,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().registerTeam(
                     player.getNametag().getResolvedTeamName(),
-                    prefixCache.get(player.getNametag().getPrefix()),
-                    suffixCache.get(player.getNametag().getSuffix()),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.getNametag().getPrefix())),
+                    suffixCache.get(compensateLegacyBoldSuffix(viewer, stripTrailingFormat(player.getNametag().getSuffix()), player.getNametag().getPrefix())),
                     player.getNametag().getNameVisibility(),
                     Scoreboard.CollisionRule.ALWAYS,
                     Collections.singletonList(player.getNickname()),

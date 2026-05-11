@@ -18,3 +18,10 @@ mandatory = true
 versionRange = "[1.21.11]"
 ordering = "NONE"
 side = "SERVER"
+
+[[dependencies.tab]]
+modId = "luckperms"
+mandatory = true
+versionRange = "*"
+ordering = "AFTER"
+side = "SERVER"

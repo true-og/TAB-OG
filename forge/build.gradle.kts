@@ -63,7 +63,7 @@ dependencies {
     mappings(loom.officialMojangMappings())
     forge("net.minecraftforge:forge:${forgeApiVersions[minecraftVersion]}")
     api(projects.shared)
-    compileOnly("net.luckperms:api:5.4")
+    compileOnly("net.luckperms:api:5.5") // Import LuckPerms API.
 }
 
 loom.forge.accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))

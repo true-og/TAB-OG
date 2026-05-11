@@ -5,10 +5,8 @@ import lombok.NonNull;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.platform.TabPlayer;
-import me.neznamy.tab.shared.util.ReflectionUtils;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
-import net.luckperms.api.model.group.Group;
 import net.luckperms.api.query.QueryOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,16 +15,13 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Class that hooks into LuckPerms if installed.
+ * Class that hooks into required LuckPerms API.
  */
 @Getter
 public class LuckPermsHook {
 
     /** Instance of the class */
     @Getter private static final LuckPermsHook instance = new LuckPermsHook();
-
-    /** Flag tracking if LuckPerms is installed or not */
-    private final boolean installed = ReflectionUtils.classExists("net.luckperms.api.LuckPerms");
 
     /** Function retrieving group of player from LuckPerms */
     private final Function<TabPlayer, String> groupFunction = p -> {
@@ -108,21 +103,14 @@ public class LuckPermsHook {
     }
 
     /**
-     * Returns weight of player's primary group.
+     * Returns player's LuckPerms weight.
      *
      * @param   tabPlayer
      *          Player to get weight of
-     * @return  Weight of player's primary group
+     * @return  Player's LuckPerms weight
      */
     public int getWeight(@NonNull TabPlayer tabPlayer) {
-        if (tabPlayer.luckPermsUser == null) tabPlayer.luckPermsUser = LuckPermsProvider.get().getUserManager().getUser(tabPlayer.getUniqueId());
-        if (tabPlayer.luckPermsUser == null) return 0;
-        Group primaryGroup = LuckPermsProvider.get().getGroupManager().getGroup(tabPlayer.luckPermsUser.getPrimaryGroup());
-
-        if (primaryGroup == null) {
-            return 0;
-        }
-
-        return primaryGroup.getWeight().orElse(0);
+        CachedMetaData data = getCachedMetaData(tabPlayer);
+        return data == null ? 0 : data.getWeight();
     }
 }

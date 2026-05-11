@@ -80,15 +80,15 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     }
 
     /**
-     * On 1.8-1.12 clients, bold prefixes render touching the player name with no separator.
-     * Appends a regular trailing space so a visible space appears between prefix and name,
-     * matching the rendering of non-bold prefixes that have storage-trailing whitespace.
-     * No-op on 1.13+ viewers and on prefixes whose last visible character is not bold.
+     * On 1.8-1.12 clients, bold prefixes render with extra trailing pixel advance per bold char.
+     * Prepends a leading bold space + reset (left padding) and appends a regular trailing space
+     * (visible separator between prefix and player name). No-op on 1.13+ viewers and on
+     * prefixes whose last visible character is not bold.
      */
     @NotNull
     private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
         if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            return prefix + " ";
+            return "§l §r" + prefix + " ";
         }
         return prefix;
     }

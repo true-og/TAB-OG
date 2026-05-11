@@ -80,32 +80,22 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     }
 
     /**
-     * On 1.8-1.12 clients, bold prefixes render with extra trailing pixel advance per bold char.
-     * Adds a leading bold space (then reset) and a trailing NBSP (U+00A0, inherits prefix bold)
-     * so visible separators exist left of prefix and between prefix and player name. NBSP is used
-     * for the trailing position because ViaBackwards strips trailing ASCII whitespace from team
-     * prefix during legacy team packet conversion; NBSP survives the strip. No-op on 1.13+
-     * viewers and on prefixes whose last visible character is not bold.
+     * On 1.8-1.12 clients, bold prefixes render touching the player name with no separator.
+     * Appends a regular trailing space so a visible space appears between prefix and name,
+     * matching the rendering of non-bold prefixes that have storage-trailing whitespace.
+     * No-op on 1.13+ viewers and on prefixes whose last visible character is not bold.
      */
     @NotNull
     private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
         if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            return "§l §r" + prefix + "⠀";
+            return prefix + " ";
         }
         return prefix;
     }
 
-    /**
-     * Pairs with {@link #compensateLegacyBoldPrefix}. Appends bold NBSP at end of suffix on
-     * 1.8-1.12 clients when prefix has bold trailing render, so right side matches the leading
-     * padding. NBSP rather than regular space avoids ViaBackwards's trailing-whitespace strip on
-     * the suffix string. No-op on 1.13+ viewers and when prefix is not bold-tail.
-     */
+    /** No-op kept for call-site stability; suffix is returned unchanged. */
     @NotNull
     private static String compensateLegacyBoldSuffix(@NotNull TabPlayer viewer, @NotNull String suffix, @NotNull String prefix) {
-        if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            return suffix + "§l⠀";
-        }
         return suffix;
     }
 

@@ -54,6 +54,46 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         return TRAILING_FORMAT_OR_SPACE.matcher(input).replaceAll("");
     }
 
+    /**
+     * Tracks bold state through legacy color codes and reports whether the last visible
+     * (non-control) character would render bold.
+     */
+    private static boolean lastVisibleCharIsBold(@NotNull String input) {
+        boolean bold = false;
+        boolean lastVisibleWasBold = false;
+        int len = input.length();
+        for (int i = 0; i < len; i++) {
+            char c = input.charAt(i);
+            if (c == '§' && i + 1 < len) {
+                char code = Character.toLowerCase(input.charAt(i + 1));
+                if (code == 'l') {
+                    bold = true;
+                } else if (code == 'r' || (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f')) {
+                    bold = false;
+                }
+                i++;
+            } else {
+                lastVisibleWasBold = bold;
+            }
+        }
+        return lastVisibleWasBold;
+    }
+
+    /**
+     * On 1.8-1.12 clients, bold prefixes' cumulative +1px-per-bold-char phantom advance shifts
+     * the centered nametag content rightward, leaving extra padding on the right edge. Prepends
+     * a leading bold space + reset on legacy clients to balance the visual. Trailing space (between
+     * prefix and player name) is expected to come from LP storage. No-op on 1.13+ viewers and on
+     * prefixes whose last visible character is not bold.
+     */
+    @NotNull
+    private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
+        if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
+            return "§l §r" + prefix;
+        }
+        return prefix;
+    }
+
     private final VisibilityRefresher visibilityRefresher;
     private final CollisionManager collisionManager;
     private final int teamOptions;
@@ -170,7 +210,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
                 if (proxied.getNametag() == null) continue; // This proxy player is not loaded yet
                 connectedPlayer.getScoreboard().registerTeam(
                         proxied.getNametag().getResolvedTeamName(),
-                        prefixCache.get(proxied.getNametag().getPrefix()),
+                        prefixCache.get(compensateLegacyBoldPrefix(connectedPlayer, proxied.getNametag().getPrefix())),
                         suffixCache.get(stripTrailingFormat(proxied.getNametag().getSuffix())),
                         proxied.getNametag().getNameVisibility(),
                         CollisionRule.ALWAYS,
@@ -268,7 +308,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().updateTeam(
                     player.teamData.teamName,
-                    prefixCache.get(player.teamData.prefix.getFormat(viewer)),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.teamData.prefix.getFormat(viewer))),
                     suffixCache.get(stripTrailingFormat(player.teamData.suffix.getFormat(viewer))),
                     lastColorCache.get(player.teamData.prefix.getFormat(viewer)).getLastStyle().toEnumChatFormat()
             );
@@ -350,7 +390,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         if (!viewer.canSee(p) && p != viewer) return;
         viewer.getScoreboard().registerTeam(
                 p.teamData.teamName,
-                prefixCache.get(p.teamData.prefix.getFormat(viewer)),
+                prefixCache.get(compensateLegacyBoldPrefix(viewer, p.teamData.prefix.getFormat(viewer))),
                 suffixCache.get(stripTrailingFormat(p.teamData.suffix.getFormat(viewer))),
                 getTeamVisibility(p, viewer) ? NameVisibility.ALWAYS : NameVisibility.NEVER,
                 p.teamData.getCollisionRule() ? CollisionRule.ALWAYS : CollisionRule.NEVER,
@@ -509,7 +549,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().registerTeam(
                     player.getNametag().getResolvedTeamName(),
-                    prefixCache.get(player.getNametag().getPrefix()),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.getNametag().getPrefix())),
                     suffixCache.get(stripTrailingFormat(player.getNametag().getSuffix())),
                     player.getNametag().getNameVisibility(),
                     Scoreboard.CollisionRule.ALWAYS,

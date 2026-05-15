@@ -80,18 +80,30 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     }
 
     /**
-     * On 1.8-1.12 clients, bold prefixes' cumulative +1px-per-bold-char phantom advance shifts
-     * the centered nametag content rightward, leaving extra padding on the right edge. Prepends
-     * a leading bold space + reset on legacy clients to balance the visual. Trailing space (between
-     * prefix and player name) is expected to come from LP storage. No-op on 1.13+ viewers and on
-     * prefixes whose last visible character is not bold.
+     * For bold-tail prefixes, ensures a single trailing space separator between prefix and player
+     * name (added if not already present in stored value, to avoid double-spacing). Additionally,
+     * on 1.8-1.12 clients, prepends a leading bold space + reset to balance the cumulative
+     * +1px-per-bold-char phantom advance that otherwise shifts the centered nametag rightward.
+     * For 1.8-1.12 clients, also handles prefixes with bold formatting anywhere (even if followed
+     * by reset codes), ensuring the space is added in floating nametags.
      */
     @NotNull
     private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
-        if (viewer.getVersion().getMinorVersion() < 13 && lastVisibleCharIsBold(prefix)) {
-            return "§l §r" + prefix;
+        boolean endsWithBold = lastVisibleCharIsBold(prefix);
+        
+        // For 1.8-1.12 clients, check if prefix contains bold anywhere, not just at the end
+        // (reset codes or color codes after bold don't prevent the phantom advance issue in floating nametags)
+        if (viewer.getVersion().getMinorVersion() < 13 && prefix.contains("§l")) {
+            endsWithBold = true;
         }
-        return prefix;
+        
+        if (!endsWithBold) return prefix;
+        
+        String result = prefix.endsWith(" ") ? prefix : prefix + " ";
+        if (viewer.getVersion().getMinorVersion() < 13) {
+            result = "§l §r" + result;
+        }
+        return result;
     }
 
     private final VisibilityRefresher visibilityRefresher;

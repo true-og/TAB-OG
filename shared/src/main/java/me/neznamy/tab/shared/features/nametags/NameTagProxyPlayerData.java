@@ -91,10 +91,10 @@ public class NameTagProxyPlayerData extends ProxyMessage {
         target.setNametag(this);
 
         if (target.getConnectionState() == ProxyPlayer.ConnectionState.CONNECTED) {
-            TabComponent prefix = feature.getPrefixCache().get(this.prefix);
             TabComponent lastColor = feature.getLastColorCache().get(this.prefix);
             TabComponent suffix = feature.getSuffixCache().get(NameTag.stripTrailingFormat(this.suffix));
             for (TabPlayer viewer : feature.getOnlinePlayers().getPlayers()) {
+                TabComponent prefix = feature.getPrefixCache().get(NameTag.compensateLegacyBoldPrefix(viewer, this.prefix));
                 if (oldData != null && resolvedTeamName.equals(oldData.resolvedTeamName)) {
                     viewer.getScoreboard().updateTeam(
                             oldData.teamName,

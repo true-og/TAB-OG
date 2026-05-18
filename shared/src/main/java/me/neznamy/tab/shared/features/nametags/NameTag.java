@@ -41,6 +41,7 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     private final StringToComponentCache prefixCache = new StringToComponentCache("NameTag prefix", 1000);
     private final StringToComponentCache lastColorCache = new LastColorCache("NameTag last prefix color", 1000);
     private final StringToComponentCache suffixCache = new StringToComponentCache("NameTag suffix", 1000);
+    private static final String LEGACY_NAMETAG_SEPARATOR = "\u00A0";
     private static final Pattern TRAILING_FORMAT_OR_SPACE =
             Pattern.compile("([\\s\\p{Z}\\p{Cf}]|§[0-9a-fk-orxA-FK-ORX])+$");
 
@@ -80,30 +81,73 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     }
 
     /**
-     * For bold-tail prefixes, ensures a single trailing space separator between prefix and player
-     * name (added if not already present in stored value, to avoid double-spacing). Additionally,
-     * on 1.8-1.12 clients, prepends a leading bold space + reset to balance the cumulative
-     * +1px-per-bold-char phantom advance that otherwise shifts the centered nametag rightward.
-     * For 1.8-1.12 clients, also handles prefixes with bold formatting anywhere (even if followed
-     * by reset codes), ensuring the space is added in floating nametags.
+     * Formats nametag prefixes for a viewer. On 1.8-1.12 clients, ASCII trailing whitespace in team
+     * prefixes may be stripped when converted to legacy packets, so stored separators are sent as
+     * NBSP before any trailing legacy format codes. Bold prefixes also keep the existing centering
+     * compensation and get a separator added when one is missing.
      */
     @NotNull
-    private static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
+    static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
+        boolean legacyViewer = viewer.getVersion().getMinorVersion() < 13;
         boolean endsWithBold = lastVisibleCharIsBold(prefix);
-        
+
         // For 1.8-1.12 clients, check if prefix contains bold anywhere, not just at the end
         // (reset codes or color codes after bold don't prevent the phantom advance issue in floating nametags)
-        if (viewer.getVersion().getMinorVersion() < 13 && prefix.contains("§l")) {
+        if (legacyViewer && containsLegacyBold(prefix)) {
             endsWithBold = true;
         }
-        
-        if (!endsWithBold) return prefix;
-        
-        String result = prefix.endsWith(" ") ? prefix : prefix + " ";
-        if (viewer.getVersion().getMinorVersion() < 13) {
-            result = "§l §r" + result;
+
+        if (legacyViewer) {
+            prefix = normalizeLegacyNametagSeparator(prefix, endsWithBold);
+        } else if (!endsWithBold) {
+            return prefix;
+        } else {
+            prefix = prefix.endsWith(" ") ? prefix : prefix + " ";
         }
-        return result;
+
+        if (legacyViewer) {
+            return endsWithBold ? "§l §r" + prefix : prefix;
+        }
+        return prefix;
+    }
+
+    private static boolean containsLegacyBold(@NotNull String input) {
+        for (int i = 0; i < input.length() - 1; i++) {
+            if (input.charAt(i) == '§' && Character.toLowerCase(input.charAt(i + 1)) == 'l') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NotNull
+    private static String normalizeLegacyNametagSeparator(@NotNull String prefix, boolean addIfMissing) {
+        int formatStart = prefix.length();
+        while (formatStart >= 2 && prefix.charAt(formatStart - 2) == '§' && isLegacyFormatCode(prefix.charAt(formatStart - 1))) {
+            formatStart -= 2;
+        }
+
+        int separatorStart = formatStart;
+        while (separatorStart > 0 && isVisibleSeparator(prefix.charAt(separatorStart - 1))) {
+            separatorStart--;
+        }
+
+        if (separatorStart < formatStart) {
+            return prefix.substring(0, separatorStart) + LEGACY_NAMETAG_SEPARATOR + prefix.substring(formatStart);
+        }
+        if (!addIfMissing) return prefix;
+        return prefix.substring(0, formatStart) + LEGACY_NAMETAG_SEPARATOR + prefix.substring(formatStart);
+    }
+
+    private static boolean isLegacyFormatCode(char code) {
+        code = Character.toLowerCase(code);
+        return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') ||
+                code == 'k' || code == 'l' || code == 'm' || code == 'n' ||
+                code == 'o' || code == 'r' || code == 'x';
+    }
+
+    private static boolean isVisibleSeparator(char c) {
+        return Character.isWhitespace(c) || Character.isSpaceChar(c) || Character.getType(c) == Character.FORMAT;
     }
 
     private final VisibilityRefresher visibilityRefresher;

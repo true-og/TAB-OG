@@ -16,7 +16,7 @@ dependencies {
     api("com.mysql:mysql-connector-j:9.6.0")
     compileOnlyApi("com.viaversion:viaversion-api:5.2.1")
     compileOnlyApi("io.netty:netty-all:4.1.90.Final")
-    compileOnlyApi("net.luckperms:api:5.4")
+    compileOnlyApi("net.luckperms:api:5.5") // Import LuckPerms API.
     compileOnlyApi("com.google.guava:guava:31.1-jre")
     compileOnlyApi("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnlyApi("net.kyori:adventure-api:4.25.0-SNAPSHOT")
@@ -30,6 +30,20 @@ dependencies {
         exclude("org.slf4j", "slf4j-api")
     }
     implementation("com.saicone.delivery4j:extension-guava:1.1.1")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+// Tests exercise pure legacy-nametag string helpers; give them the same compile-only deps the main
+// source uses so classes load during test execution.
+configurations {
+    testImplementation { extendsFrom(compileOnlyApi.get(), compileOnly.get()) }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 sourceSets.main {

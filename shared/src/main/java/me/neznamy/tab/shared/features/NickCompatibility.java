@@ -71,8 +71,8 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
                     viewer.getScoreboard().unregisterTeam(player.sortingData.getShortTeamName());
                     viewer.getScoreboard().registerTeam(
                             player.sortingData.getShortTeamName(),
-                            nameTags.getPrefixCache().get(player.teamData.prefix.getFormat(viewer)),
-                            nameTags.getSuffixCache().get(player.teamData.suffix.getFormat(viewer)),
+                            nameTags.getPrefixCache().get(NameTag.compensateLegacyBoldPrefix(viewer, player.teamData.prefix.getFormat(viewer))),
+                            nameTags.getSuffixCache().get(NameTag.fitLegacySuffix(viewer, NameTag.stripTrailingFormat(player.teamData.suffix.getFormat(viewer)), player.teamData.prefix.getFormat(viewer))),
                             nameTags.getTeamVisibility(player, viewer) ? Scoreboard.NameVisibility.ALWAYS : Scoreboard.NameVisibility.NEVER,
                             player.teamData.getCollisionRule() ? Scoreboard.CollisionRule.ALWAYS : Scoreboard.CollisionRule.NEVER,
                             Collections.singletonList(player.getNickname()),
@@ -94,8 +94,8 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
                     viewer.getScoreboard().unregisterTeam(teamName);
                     viewer.getScoreboard().registerTeam(
                             teamName,
-                            player.getNametag().getFeature().getPrefixCache().get(player.getNametag().getPrefix()),
-                            player.getNametag().getFeature().getSuffixCache().get(player.getNametag().getSuffix()),
+                            player.getNametag().getFeature().getPrefixCache().get(NameTag.compensateLegacyBoldPrefix(viewer, player.getNametag().getPrefix())),
+                            player.getNametag().getFeature().getSuffixCache().get(NameTag.fitLegacySuffix(viewer, NameTag.stripTrailingFormat(player.getNametag().getSuffix()), player.getNametag().getPrefix())),
                             player.getNametag().getNameVisibility(),
                             Scoreboard.CollisionRule.ALWAYS,
                             Collections.singletonList(player.getNickname()),

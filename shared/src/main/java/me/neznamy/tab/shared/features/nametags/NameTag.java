@@ -3,6 +3,7 @@ package me.neznamy.tab.shared.features.nametags;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.nametag.NameTagManager;
+import me.neznamy.tab.shared.Limitations;
 import me.neznamy.tab.shared.Property;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Getter
@@ -40,6 +42,313 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
     private final StringToComponentCache prefixCache = new StringToComponentCache("NameTag prefix", 1000);
     private final StringToComponentCache lastColorCache = new LastColorCache("NameTag last prefix color", 1000);
     private final StringToComponentCache suffixCache = new StringToComponentCache("NameTag suffix", 1000);
+    private static final String LEGACY_NAMETAG_SEPARATOR = " ";
+    private static final Pattern TRAILING_FORMAT_OR_SPACE =
+            Pattern.compile("([\\s\\p{Z}\\p{Cf}]|§[0-9a-fk-orxA-FK-ORX]?)+$");
+    private static final Pattern AFK_BADGE = Pattern.compile("(?<!§l)AFK");
+
+    /**
+     * Repeatedly strips trailing whitespace, zero-width/format characters (NBSP, ZWSP, BOM), and
+     * trailing legacy format codes such as {@code §r} or {@code §7}.
+     */
+    @NotNull
+    public static String stripTrailingFormat(@NotNull String input) {
+        return TRAILING_FORMAT_OR_SPACE.matcher(input).replaceAll("");
+    }
+
+    /**
+     * Tracks bold state through legacy color codes and reports whether the last visible
+     * (non-control) character would render bold.
+     */
+    private static boolean lastVisibleCharIsBold(@NotNull String input) {
+        boolean bold = false;
+        boolean lastVisibleWasBold = false;
+        int len = input.length();
+        for (int i = 0; i < len; i++) {
+            char c = input.charAt(i);
+            if (c == '§' && i + 1 < len) {
+                char code = Character.toLowerCase(input.charAt(i + 1));
+                if (code == 'l') {
+                    bold = true;
+                } else if (code == 'r' || (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f')) {
+                    bold = false;
+                }
+                i++;
+            } else {
+                lastVisibleWasBold = bold;
+            }
+        }
+        return lastVisibleWasBold;
+    }
+
+    /**
+     * Formats the over-head nametag prefix: legacy (1.8-1.12) viewers keep a bold rank only when the
+     * whole tag can render bold within the 16-char team prefix limit, otherwise bold is stripped and
+     * a color-protected separator kept; 1.13+ viewers only get a separating space after a bold tail.
+     */
+    @NotNull
+    public static String compensateLegacyBoldPrefix(@NotNull TabPlayer viewer, @NotNull String prefix) {
+        return compensateLegacyBoldPrefix(viewer.getVersion().getMinorVersion() < 13, prefix);
+    }
+
+    /** Viewer-independent core of {@link #compensateLegacyBoldPrefix(TabPlayer, String)}, exposed for tests. */
+    @NotNull
+    static String compensateLegacyBoldPrefix(boolean legacyViewer, @NotNull String prefix) {
+        if (legacyViewer) {
+            // 1.8-1.12 string width counts every glyph after §l as bold (+1px each) and only §r clears
+            // that flag, while rendering clears it on any color code — and ViaBackwards' prefix
+            // rewriter never emits §r. A bold rank followed by a differently-styled name therefore
+            // makes the client overcount the name's width, padding the end of the floating nametag
+            // with empty space. Keep bold only when the whole tag can render bold (rank, name and
+            // suffix stay in agreement with the width calc); otherwise drop it over-head (the
+            // tablist keeps it) and keep the separator.
+            if (containsLegacyBold(prefix)) {
+                String bold = keepLegacyBoldPrefix(prefix);
+                if (bold != null) return bold;
+                return capLegacyPrefix(normalizeLegacyNametagSeparator(stripLegacyBold(prefix), true));
+            }
+            return capLegacyPrefix(normalizeLegacyNametagSeparator(prefix, false));
+        }
+        if (!lastVisibleCharIsBold(prefix)) return prefix;
+        return prefix.endsWith(" ") ? prefix : prefix + " ";
+    }
+
+    /** True when the legacy over-head prefix keeps its bold styling, which requires the rest of the tag to render bold too. */
+    static boolean legacyPrefixKeepsBold(@NotNull String prefix) {
+        return containsLegacyBold(prefix) && keepLegacyBoldPrefix(prefix) != null;
+    }
+
+    /**
+     * Keeps a bold rank on the legacy over-head nametag when it fits 16 chars: re-asserts {@code §l}
+     * after every color change (colors visually reset bold but the 1.8-1.12 width calc does not) and
+     * ends with the name's color plus {@code §l} carried by the separator space, so the name renders
+     * bold in its configured color and width matches rendering all the way through. Requires the
+     * proxy to not append a team color after the prefix (ViaBackwards
+     * {@code add-teamcolor-to-prefix: false}), as an appended color would visually un-bold the name
+     * again. Returns {@code null} when the result would not fit, so the caller falls back to
+     * stripping bold.
+     */
+    @Nullable
+    private static String keepLegacyBoldPrefix(@NotNull String prefix) {
+        String rank = stripTrailingFormat(prefix);
+        String nameStyle = lastLegacyStyle(prefix, prefix.length());
+        if (!nameStyle.contains("§l")) nameStyle += "§l";
+        String result = propagateLegacyBold(rank, false) + nameStyle + LEGACY_NAMETAG_SEPARATOR;
+        return result.length() <= Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13 ? result : null;
+    }
+
+    /**
+     * Re-asserts {@code §l} after every color code once bold is active: legacy clients visually reset
+     * bold on a color code but keep counting glyph widths as bold ({@code §r} never reaches them —
+     * ViaBackwards rewrites it to a plain color), so every glyph after the first {@code §l} must
+     * render bold for width to match rendering. {@code boldActive} marks bold carried in from the
+     * preceding prefix.
+     */
+    @NotNull
+    private static String propagateLegacyBold(@NotNull String input, boolean boldActive) {
+        StringBuilder out = new StringBuilder(input.length() + 8);
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            out.append(c);
+            if (c != '§' || i + 1 >= input.length()) continue;
+            char code = Character.toLowerCase(input.charAt(++i));
+            out.append(input.charAt(i));
+            if (code == 'l') {
+                boldActive = true;
+            } else if (boldActive && (code == 'r' || (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f'))) {
+                boolean alreadyReBolded = i + 2 < input.length() && input.charAt(i + 1) == '§'
+                        && Character.toLowerCase(input.charAt(i + 2)) == 'l';
+                if (!alreadyReBolded) out.append("§l");
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * Truncates a legacy team prefix to 16 chars on a clean boundary (never splitting a format code or
+     * surrogate pair) so an over-long base prefix is not truncated into a broken state by ViaVersion.
+     */
+    @NotNull
+    private static String capLegacyPrefix(@NotNull String prefix) {
+        return capLegacyPrefix(prefix, Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13);
+    }
+
+    /** Truncates {@code prefix} to {@code limit} chars on a clean boundary (never a split code or surrogate). */
+    @NotNull
+    private static String capLegacyPrefix(@NotNull String prefix, int limit) {
+        if (limit <= 0) return "";
+        if (prefix.length() <= limit) return prefix;
+        int end = limit;
+        while (end > 0 && (prefix.charAt(end - 1) == '§' || Character.isHighSurrogate(prefix.charAt(end - 1)))) end--;
+        return prefix.substring(0, end);
+    }
+
+    /**
+     * Drops the [AFK] brackets, bolds the AFK badge for every viewer, collapses spaces, strips the
+     * tail, and for legacy viewers keeps the trailing content within 16 chars while the leading
+     * cosmetic yields. {@code prefix} is the same raw prefix passed to
+     * {@link #compensateLegacyBoldPrefix(TabPlayer, String)}, used to detect bold carrying across
+     * the name into the suffix.
+     */
+    @NotNull
+    public static String fitLegacySuffix(@NotNull TabPlayer viewer, @NotNull String suffix, @NotNull String prefix) {
+        boolean legacyViewer = viewer.getVersion().getMinorVersion() < 13;
+        return fitLegacySuffix(legacyViewer, suffix, legacyViewer && legacyPrefixKeepsBold(prefix));
+    }
+
+    /** Viewer-independent core of {@link #fitLegacySuffix(TabPlayer, String, String)}, exposed for tests. */
+    @NotNull
+    static String fitLegacySuffix(boolean legacyViewer, @NotNull String suffix, boolean boldCarriedIn) {
+        // Over-head nametag drops the [AFK] brackets (tablist keeps them) and bolds the badge for
+        // every viewer for a uniform look, collapses space runs, and re-strips any trailing space or
+        // format code the bracket removal leaves at the very end.
+        suffix = boldAfkBadge(suffix.replace("[", "").replace("]", ""));
+        // Legacy width calc counts every glyph after §l as bold even once a color code visually
+        // resets it, so keep the suffix rendering bold from the first §l — or from the very start
+        // when the prefix carries bold across the name — to avoid phantom pixels at the tag end.
+        if (legacyViewer) suffix = propagateLegacyBold(suffix, boldCarriedIn);
+        suffix = stripTrailingFormat(collapseSpacing(suffix));
+        if (!legacyViewer || suffix.length() <= Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13) return suffix;
+        // Over budget: cut on a color/reset boundary and re-attach one leading space, so the first kept
+        // glyph carries its own color (never the name's) and stays separated from the player name.
+        int start = suffix.length() - Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13 + 1;
+        while (start < suffix.length() && !startsWithColorCode(suffix, start)) start++;
+        return start >= suffix.length() ? "" : " " + suffix.substring(start);
+    }
+
+    /** Bolds the AFK badge for every viewer so it reads uniformly next to bold-kept legacy nametags. */
+    @NotNull
+    private static String boldAfkBadge(@NotNull String suffix) {
+        return AFK_BADGE.matcher(suffix).replaceAll("§lAFK");
+    }
+
+    /** True when index {@code i} begins a legacy color or reset code ({@code §0}-{@code §f} or {@code §r}). */
+    private static boolean startsWithColorCode(@NotNull String s, int i) {
+        if (s.charAt(i) != '§' || i + 1 >= s.length()) return false;
+        char c = Character.toLowerCase(s.charAt(i + 1));
+        return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == 'r';
+    }
+
+    /**
+     * Collapses each run of spaces down to a single space, keeping intervening format codes in place, so
+     * two visible spaces never appear even when a space, a format code, and another space are adjacent.
+     */
+    @NotNull
+    private static String collapseSpacing(@NotNull String s) {
+        StringBuilder out = new StringBuilder(s.length());
+        boolean lastVisibleWasSpace = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == ' ') {
+                if (lastVisibleWasSpace) continue;
+                out.append(' ');
+                lastVisibleWasSpace = true;
+            } else if (c == '§' && i + 1 < s.length()) {
+                out.append(c).append(s.charAt(++i));
+            } else {
+                out.append(c);
+                lastVisibleWasSpace = false;
+            }
+        }
+        return out.toString();
+    }
+
+    private static boolean containsLegacyBold(@NotNull String input) {
+        for (int i = 0; i < input.length() - 1; i++) {
+            if (input.charAt(i) == '§' && Character.toLowerCase(input.charAt(i + 1)) == 'l') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NotNull
+    private static String normalizeLegacyNametagSeparator(@NotNull String prefix, boolean addIfMissing) {
+        int formatStart = prefix.length();
+        while (formatStart >= 2 && prefix.charAt(formatStart - 2) == '§' && isLegacyFormatCode(prefix.charAt(formatStart - 1))) {
+            formatStart -= 2;
+        }
+
+        int separatorStart = formatStart;
+        while (separatorStart > 0 && isVisibleSeparator(prefix.charAt(separatorStart - 1))) {
+            separatorStart--;
+        }
+
+        boolean hasSeparator = separatorStart < formatStart;
+        if (!hasSeparator && !addIfMissing) return prefix;
+
+        String head = prefix.substring(0, hasSeparator ? separatorStart : formatStart);
+        String trailingFormat = prefix.substring(formatStart);
+        String separator = chooseLegacySeparator(prefix, head.length() + trailingFormat.length(), trailingFormat, formatStart);
+        if (!separator.isEmpty()) return head + separator + trailingFormat;
+        // The space did not fit: trim the rank text minimally so a color-terminated space fits.
+        String protectedSeparator = LEGACY_NAMETAG_SEPARATOR + lastLegacyStyle(head, head.length());
+        int maxHead = Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13 - protectedSeparator.length() - trailingFormat.length();
+        return capLegacyPrefix(head, maxHead) + protectedSeparator + trailingFormat;
+    }
+
+    /** Removes every legacy bold code ({@code §l}); legacy clients width-count post-bold glyphs as bold, padding the nametag end. */
+    @NotNull
+    private static String stripLegacyBold(@NotNull String input) {
+        StringBuilder out = new StringBuilder(input.length());
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '§' && i + 1 < input.length() && Character.toLowerCase(input.charAt(i + 1)) == 'l') {
+                i++;
+                continue;
+            }
+            out.append(input.charAt(i));
+        }
+        return out.toString();
+    }
+
+    /**
+     * Chooses a prefix/name separator that keeps the team prefix within 16 chars: a bare space when a
+     * trailing color already protects it, else a color-terminated space; empty when neither fits.
+     */
+    @NotNull
+    private static String chooseLegacySeparator(@NotNull String prefix, int fixedLength, @NotNull String trailingFormat, int formatStart) {
+        int budget = Limitations.TEAM_PREFIX_SUFFIX_PRE_1_13 - fixedLength;
+        if (!trailingFormat.isEmpty()) {
+            return budget >= LEGACY_NAMETAG_SEPARATOR.length() ? LEGACY_NAMETAG_SEPARATOR : "";
+        }
+        String protectedSeparator = LEGACY_NAMETAG_SEPARATOR + lastLegacyStyle(prefix, formatStart);
+        return budget >= protectedSeparator.length() ? protectedSeparator : "";
+    }
+
+    /**
+     * Returns the legacy color plus active magic codes at index {@code end} (a color resets earlier magic
+     * codes), or {@code §r} if none; terminates a separator space so the following name keeps its style.
+     */
+    @NotNull
+    private static String lastLegacyStyle(@NotNull String prefix, int end) {
+        String color = "";
+        StringBuilder formats = new StringBuilder();
+        for (int i = 0; i + 1 < end; i++) {
+            if (prefix.charAt(i) != '§') continue;
+            char c = Character.toLowerCase(prefix.charAt(i + 1));
+            if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == 'r') {
+                color = prefix.substring(i, i + 2);
+                formats.setLength(0); // a color/reset code clears active magic codes
+            } else if (c == 'k' || c == 'l' || c == 'm' || c == 'n' || c == 'o') {
+                formats.append(prefix, i, i + 2);
+            }
+            i++;
+        }
+        String style = color + formats;
+        return style.isEmpty() ? "§r" : style;
+    }
+
+    private static boolean isLegacyFormatCode(char code) {
+        code = Character.toLowerCase(code);
+        return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') ||
+                code == 'k' || code == 'l' || code == 'm' || code == 'n' ||
+                code == 'o' || code == 'r' || code == 'x';
+    }
+
+    private static boolean isVisibleSeparator(char c) {
+        return Character.isWhitespace(c) || Character.isSpaceChar(c) || Character.getType(c) == Character.FORMAT;
+    }
+
     private final VisibilityRefresher visibilityRefresher;
     private final CollisionManager collisionManager;
     private final int teamOptions;
@@ -156,8 +465,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
                 if (proxied.getNametag() == null) continue; // This proxy player is not loaded yet
                 connectedPlayer.getScoreboard().registerTeam(
                         proxied.getNametag().getResolvedTeamName(),
-                        prefixCache.get(proxied.getNametag().getPrefix()),
-                        suffixCache.get(proxied.getNametag().getSuffix()),
+                        prefixCache.get(compensateLegacyBoldPrefix(connectedPlayer, proxied.getNametag().getPrefix())),
+                        suffixCache.get(fitLegacySuffix(connectedPlayer, stripTrailingFormat(proxied.getNametag().getSuffix()), proxied.getNametag().getPrefix())),
                         proxied.getNametag().getNameVisibility(),
                         CollisionRule.ALWAYS,
                         Collections.singletonList(proxied.getNickname()),
@@ -254,8 +563,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().updateTeam(
                     player.teamData.teamName,
-                    prefixCache.get(player.teamData.prefix.getFormat(viewer)),
-                    suffixCache.get(player.teamData.suffix.getFormat(viewer)),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.teamData.prefix.getFormat(viewer))),
+                    suffixCache.get(fitLegacySuffix(viewer, stripTrailingFormat(player.teamData.suffix.getFormat(viewer)), player.teamData.prefix.getFormat(viewer))),
                     lastColorCache.get(player.teamData.prefix.getFormat(viewer)).getLastStyle().toEnumChatFormat()
             );
         }
@@ -336,8 +645,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         if (!viewer.canSee(p) && p != viewer) return;
         viewer.getScoreboard().registerTeam(
                 p.teamData.teamName,
-                prefixCache.get(p.teamData.prefix.getFormat(viewer)),
-                suffixCache.get(p.teamData.suffix.getFormat(viewer)),
+                prefixCache.get(compensateLegacyBoldPrefix(viewer, p.teamData.prefix.getFormat(viewer))),
+                suffixCache.get(fitLegacySuffix(viewer, stripTrailingFormat(p.teamData.suffix.getFormat(viewer)), p.teamData.prefix.getFormat(viewer))),
                 getTeamVisibility(p, viewer) ? NameVisibility.ALWAYS : NameVisibility.NEVER,
                 p.teamData.getCollisionRule() ? CollisionRule.ALWAYS : CollisionRule.NEVER,
                 Collections.singletonList(p.getNickname()),
@@ -495,8 +804,8 @@ public class NameTag extends RefreshableFeature implements NameTagManager, JoinL
         for (TabPlayer viewer : onlinePlayers.getPlayers()) {
             viewer.getScoreboard().registerTeam(
                     player.getNametag().getResolvedTeamName(),
-                    prefixCache.get(player.getNametag().getPrefix()),
-                    suffixCache.get(player.getNametag().getSuffix()),
+                    prefixCache.get(compensateLegacyBoldPrefix(viewer, player.getNametag().getPrefix())),
+                    suffixCache.get(fitLegacySuffix(viewer, stripTrailingFormat(player.getNametag().getSuffix()), player.getNametag().getPrefix())),
                     player.getNametag().getNameVisibility(),
                     Scoreboard.CollisionRule.ALWAYS,
                     Collections.singletonList(player.getNickname()),

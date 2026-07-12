@@ -67,13 +67,6 @@ public class UniversalPlaceholderRegistry {
         manager.registerServerPlaceholder("%%", () -> "%");
         manager.registerServerPlaceholder(TabConstants.Placeholder.MEMORY_MAX, () -> PerformanceUtil.toString((int) (Runtime.getRuntime().maxMemory()/1024/1024)));
         manager.registerServerPlaceholder(TabConstants.Placeholder.MEMORY_MAX_GB, () -> decimal2.format((float)Runtime.getRuntime().maxMemory()/1024/1024/1024));
-        if (!LuckPermsHook.getInstance().isInstalled()) {
-            manager.registerServerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIX, -1, () -> "");
-            manager.registerServerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIXES, -1, () -> "");
-            manager.registerServerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIX, -1, () -> "");
-            manager.registerServerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIXES, -1, () -> "");
-            manager.registerServerPlaceholder(TabConstants.Placeholder.LUCKPERMS_WEIGHT, -1, () -> "");
-        }
     }
 
     private void registerServerPlaceholders(@NotNull PlaceholderManagerImpl manager) {
@@ -165,18 +158,16 @@ public class UniversalPlaceholderRegistry {
         } else {
             manager.registerPlayerPlaceholder(TabConstants.Placeholder.GAMEMODE, p -> PerformanceUtil.toString(((TabPlayer)p).getGamemode()));
         }
-        if (LuckPermsHook.getInstance().isInstalled()) {
-            manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIX,
-                    p -> LuckPermsHook.getInstance().getPrefix((TabPlayer) p));
-            manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIXES,
-                    p -> LuckPermsHook.getInstance().getPrefixes((TabPlayer) p));
-            manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIX,
-                    p -> LuckPermsHook.getInstance().getSuffix((TabPlayer) p));
-            manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIXES,
-                    p -> LuckPermsHook.getInstance().getSuffixes((TabPlayer) p));
-            manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_WEIGHT,
-                    p -> PerformanceUtil.toString(LuckPermsHook.getInstance().getWeight((TabPlayer) p)));
-        }
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIX,
+                p -> LuckPermsHook.getInstance().getPrefix((TabPlayer) p));
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_PREFIXES,
+                p -> LuckPermsHook.getInstance().getPrefixes((TabPlayer) p));
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIX,
+                p -> LuckPermsHook.getInstance().getSuffix((TabPlayer) p));
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_SUFFIXES,
+                p -> LuckPermsHook.getInstance().getSuffixes((TabPlayer) p));
+        manager.registerPlayerPlaceholder(TabConstants.Placeholder.LUCKPERMS_WEIGHT,
+                p -> PerformanceUtil.toString(LuckPermsHook.getInstance().getWeight((TabPlayer) p)));
         for (Entry<String, AnimationDefinition> entry : TAB.getInstance().getConfiguration().getAnimations().getAnimations().getAnimations().entrySet()) {
             Animation a = new Animation(manager, entry.getKey(), entry.getValue());
             manager.registerPlayerPlaceholder(TabConstants.Placeholder.animation(a.getName()), a.getRefresh(), p -> a.getMessage());

@@ -1,55 +1,27 @@
-# About
-TAB aims to be a superior all-in-one minecraft plugin for displaying information that outperforms all 
-similar plugins in terms of features, performance and compatibility.  
-More information can be found at [Why TAB?](https://github.com/NEZNAMY/TAB/wiki/Why-TAB%3F) wiki page.
+# TAB-OG
 
-# Download
-### Releases
-You can download full releases from [GitHub releases](https://github.com/NEZNAMY/TAB/releases), 
-[SpigotMC](https://www.spigotmc.org/resources/57806/), [Modrinth](https://modrinth.com/plugin/tab-was-taken), [BuiltByBit](https://builtbybit.com/resources/20631) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/tab).
+TAB-OG is a soft fork of [TAB](https://github.com/NEZNAMY/TAB) for
+[TrueOG Network](https://true-og.net/), based on upstream commit `93cfd74`.
 
-### Dev builds
-Plugin's development is continuous and contains lots of small changes/fixes not worthy of being called a full
-update, therefore development builds are being created and eventually a full update is released when enough changes are made.  
-If you want to benefit from a recent change in the code before official release, you can download development builds
-from [GitHub actions](https://github.com/NEZNAMY/TAB/actions) (you must be logged into GitHub to be able to download it).  
+Differences from upstream TAB:
+- Versioned `5.9.9` (upstream is on `6.x`), targeting Purpur 1.19.4 serving 1.8–1.21.11
+  clients through ViaVersion, ViaBackwards, and ViaRewind.
+- Builds only Bukkit `v1_19_R3`, BungeeCord, and Velocity; drops Fabric, Forge, NeoForge,
+  and the unused Bukkit/Paper NMS modules.
+- Uses LuckPerms `5.5` (Vault removed) with a GraalVM JDK 17 toolchain, producing one
+  universal shaded JAR.
+- TrueOG compatibility fixes: [Vanish-OG](https://github.com/true-og/Vanish-OG), the
+  [AFK-OG](https://github.com/true-og/AFK-OG) indicator, legacy scoreboard team colors,
+  and disabled scoreboard number formats.
+- Legacy (1.8–1.12.2) nametag rendering: over-head names drop the rank brackets (the
+  tablist keeps them), sit one space after the rank in its color, bold the AFK indicator
+  for every client, and fit within the 16-character team prefix/suffix limits. A bold
+  rank is kept only when the whole tag can render bold — legacy clients width-count
+  everything after `§l` as bold and never receive a `§r`, so a plain-rendered name after
+  a bold rank pads the nametag end with phantom pixels; when it cannot fit, bold is
+  stripped over-head. Keeping bold requires `add-teamcolor-to-prefix: false` in the
+  ViaBackwards config, otherwise the appended team color un-bolds the name again.
+- Ships live TrueOG Network config values.
 
-# Compiling
-Compilation requires JDK 25 and up.  
-To compile the plugin, run `./gradlew build` from the terminal.  
-Once the plugin compiles, grab the jar from `/jar/build/libs/` folder.  
-The universal jar contains all modules for all supported platforms.
-
-# Documentation
-You can find everything about the plugin on the [Wiki](https://github.com/NEZNAMY/TAB/wiki). This includes a detailed description
-of all features, as well as information regarding compatibility or limitations of each feature.  
-
-# Issues
-The [Issues](https://github.com/NEZNAMY/TAB/issues) section is an issue tracker for all the kind of problems covered in issue templates.
-Please refrain from attempting to use it to receive help with your server, such issues will be closed immediately.  
-When opening an issue, provide as much information as possible. The difference between a bug getting fixed in 1 week vs 1 hour
-is in quality of the report. Bug reports where steps to reproduce are "idk" have no value and will not help to get the bug fixed at all.  
-
-# Contributing
-See [CONTRIBUTING.md](https://github.com/NEZNAMY/TAB/blob/master/CONTRIBUTING.md)
-
-# Provided services
-The plugin is being used by a large amount of servers, which also means the demand for my attention is high. Unfortunately, 
-I am no longer able to keep up with the demand since I don't want to dedicate my whole existence to a free plugin. 
-In order to provide the best quality of all provided services, the amount of services provided may vary over time. 
-Here is the full list of potential services and their status:
-
-| Service type                  | Availability |
-|-------------------------------|--------------|
-| Updates for new MC versions   | ✔            |
-| Bug fixes                     | ✔            |
-| Wiki improvements             | ✔            |
-| Performance optimizations     | ✔            |
-| Feature requests              | ❌            |
-| Customer support<sup>1</sup>  | ✔            |
-| Free user support<sup>2</sup> | ❌*           |
-
-<sup>1</sup> - Unrestricted assistance with the plugin for those, who bought a copy of the plugin when it was purchasable.  
-<sup>2</sup> - Unlimited access to my free time for everyone in the world.  
-  
-*Instead, you can use [this fresh new community discord](https://discord.gg/YPqXt63YQj) made by a nice person who will provide this service.  
+Build with `./gradlew build` (JAR in `jar/build/libs/`). Requires LuckPerms; bold legacy
+nametags additionally require ViaBackwards with `add-teamcolor-to-prefix: false`.

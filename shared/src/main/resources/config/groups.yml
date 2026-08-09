@@ -2,13 +2,13 @@
 #  tabprefix: "&0&l[&a&lOwner&0&l] &a"
 #  tagprefix: "&2&lOwner &a"
 Player:
-  tabprefix: "%afkog_status%&0&l[&7&lPlayer&0&l] &3"
-  tagprefix: "&2&lPlayer &3"
+  tabprefix: "%afkog_status%%simpleclans_union_bracket_tag%&0&l[&7&lPlayer&0&l] &3"
+  tagprefix: "%simpleclans_union_bracket_tag%&2&lPlayer &3"
 
  # default settings for all groups, all groups will take properties from this section unless player's primary group overrides a specific setting
 _DEFAULT_:
-  tabprefix: "%afkog_status%%luckperms-prefix%"
-  tagprefix: "%luckperms-prefix%"
+  tabprefix: "%afkog_status%%simpleclans_union_bracket_tag%%luckperms-prefix%"
+  tagprefix: "%simpleclans_union_bracket_tag%%luckperms-prefix%"
   customtabname: "%player%"
   tabsuffix: "%luckperms-suffix%"
   tagsuffix: " %luckperms-suffix% %afkog_status%"
@@ -16,5 +16,5 @@ _DEFAULT_:
 per-world:
   world1:
     Owner:
-      tabprefix: "%afkog_status%&0&l[&a&lOwner&0&l] &a"
-      tagprefix: "&2&lOwner &a"
+      tabprefix: "%afkog_status%%simpleclans_union_bracket_tag%&0&l[&a&lOwner&0&l] &a"
+      tagprefix: "%simpleclans_union_bracket_tag%&2&lOwner &a"

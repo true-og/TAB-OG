@@ -9,7 +9,7 @@ allprojects {
     description = "An all-in-one solution that works"
 
     ext.set("id", "tab")
-    ext.set("website", "https://github.com/true-og/TAB-OG")
+    ext.set("website", "https://git.trueog.net/trueog/TAB-OG")
     ext.set("author", "NEZNAMY")
     ext.set("credits", "Joseph T. McQuigg (JT122406)")
 }

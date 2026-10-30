@@ -10,8 +10,8 @@ Differences from upstream TAB:
   and the unused Bukkit/Paper NMS modules.
 - Uses LuckPerms `5.5` (Vault removed) with a GraalVM JDK 17 toolchain, producing one
   universal shaded JAR.
-- TrueOG compatibility fixes: [Vanish-OG](https://github.com/true-og/Vanish-OG), the
-  [AFK-OG](https://github.com/true-og/AFK-OG) indicator, legacy scoreboard team colors,
+- TrueOG compatibility fixes: [Vanish-OG](https://git.trueog.net/trueog/Vanish-OG), the
+  [AFK-OG](https://git.trueog.net/trueog/AFK-OG) indicator, legacy scoreboard team colors,
   and disabled scoreboard number formats.
 - Legacy (1.8–1.12.2) nametag rendering: over-head names drop the rank brackets (the
   tablist keeps them), sit one space after the rank in its color, bold the AFK indicator
